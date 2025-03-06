@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import Hero from "../components/home/Hero";
 
 export async function loader() {
   const res = await fetch("https://jsonplaceholder.typicode.com/users");
@@ -9,16 +9,7 @@ export async function loader() {
 }
 
 function Home() {
-  const users = useLoaderData();
-  console.log(users);
-
-  return (
-    <div>
-      {users.map((user) => (
-        <p key={user.id}>{user.name}</p>
-      ))}
-    </div>
-  );
+  return <Hero />;
 }
 
 export default Home;

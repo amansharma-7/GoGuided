@@ -4,11 +4,11 @@ import { Outlet } from "react-router";
 
 function AppLayout() {
   return (
-    <>
+    <div className="flex flex-col relative">
       <Header />
-      <main className="bg-red-200 w-full">{<Outlet />}</main>
+      <main>{<Outlet />}</main>
       <Footer />
-    </>
+    </div>
   );
 }
 
