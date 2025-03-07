@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  /* --default-font-family: "Roboto", sans-serif; */
+  /* --font-family: "Roboto", sans-serif; */
+}
+
 .active {
-  color: green;
+  color: #588157;
   /* text-decoration: underline; */
 }

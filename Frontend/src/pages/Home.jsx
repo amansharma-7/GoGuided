@@ -1,4 +1,7 @@
+import WhyUs from "../components/home/WhyUs";
 import Hero from "../components/home/Hero";
+import Testimonials from "../components/home/Testimonials";
+import Services from "../components/home/Services";
 
 export async function loader() {
   const res = await fetch("https://jsonplaceholder.typicode.com/users");
@@ -9,7 +12,14 @@ export async function loader() {
 }
 
 function Home() {
-  return <Hero />;
+  return (
+    <>
+      <Hero />
+      <Services />
+      <WhyUs />
+      <Testimonials />
+    </>
+  );
 }
 
 export default Home;
