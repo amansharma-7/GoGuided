@@ -1,5 +1,5 @@
 function WhyUs() {
-  return <div>WhyUs</div>;
+  return <div>we are best</div>;
 }
 
 export default WhyUs;
