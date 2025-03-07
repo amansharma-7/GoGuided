@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-import Home, { loader as homeLoader } from "./pages/Home";
+import Home from "./pages/Home";
 import Tours from "./pages/Tours";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -14,14 +14,12 @@ const router = createBrowserRouter([
   {
     Component: AppLayout,
     errorElement: Error,
-    // hydrateFallbackElement: <Loading />,
     HydrateFallback: Loading,
     children: [
       {
         path: "/",
-        loader: homeLoader,
+        // loader: homeLoader,
         Component: Home,
-        // hydrateFallbackElement: <div>Loading...</div>,
       },
       {
         path: "/tours",
