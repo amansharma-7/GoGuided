@@ -1,7 +1,7 @@
 function Services() {
   return (
     <div>
-      <div className="py-4 px-6">
+      <div className="py-4 px-32">
         <h1 className="text-[#4D663C] text-[70px] font-bold ">Our Services</h1>
         <div className="flex items-center justify-center gap-6">
           <img
@@ -10,7 +10,6 @@ function Services() {
             width={300}
             height={400}
           />
-
           <div className="flex flex-col justify-center items-center gap-6 -mt-21 ">
             <div>
               <h2 className="text-[#4D663C] text-[30px] font-bold -ml-10  ">
