@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router";
 
 function Header() {
   return (
-    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full bg-transparent z-10">
+    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-black/70 z-10">
       <h4 className="font-semibold text-5xl text-[#f8f7f5] ">
         <Link to="/">GoGuided</Link>
       </h4>
@@ -24,7 +24,7 @@ function Header() {
         </ul>
         <div className="">
           <Link to="/me">
-            <FaCircleUser color="" className="text-[#a3c2b3]" size={42} />
+            <FaCircleUser color="" className="text-gray-400" size={42} />
           </Link>
         </div>
       </nav>

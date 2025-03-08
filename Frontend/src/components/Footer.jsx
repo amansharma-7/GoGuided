@@ -18,7 +18,7 @@ function Footer() {
             <input
               type="email"
               placeholder="Enter your email"
-              className=" border-1 rounded-sm "
+              className=" border-1 rounded-sm p-2"
             ></input>
             <button className="font-bold text-[15px] text-white bg-black rounded-sm px-4 py-1">
               Subscribe
@@ -48,11 +48,11 @@ function Footer() {
                 <p className=" text-[18px]">Location</p>
               </li>
               <li className="flex gap-2 items-center">
-                <IoMdMail />
+                <MdCall />
                 <p className=" text-[18px]">1234567890</p>
               </li>
               <li className="flex gap-2 items-center">
-                <MdCall />
+                <IoMdMail />
                 <p className=" text-[18px]">temp@gmail.com</p>
               </li>
             </ul>
