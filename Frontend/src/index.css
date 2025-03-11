@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-@theme {
-  /* --default-font-family: "Roboto", sans-serif; */
-  /* --font-family: "Roboto", sans-serif; */
-}
+/* @theme {
+  --default-font-family: "Roboto", sans-serif;
+  --font-family: "Roboto", sans-serif;
+} */
 
 .active {
   color: #588157;
