@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router";
 
 function Header() {
   return (
-    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-black/90 z-10">
+    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-black z-10">
       <h4 className="font-semibold text-5xl text-green-50 ">
         <Link to="/">GoGuided</Link>
       </h4>

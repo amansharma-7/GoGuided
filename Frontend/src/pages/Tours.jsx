@@ -1,11 +1,7 @@
 import ToursLayout from "../components/tours/ToursLayout";
 
 function Tours() {
-  return (
-    <>
-      <ToursLayout />
-    </>
-  );
+  return <ToursLayout />;
 }
 
 export default Tours;

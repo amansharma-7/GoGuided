@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import AppLayout from "./components/AppLayout";
 import Error from "./components/Error";
 import Loading from "./components/Loading";
+import Tour from "./components/tours/Tour";
 
 const router = createBrowserRouter([
   {
@@ -24,7 +25,16 @@ const router = createBrowserRouter([
       },
       {
         path: "/tours",
-        Component: Tours,
+        children: [
+          {
+            index: true,
+            Component: Tours,
+          },
+          {
+            path: ":id",
+            Component: Tour,
+          },
+        ],
       },
       {
         path: "/about",
