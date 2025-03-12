@@ -6,10 +6,14 @@ function Tour() {
     <div className="px-32 py-6 ">
       {/* heading */}
       <div>
-        <h3 className="font-bold text-2xl">The Forest Hiker</h3>
+        <h3 className="font-bold text-2xl text-green-950">The Forest Hiker</h3>
         <div className="py-2 pl-16 flex justify-between">
-          <div className="flex gap-5">
-            <span>4.8(269)</span>
+          <div className="flex gap-5 items-center">
+            <span className="flex items-center">
+              <span className="">4.8 </span>
+              <span className="text-yellow-400 text-2xl">&#9734;</span>
+            </span>
+
             <span>Jammu,India</span>
             <span>30k+ Booked</span>
           </div>
@@ -47,9 +51,9 @@ function Tour() {
       </div>
 
       {/* overview and booking card */}
-      <div className=" flex">
+      <div className="flex">
         {/* left side */}
-        <div className="w-[70%] px-6 space-y-3">
+        <div className="w-[70%] px-6 py-3 space-y-3">
           <div className="space-y-1">
             <h2 className="font-bold text-2xl">Tour Overview</h2>
             <p className="pl-3">
