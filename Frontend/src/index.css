@@ -9,3 +9,11 @@
   color: #588157;
   /* text-decoration: underline; */
 }
+
+html,
+body,
+.scrollbar-hide {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}

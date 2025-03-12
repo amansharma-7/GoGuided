@@ -1,5 +1,11 @@
+import ToursLayout from "../components/tours/ToursLayout";
+
 function Tours() {
-  return <div>Tours</div>;
+  return (
+    <>
+      <ToursLayout />
+    </>
+  );
 }
 
 export default Tours;
