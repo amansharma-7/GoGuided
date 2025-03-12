@@ -1,5 +1,10 @@
 import Tickets from "./tour_utils/Tickets";
 import { BsSunFill } from "react-icons/bs";
+import { TiGroup } from "react-icons/ti";
+import { FaRegStar } from "react-icons/fa";
+import { HiArrowTrendingUp } from "react-icons/hi2";
+import { IoLanguage } from "react-icons/io5";
+import Timeline from "./tour_utils/Timeline";
 
 function Tour() {
   return (
@@ -34,24 +39,8 @@ function Tour() {
         </div>
       </div>
 
-      {/* necessary details */}
-      <div className=" py-3 flex ">
-        <div className="flex gap-5 items-center">
-          <BsSunFill
-            color="green"
-            size={50}
-            className=" p-3 shadow-sm shadow-black/40 rounded-lg"
-          ></BsSunFill>
-
-          <div className="flex flex-col">
-            <span className="font-semibold text-xl">Duration</span>
-            <span className="text-lg">3 Days</span>
-          </div>
-        </div>
-      </div>
-
       {/* overview and booking card */}
-      <div className="flex">
+      <div className="flex py-6">
         {/* left side */}
         <div className="w-[70%] px-6 py-3 space-y-3">
           <div className="space-y-1">
@@ -87,6 +76,82 @@ function Tour() {
         </div>
         {/* right side */}
         <Tickets />
+      </div>
+
+      {/* necessary details */}
+      <div className="flex  gap-96  py-10  ">
+        <div>
+          <h2 className="text-3xl font-bold text-green-600">Itinerary</h2>
+          <Timeline />
+        </div>
+        <div className="  flex flex-col gap-16">
+          {/* quick facts */}
+          <div className="flex flex-col gap-2 ">
+            <h3 className="text-3xl font-bold text-green-600">QUICK FACTS</h3>
+            <div className="flex gap-3 items-center">
+              <BsSunFill size={20} color="green" />
+              <span className="font-semibold text-xl">DURATION</span>
+              <span className="text-lg font-thin">7 Days</span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <TiGroup size={20} color="green" />
+              <span className="font-semibold text-xl">PARTICIPANTS</span>
+              <span className="text-lg font-thin">7 People</span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <HiArrowTrendingUp size={20} color="green" />
+              <span className="font-semibold text-xl">DIFFICULTY</span>
+              <span className="text-lg font-thin">Medium</span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <FaRegStar size={20} color="green" />
+              <span className="font-semibold text-xl">RATING</span>
+              <span className="text-lg font-thin">4.8/5 </span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <IoLanguage size={20} color="green" />
+              <span className="font-semibold text-xl">Languages</span>
+              <span className="text-lg font-thin">Hindi,English</span>
+            </div>
+          </div>
+
+          {/* what's included */}
+          <div className="flex flex-col gap-2 ">
+            <h3 className="text-3xl font-bold text-green-600">
+              What's Included
+            </h3>
+            <ul className=" pl-3 text-lg font-thin">
+              <li>Beverages, drinking water, morning tea and buffet lunch</li>
+              <li>Hotel Stay</li>
+              <li>Hotel pickup and drop-off by air-conditioned minivan</li>
+            </ul>
+          </div>
+          {/* Tour Guides */}
+          <div className="flex flex-col gap-2  ">
+            <h3 className="text-3xl font-bold text-green-600 py-2">
+              Tour Guides
+            </h3>
+            <div className="flex gap-3 items-center">
+              <img
+                src={`https://api.dicebear.com/5.x/initials/svg?seed=Aman%20Sharma`}
+                alt="User"
+                className="h-8 w-8 rounded-full object-cover object-center"
+              />
+              <span className="font-semibold text-xl">LEAD GUIDE</span>
+              <span className="text-lg font-thin">Aman Sharma</span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <img
+                src={`https://api.dicebear.com/5.x/initials/svg?seed=Sudhir%20Sharma`}
+                alt="User"
+                className="h-8 w-8 rounded-full object-cover object-center"
+              />
+              <span className="font-semibold text-xl">TOUR GUIDE</span>
+              <span className="text-lg font-thin">Sudhir Sharma</span>
+            </div>
+          </div>
+        </div>
+        {/* itinerary */}
       </div>
     </div>
   );
