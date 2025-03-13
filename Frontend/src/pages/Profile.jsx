@@ -1,5 +1,11 @@
+import SignupForm from "../components/auth/SignupForm";
+
 function Profile() {
-  return <div>Me</div>;
+  return (
+    <div>
+      <SignupForm />
+    </div>
+  );
 }
 
 export default Profile;
