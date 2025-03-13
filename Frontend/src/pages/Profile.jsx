@@ -1,11 +1,7 @@
-import SignupForm from "../components/auth/SignupForm";
+import AccountLayout from "../components/user/AccountLayout";
 
 function Profile() {
-  return (
-    <div>
-      <SignupForm />
-    </div>
-  );
+  return <AccountLayout />;
 }
 
 export default Profile;
