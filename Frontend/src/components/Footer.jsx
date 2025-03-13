@@ -69,6 +69,9 @@ function Footer() {
               <li>
                 <NavLink to="/contact">Contact Us</NavLink>
               </li>
+              <li>
+                <NavLink to="/careers"> Career</NavLink>
+              </li>
             </ul>
           </div>
 

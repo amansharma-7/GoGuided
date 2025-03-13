@@ -13,6 +13,10 @@ import AccountLayout from "./components/user/AccountLayout";
 import Settings from "./components/user/settings/Settings";
 import Reviews from "./components/user/reviews/Reviews";
 import Bookings from "./components/user/bookings/Bookings";
+import Tour from "./components/tours/Tour";
+import Careers from "./components/career/Careers";
+import LoginForm from "./components/auth/LoginForm";
+import SignupForm from "./components/auth/SignupForm";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +32,16 @@ const router = createBrowserRouter([
       },
       {
         path: "/tours",
-        Component: Tours,
+        children: [
+          {
+            index: true,
+            Component: Tours,
+          },
+          {
+            path: ":id",
+            Component: Tour,
+          },
+        ],
       },
       {
         path: "/about",
@@ -46,6 +59,18 @@ const router = createBrowserRouter([
           { path: "bookings", Component: Bookings },
           { path: "reviews", Component: Reviews },
         ],
+      },
+      {
+        path: "/careers",
+        Component: Careers,
+      },
+      {
+        path: "/login",
+        Component: LoginForm,
+      },
+      {
+        path: "/signUp",
+        Component: SignupForm,
       },
       {
         path: "*",
