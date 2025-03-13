@@ -9,6 +9,10 @@ import NotFound from "./pages/NotFound";
 import AppLayout from "./components/AppLayout";
 import Error from "./components/Error";
 import Loading from "./components/Loading";
+import AccountLayout from "./components/user/AccountLayout";
+import Settings from "./components/user/settings/Settings";
+import Reviews from "./components/user/reviews/Reviews";
+import Bookings from "./components/user/bookings/Bookings";
 
 const router = createBrowserRouter([
   {
@@ -36,7 +40,12 @@ const router = createBrowserRouter([
       },
       {
         path: "/me",
-        Component: Profile,
+        Component: AccountLayout,
+        children: [
+          { index: true, Component: Settings },
+          { path: "bookings", Component: Bookings },
+          { path: "reviews", Component: Reviews },
+        ],
       },
       {
         path: "*",

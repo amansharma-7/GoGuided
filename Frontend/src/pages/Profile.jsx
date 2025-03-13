@@ -1,5 +1,7 @@
+import AccountLayout from "../components/user/AccountLayout";
+
 function Profile() {
-  return <div>Me</div>;
+  return <AccountLayout />;
 }
 
 export default Profile;
