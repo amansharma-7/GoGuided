@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { FaStar } from "react-icons/fa";
 import { BiEdit, BiSave } from "react-icons/bi";
 import { IoTrashOutline } from "react-icons/io5";
+import NoReviews from "./NoReviews";
 // import axios from "axios";
 
 // const API_URL = "https://your-api-url.com/reviews";
@@ -36,7 +37,7 @@ const Reviews = () => {
     const fetchReviews = async () => {
       try {
         // const response = await axios.get(API_URL);
-        setReviews(reviewsData); // Assuming API returns an array
+        // setReviews(reviewsData); // Assuming API returns an array
       } catch (err) {
         setError("Failed to load reviews. Please try again.");
       } finally {
@@ -84,83 +85,75 @@ const Reviews = () => {
     }
   };
 
+  if (reviews.length === 0) return <NoReviews />;
+
   return (
     <div className="px-16 py-12 flex flex-col space-y-6 bg-white overflow-y-auto">
       <h3 className="text-3xl font-semibold uppercase text-green-700">
         Reviews
       </h3>
 
-      {loading && <p className="text-gray-500">Loading reviews...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {reviews.length > 0
-        ? reviews.map((review) => (
-            <div
-              key={review.id}
-              className="flex flex-col space-y-2 border-b pb-4"
+      {reviews.map((review) => (
+        <div key={review.id} className="flex flex-col space-y-2 border-b pb-4">
+          <div className="flex items-center space-x-8">
+            <Link
+              to={`/reviews/${review.id}`}
+              className="text-2xl font-medium text-green-800"
             >
-              <div className="flex items-center space-x-8">
-                <Link
-                  to={`/reviews/${review.id}`}
-                  className="text-2xl font-medium text-green-800"
-                >
-                  {review.name}
-                </Link>
+              {review.name}
+            </Link>
 
-                {/* Star Rating */}
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      size={18}
-                      className={
-                        i < review.rating ? "text-yellow-500" : "text-gray-300"
-                      }
-                    />
-                  ))}
-                </div>
-              </div>
+            {/* Star Rating */}
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <FaStar
+                  key={i}
+                  size={18}
+                  className={
+                    i < review.rating ? "text-yellow-500" : "text-gray-300"
+                  }
+                />
+              ))}
+            </div>
+          </div>
 
-              {/* Review Text (Editable) */}
+          {/* Review Text (Editable) */}
+          {editingReviewId === review.id ? (
+            <textarea
+              value={editedText}
+              onChange={(e) => setEditedText(e.target.value)}
+              className="w-full p-2 border border-green-500 rounded-md text-gray-700"
+            />
+          ) : (
+            <p className="text-gray-700">{review.text}</p>
+          )}
+
+          {/* Date & Actions */}
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500 text-sm">{review.date}</span>
+            <div className="flex gap-x-3 items-center text-xl cursor-pointer">
               {editingReviewId === review.id ? (
-                <textarea
-                  value={editedText}
-                  onChange={(e) => setEditedText(e.target.value)}
-                  className="w-full p-2 border border-green-500 rounded-md text-gray-700"
+                <BiSave
+                  className="text-green-600 hover:text-green-800"
+                  onClick={() => handleSave(review.id)}
+                  title="Save"
                 />
               ) : (
-                <p className="text-gray-700">{review.text}</p>
+                <BiEdit
+                  className="text-green-600 hover:text-green-800"
+                  onClick={() => handleEdit(review.id, review.text)}
+                  title="Edit"
+                />
               )}
-
-              {/* Date & Actions */}
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-sm">{review.date}</span>
-                <div className="flex gap-x-3 items-center text-xl cursor-pointer">
-                  {editingReviewId === review.id ? (
-                    <BiSave
-                      className="text-green-600 hover:text-green-800"
-                      onClick={() => handleSave(review.id)}
-                      title="Save"
-                    />
-                  ) : (
-                    <BiEdit
-                      className="text-green-600 hover:text-green-800"
-                      onClick={() => handleEdit(review.id, review.text)}
-                      title="Edit"
-                    />
-                  )}
-                  <IoTrashOutline
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(review.id)}
-                    title="Delete"
-                  />
-                </div>
-              </div>
+              <IoTrashOutline
+                className="text-red-500 hover:text-red-700"
+                onClick={() => handleDelete(review.id)}
+                title="Delete"
+              />
             </div>
-          ))
-        : !loading && (
-            <p className="text-gray-500 text-lg">No reviews available.</p>
-          )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

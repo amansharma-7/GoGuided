@@ -20,9 +20,9 @@ function SignupForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen ">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold text-black text-center mb-4">
+    <div className="flex items-center justify-center h-[85vh]">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-green-50">
+        <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Create an Account
         </h2>
         <form
@@ -32,16 +32,14 @@ function SignupForm() {
           {/* First & Last Name Fields */}
           <div className="flex gap-x-4">
             <label className="w-full">
-              <p className="mb-1 text-lg text-gray-300">
-                First Name <sup className="text-red-500">*</sup>
-              </p>
+              <p className="mb-1 text-lg text-green-950">First Name</p>
               <input
                 type="text"
                 placeholder="First Name"
                 {...register("firstName", {
                   required: "First name is required",
                 })}
-                className="w-full rounded-lg  p-2 text-black focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
               />
               {errors.firstName && (
                 <p className="text-red-400 text-xs">
@@ -50,14 +48,12 @@ function SignupForm() {
               )}
             </label>
             <label className="w-full">
-              <p className="mb-1 text-lg text-gray-300">
-                Last Name <sup className="text-red-500">*</sup>
-              </p>
+              <p className="mb-1 text-lg text-green-950">Last Name</p>
               <input
                 type="text"
                 placeholder="Last Name"
                 {...register("lastName", { required: "Last name is required" })}
-                className="w-full rounded-lg  p-2 text-black focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
               />
               {errors.lastName && (
                 <p className="text-red-400 text-xs">
@@ -69,9 +65,7 @@ function SignupForm() {
 
           {/* Email Field */}
           <label className="w-full">
-            <p className="mb-1 text-lg text-gray-300">
-              Email Address <sup className="text-red-500">*</sup>
-            </p>
+            <p className="mb-1 text-lg text-green-950">Email Address</p>
             <input
               type="email"
               placeholder="Enter email address"
@@ -82,7 +76,7 @@ function SignupForm() {
                   message: "Invalid email format",
                 },
               })}
-              className="w-full rounded-lg  p-2 text-black focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
             />
             {errors.email && (
               <p className="text-red-400 text-xs">{errors.email.message}</p>
@@ -92,9 +86,7 @@ function SignupForm() {
           {/* Password Fields */}
           <div className="flex gap-x-4">
             <label className="relative w-full">
-              <p className="mb-1 text-lg text-gray-300">
-                Create Password <sup className="text-red-500">*</sup>
-              </p>
+              <p className="mb-1 text-lg text-green-950">Create Password</p>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter Password"
@@ -105,7 +97,7 @@ function SignupForm() {
                     message: "Password must be at least 6 characters",
                   },
                 })}
-                className="w-full rounded-lg  p-2 pr-10 text-black focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -125,9 +117,7 @@ function SignupForm() {
             </label>
 
             <label className="relative w-full">
-              <p className="mb-1 text-lg text-gray-300">
-                Confirm Password <sup className="text-red-500">*</sup>
-              </p>
+              <p className="mb-1 text-lg text-green-950">Confirm Password</p>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
@@ -136,7 +126,7 @@ function SignupForm() {
                   validate: (value) =>
                     value === watch("password") || "Passwords do not match",
                 })}
-                className="w-full rounded-lg  p-2 pr-10 text-black focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -165,9 +155,9 @@ function SignupForm() {
           </button>
 
           {/* Login Link */}
-          <p className="mt-2 text-center text-gray-300">
+          <p className="mt-2 text-center text-green-950">
             Already have an account?{" "}
-            <Link to="/login" className="text-green-600 font-semibold">
+            <Link to="/login" className="text-green-800 font-semibold">
               Log In
             </Link>
           </p>

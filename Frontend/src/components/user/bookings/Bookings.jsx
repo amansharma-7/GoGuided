@@ -48,11 +48,11 @@ const getStatusClass = (status) => {
 };
 
 function Bookings() {
-  // bookings = [];
+  bookings = [];
   if (bookings.length === 0) return <NoBooking />;
 
   return (
-    <div className="px-16 py-12 flex flex-col space-y-6 bg-white overflow-y-auto">
+    <div className="px-16 py-12 flex flex-col space-y-6 bg-green-50 rounded-md overflow-y-auto">
       <div>
         <h3 className="text-3xl font-semibold uppercase text-green-700">
           Bookings

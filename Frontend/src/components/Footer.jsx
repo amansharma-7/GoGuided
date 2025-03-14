@@ -11,7 +11,7 @@ function Footer() {
   return (
     <div className="flex flex-col gap-10 px-32 py-4 pt-10 ">
       {/* subscription */}
-      <div className="flex flex-col px-20 py-4 gap-1">
+      {/* <div className="flex flex-col px-20 py-4 gap-1">
         <div className="flex items-center justify-between gap-2">
           <h1 className="font-bold text-3xl">Sign up to our newsletter</h1>
           <div className="flex space-x-4">
@@ -26,7 +26,7 @@ function Footer() {
           </div>
         </div>
         <p>Stay upto date with latest tours & annoucements</p>
-      </div>
+      </div> */}
 
       {/* footer main */}
       <div className="flex gap-32">

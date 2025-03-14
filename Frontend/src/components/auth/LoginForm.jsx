@@ -18,9 +18,9 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen ">
-      <div className="w-full max-w-md  p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold text-white text-center mb-4">
+    <div className="flex items-center justify-center h-[85vh] ">
+      <div className="w-full max-w-md  p-8 rounded-lg shadow-lg bg-green-50">
+        <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Log In
         </h2>
         <form
@@ -29,12 +29,10 @@ function LoginForm() {
         >
           {/* Email Field */}
           <label className="w-full">
-            <p className="mb-1 text-lg text-gray-300">
-              Email Address <sup className="text-red-500">*</sup>
-            </p>
+            <p className="mb-1 text-lg text-green-950">Email</p>
             <input
               type="email"
-              placeholder="Enter email address"
+              placeholder="Enter your email"
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -42,7 +40,7 @@ function LoginForm() {
                   message: "Invalid email format",
                 },
               })}
-              className="w-full rounded-lg p-2 text-black focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
             />
             {errors.email && (
               <p className="text-red-400 text-xs">{errors.email.message}</p>
@@ -51,12 +49,10 @@ function LoginForm() {
 
           {/* Password Field */}
           <label className="relative">
-            <p className="mb-1 text-lg text-gray-300">
-              Password <sup className="text-red-500">*</sup>
-            </p>
+            <p className="mb-1 text-lg text-green-950">Password</p>
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter Password"
+              placeholder="Enter your password"
               {...register("password", {
                 required: "Password is required",
                 minLength: {
@@ -64,11 +60,11 @@ function LoginForm() {
                   message: "Password must be at least 6 characters",
                 },
               })}
-              className="w-full rounded-lg  p-2 pr-10 text-black focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
             />
             <span
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-[38px] cursor-pointer text-gray-400"
+              className="absolute right-3 top-[38px] cursor-pointer text-green-900"
             >
               {showPassword ? (
                 <AiOutlineEyeInvisible fontSize={24} />
@@ -80,7 +76,7 @@ function LoginForm() {
               <p className="text-red-400 text-xs">{errors.password.message}</p>
             )}
             <Link to="/forgot-password">
-              <p className="mt-1 text-md text-green-300 hover:underline">
+              <p className="mt-1 text-md text-green-900 hover:underline">
                 Forgot Password?
               </p>
             </Link>
@@ -89,15 +85,15 @@ function LoginForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-400 transition"
+            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-600 transition"
           >
             Sign In
           </button>
 
           {/* Signup Link */}
-          <p className="mt-2 text-center text-gray-300">
+          <p className="mt-2 text-center text-green-950">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-green-600 font-semibold">
+            <Link to="/signup" className="text-green-800 font-semibold">
               Sign Up
             </Link>
           </p>

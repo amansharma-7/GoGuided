@@ -7,7 +7,7 @@ function Hero() {
       style={{ backgroundImage: "url('images/hero.jpg')" }}
     >
       <div className="absolute inset-0 bg-black/70">
-        <div className="flex flex-col items-center justify-center w-full h-full px-32  pt-20 text-gray-200">
+        <div className="flex flex-col items-center justify-center w-full h-full px-32  pt-20 text-green-100">
           <h1 className="text-5xl font-semibold mb-6">
             Effortless Travel Planning at Your Fingertips
           </h1>
@@ -17,7 +17,7 @@ function Hero() {
           </p>
           <Link
             to="/tours"
-            className="text-2xl font-semibold px-3 py-2 mx-auto bg-green-700 rounded-xl text-center align-middle"
+            className="text-2xl font-semibold px-3 py-2 mx-auto bg-green-900 hover:bg-green-950 text-white rounded-xl text-center align-middle"
           >
             Plan Your Trip
           </Link>

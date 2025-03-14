@@ -10,15 +10,15 @@ function ToursHeader() {
 
   return (
     <div className="grid grid-cols-[0.9fr_1fr_0.7fr] gap-x-2  px-2 py-1 rounded-md">
-      <div className="text-xl font-semibold flex space-x-1 items-center">
+      <div className="text-xl font-semibold flex space-x-1 items-center text-green-900">
         <span className="font-bold">{results}</span>
         <span>{`${results === 1 ? "Tour" : "Tours"}`}</span>
       </div>
       <input
-        className="border-2 border-black p-2 rounded-md focus:outline-none "
+        className="border-2 border-black p-2 rounded-md focus:outline-none text-green-900 "
         type="text"
         id="tour"
-        placeholder="Search tours..."
+        placeholder="Search tour..."
         value={query}
         onChange={(e) => setQuery((q) => e.target.value)}
       ></input>
@@ -36,7 +36,7 @@ function ToursHeader() {
         <select
           name="filter"
           id="filter"
-          className="border-0 focus-border-0 outline-none appearance-none mx-2 p-2"
+          className="border-0 focus-border-0 outline-none appearance-none mx-2 p-2 text-green-950"
           value={filter}
           onChange={(e) => setFilter((val) => (val = e.target.value))}
         >
