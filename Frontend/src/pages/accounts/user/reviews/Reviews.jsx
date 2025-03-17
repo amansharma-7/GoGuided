@@ -37,7 +37,7 @@ const Reviews = () => {
     const fetchReviews = async () => {
       try {
         // const response = await axios.get(API_URL);
-        // setReviews(reviewsData); // Assuming API returns an array
+        setReviews(reviewsData); // Assuming API returns an array
       } catch (err) {
         setError("Failed to load reviews. Please try again.");
       } finally {
@@ -88,7 +88,7 @@ const Reviews = () => {
   if (reviews.length === 0) return <NoReviews />;
 
   return (
-    <div className="px-16 py-12 flex flex-col space-y-6 bg-white overflow-y-auto">
+    <div className="flex flex-col space-y-6  overflow-y-auto">
       <h3 className="text-3xl font-semibold uppercase text-green-700">
         Reviews
       </h3>

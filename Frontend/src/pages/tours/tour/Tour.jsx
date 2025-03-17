@@ -1,10 +1,10 @@
-import Tickets from "./tour_utils/Tickets";
 import { BsSunFill } from "react-icons/bs";
 import { TiGroup } from "react-icons/ti";
 import { FaRegStar } from "react-icons/fa";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { IoLanguage } from "react-icons/io5";
-import Timeline from "./tour_utils/Timeline";
+import Tickets from "../../../components/tours/tour/Tickets";
+import Timeline from "../../../components/tours/tour/Timeline";
 
 function Tour() {
   return (

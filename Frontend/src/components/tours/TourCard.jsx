@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import useSafeNavigate from "../../utils/useSafeNavigate";
 
 import { MdLocationOn } from "react-icons/md";
 import { CiCalendar } from "react-icons/ci";
@@ -7,8 +7,8 @@ import { BsSunFill } from "react-icons/bs";
 import { CiFlag1 } from "react-icons/ci";
 import { IoPersonOutline } from "react-icons/io5";
 
-function ToursCard({ id }) {
-  const navigate = useNavigate();
+function TourCard({ id }) {
+  const safeNavigate = useSafeNavigate();
 
   return (
     <div className="grid grid-rows-[0.75fr_1.25fr] overflow-hidden shadow-md shadow-black/15">
@@ -66,7 +66,7 @@ function ToursCard({ id }) {
           </div>
           <button
             className="m-auto px-10 py-3 bg-green-500 rounded-xl text-white text-lg"
-            onClick={() => navigate(id)}
+            onClick={() => safeNavigate(id)}
           >
             Details
           </button>
@@ -76,4 +76,4 @@ function ToursCard({ id }) {
   );
 }
 
-export default ToursCard;
+export default TourCard;

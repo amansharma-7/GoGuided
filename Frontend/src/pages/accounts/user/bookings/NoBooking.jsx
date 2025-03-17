@@ -3,7 +3,7 @@ import { FaSearch } from "react-icons/fa";
 
 function NoBooking() {
   return (
-    <div className="flex flex-col items-center justify-center py-12 animate-fadeIn space-y-3 bg-green-50 rounded-md">
+    <div className="flex flex-col items-center justify-center py-16 animate-fadeIn space-y-3 bg-green-50 rounded-md">
       <p className="text-gray-500 text-xl font-semibold">
         You have not booked any tours yet.
       </p>
