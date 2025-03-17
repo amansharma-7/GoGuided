@@ -1,0 +1,30 @@
+/src
+  ├── /components        # Reusable UI components (buttons, modals, etc.)
+  ├── /pages             # All route-based pages go here
+  │   ├── /auth          # Authentication-related pages
+  │   │   ├── Login.jsx
+  │   │   ├── Signup.jsx
+  │   │   ├── ForgotPassword.jsx
+  │   │   └── ResetPassword.jsx
+  │   ├── /user          # User-specific pages
+  │   │   ├── Dashboard.jsx
+  │   │   ├── Profile.jsx
+  │   │   ├── Bookings.jsx
+  │   │   └── Reviews.jsx
+  │   ├── /admin         # Admin-specific pages
+  │   │   ├── Dashboard.jsx
+  │   │   ├── Users.jsx
+  │   │   ├── ManageTours.jsx
+  │   │   └── Reports.jsx
+  │   ├── /guide         # Guide-specific pages
+  │   │   ├── Dashboard.jsx
+  │   │   ├── Schedule.jsx
+  │   │   └── Reviews.jsx
+  │   ├── Home.jsx       # Home page
+  │   ├── About.jsx      # About page
+  │   ├── Contact.jsx    # Contact page
+  │   ├── NotFound.jsx   # 404 page
+  ├── /routes            # React Router setup
+  │   ├── AppRouter.jsx  # Main routing logic
+  ├── App.js
+  ├── index.js
