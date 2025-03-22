@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useSafeNavigate from "../utils/useSafeNavigate";
+import useSafeNavigate from "../../utils/useSafeNavigate";
 
 function getStatusStyle(status) {
   switch (status) {

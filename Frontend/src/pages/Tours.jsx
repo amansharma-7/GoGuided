@@ -1,5 +1,5 @@
-import ToursHeader from "../../components/tours/ToursHeader";
-import ToursGrid from "../../components/tours/ToursGrid";
+import ToursHeader from "../components/tours/ToursHeader";
+import ToursGrid from "../components/tours/ToursGrid";
 
 const tours = Array.from({ length: 12 });
 

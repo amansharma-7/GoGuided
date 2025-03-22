@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import useSafeNavigate from "../../utils/useSafeNavigate";
+import useSafeNavigate from "../../../utils/useSafeNavigate";
 
 function NavItem({ to, children }) {
   const safeNavigate = useSafeNavigate();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaCircleUser } from "react-icons/fa6";
 import { Link, NavLink } from "react-router";
-import useSafeNavigate from "../utils/useSafeNavigate";
+import useSafeNavigate from "../../utils/useSafeNavigate";
 
 const tempUser = {
   name: "Sudhir Sharma",

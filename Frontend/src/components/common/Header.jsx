@@ -4,8 +4,8 @@ import {
   FaSortAmountDown,
   FaSearch,
 } from "react-icons/fa";
-import useSafeNavigate from "../utils/useSafeNavigate";
-import FilterDropdown from "../components/FilterDropdown";
+import useSafeNavigate from "../../utils/useSafeNavigate";
+import FilterDropdown from "./FilterDropdown";
 import { useState } from "react";
 
 function DashboardHeader({

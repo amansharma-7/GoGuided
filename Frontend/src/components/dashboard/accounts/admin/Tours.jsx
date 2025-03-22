@@ -1,5 +1,9 @@
 import { useState } from "react";
+<<<<<<< HEAD:Frontend/src/pages/accounts/admin/Tours.jsx
 import DashboardHeader from "../../../components/DashboardHeader";
+=======
+import DashboardHeader from "../../../common/Header";
+>>>>>>> b9279a349a068d2a480c6752ce6f2df67c4c0795:Frontend/src/components/dashboard/accounts/admin/Tours.jsx
 import ToursList from "./ToursList";
 
 function Tours() {
