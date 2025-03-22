@@ -1,11 +1,11 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Navbar from "../components/common/Navbar";
+import Footer from "../components/common/Footer";
 import { Outlet } from "react-router";
 
 function AppLayout() {
   return (
     <div className="flex flex-col relative ">
-      <Header />
+      <Navbar />
       <main className="mt-20">{<Outlet />}</main>
       <Footer />
     </div>

@@ -5,7 +5,7 @@ import {
   FaRegClock,
   FaStar,
 } from "react-icons/fa6";
-import useSafeNavigate from "../../../utils/useSafeNavigate";
+import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import ChartComponent from "./ChartComponent";
 
 import React from "react";

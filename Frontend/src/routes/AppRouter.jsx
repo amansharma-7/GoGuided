@@ -5,39 +5,39 @@ import Loading from "../pages/Loading";
 
 // pages
 import Home from "../pages/Home";
-import Tours from "../pages/tours/Tours";
-import Tour from "../pages/tours/tour/Tour";
+import Tours from "../pages/Tours";
+import Tour from "../components/tours/tour/Tour";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/NotFound";
 
-import Careers from "../pages/careers/Careers";
-import LoginForm from "../pages/auth/LoginForm";
-import SignupForm from "../pages/auth/SignupForm";
+import Careers from "../components/careers/Careers";
+import LoginForm from "../components/auth/LoginForm";
+import SignupForm from "../components/auth/SignupForm";
 
 // accounts
-import Settings from "../pages/accounts/Settings";
+import Settings from "../components/dashboard/accounts/Settings";
 
 // user
-import UserDashboard from "../pages/accounts/user/DashBoard";
-import UsersBookings from "../pages/accounts/user/bookings/Bookings";
-import UsersReviews from "../pages/accounts/user/reviews/Reviews";
+import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
+import UsersBookings from "../components/dashboard/accounts/user/bookings/Bookings";
+import UsersReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 
 // admin
-import AdminDashBoard from "../pages/accounts/admin/Dashboard";
-import Stats from "../pages/accounts/admin/Stats";
-import AllBookings from "../pages/accounts/admin/Bookings";
-import AllTours from "../pages/accounts/admin/Tours";
-import AllReviews from "../pages/accounts/admin/Reviews";
-import AllUsers from "../pages/accounts/admin/Users";
-import FeedBacks from "../pages/accounts/admin/Feedbacks";
-import AllPayments from "../pages/accounts/admin/Payments";
-import AllGuides from "../pages/accounts/admin/Guides";
-import JobPosts from "../pages/accounts/admin/JobPosts";
+import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
+import Stats from "../components/dashboard/accounts/admin/Stats";
+import AllBookings from "../components/dashboard/accounts/admin/Bookings";
+import AllTours from "../components/dashboard/accounts/admin/Tours";
+import AllReviews from "../components/dashboard/accounts/admin/Reviews";
+import AllUsers from "../components/dashboard/accounts/admin/Users";
+import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
+import AllPayments from "../components/dashboard/accounts/admin/Payments";
+import AllGuides from "../components/dashboard/accounts/admin/Guides";
+import JobPosts from "../components/dashboard/accounts/admin/JobPosts";
 
 // guide
-import GuideDashboard from "../pages/accounts/guide/Dashboard";
-import BookingDetails from "../pages/accounts/admin/BookingDetails";
+import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
+import BookingDetails from "../components/dashboard/accounts/admin/BookingDetails";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +72,8 @@ const router = createBrowserRouter([
         path: "/contact",
         Component: Contact,
       },
+
+      //user
       {
         path: "/user",
         Component: UserDashboard,

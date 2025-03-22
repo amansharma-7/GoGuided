@@ -3,8 +3,8 @@ import { TiGroup } from "react-icons/ti";
 import { FaRegStar } from "react-icons/fa";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { IoLanguage } from "react-icons/io5";
-import Tickets from "../../../components/tours/tour/Tickets";
-import Timeline from "../../../components/tours/tour/Timeline";
+import Tickets from "./Tickets";
+import Timeline from "./Timeline";
 
 function Tour() {
   return (

@@ -1,5 +1,5 @@
-import BookingsHeader from "../../../components/DashboardHeader";
-import BookingsTable from "../../../components/Table";
+import BookingsHeader from "../../../common/Header";
+import BookingsTable from "../../../dashboard/Table";
 import { useState } from "react";
 
 const headers = ["S No.", "Tour Name", "Customer", "Email", "Date", "Status"];
