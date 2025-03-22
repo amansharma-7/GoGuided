@@ -52,14 +52,12 @@ function Bookings() {
   if (bookings.length === 0) return <NoBooking />;
 
   return (
-    <div className="flex flex-col space-y-6 bg-green-50 rounded-md overflow-y-auto">
-      <div>
-        <h3 className="text-3xl font-semibold uppercase text-green-700">
-          Bookings
-        </h3>
-      </div>
+    <div className="px-4 py-12 flex flex-col space-y-6 bg-green-50 overflow-hidden">
+      <h3 className="text-3xl font-semibold uppercase text-green-700">
+        Bookings
+      </h3>
 
-      <div className="w-full shadow-sm shadow-black/20 rounded-md flex flex-col gap-y-0.5 bg-orange-50/80">
+      <div className="w-full shadow-sm shadow-black/20 rounded-md flex flex-col gap-y-0.5 bg-orange-50/80 scrollbar-none overflow-y-auto">
         <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] px-2 bg-white text-lg">
           <span className="p-3">Tour Name</span>
           <span className="p-3">Start</span>
