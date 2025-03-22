@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardHeader from "../../../components/DashboardHeader";
+import ToursList from "./ToursList";
 
 function Tours() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,6 +43,8 @@ function Tours() {
           },
         ]}
       />
+
+      <ToursList />
     </div>
   );
 }
