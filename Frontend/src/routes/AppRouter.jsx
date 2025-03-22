@@ -37,6 +37,7 @@ import JobPosts from "../pages/accounts/admin/JobPosts";
 
 // guide
 import GuideDashboard from "../pages/accounts/guide/Dashboard";
+import BookingDetails from "../pages/accounts/admin/BookingDetails";
 
 const router = createBrowserRouter([
   {
@@ -88,8 +89,21 @@ const router = createBrowserRouter([
         Component: AdminDashBoard,
         children: [
           { index: true, Component: Stats },
-          { path: "bookings", Component: AllBookings },
-          { path: "tours", Component: AllTours },
+          {
+            path: "bookings",
+            children: [
+              { index: true, Component: AllBookings },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
+          {
+            path: "tours",
+            children: [
+              { index: true, Component: AllTours },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
+
           { path: "reviews", Component: AllReviews },
           { path: "users", Component: AllUsers },
           { path: "feedbacks", Component: FeedBacks },

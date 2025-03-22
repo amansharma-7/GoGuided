@@ -1,37 +1,47 @@
 import { useState } from "react";
-import ReusableHeader from "./ReusableHeader";
+import DashboardHeader from "../../../components/DashboardHeader";
 
 function Tours() {
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [filters, setFilters] = useState({
-    status: "",
-    visibility: "",
-    bookings: "",
-    price: "",
-    duration: "",
-  });
+  const [selectedFilters, setSelectedFilters] = useState({});
 
-  const handleSort = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  const headerRes = {
+    query: searchQuery,
+    sortOrder,
+    filters: { ...selectedFilters },
   };
 
-  const handleSearch = (searchParams) => {
-    console.log("Executing search with:", searchParams); // Replace with actual API call
-  };
+  console.log(headerRes);
 
   return (
     <div className="p-4">
-      <ReusableHeader
-        title="Total Tours"
-        totalCount={120} // Replace with dynamic count
-        placeholder={"Search by ID or name"}
-        onSearch={handleSearch}
-        onSort={handleSort}
+      <DashboardHeader
+        title="Tours"
+        totalCount={30}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        setSortOrder={setSortOrder}
         sortOrder={sortOrder}
-        filters={filters}
-        setFilters={setFilters}
+        selectedFilters={selectedFilters}
+        setSelectedFilters={setSelectedFilters}
+        filterOptions={[
+          {
+            label: "Category 1",
+            children: [
+              { label: "Option 1", value: "opt1" },
+              { label: "Option 2", value: "opt2" },
+            ],
+          },
+          {
+            label: "Category 2",
+            children: [
+              { label: "Option A", value: "optA" },
+              { label: "Option B", value: "optB" },
+            ],
+          },
+        ]}
       />
-      {/* Tour list content goes here */}
     </div>
   );
 }
