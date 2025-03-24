@@ -35,10 +35,16 @@ import AllUsers from "../components/dashboard/accounts/admin/Users";
 import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
 import AllPayments from "../components/dashboard/accounts/admin/Payments";
 import AllGuides from "../components/dashboard/accounts/admin/Guides";
-import JobPosts from "../components/dashboard/accounts/admin/JobPosts";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
+import BookingDetails from "../components/dashboard/accounts/admin/BookingDetails";
+import UserDetails from "../components/dashboard/accounts/admin/UserDetails";
+import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
+import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetails";
+import Jobs from "../components/dashboard/accounts/admin/Jobs";
+import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
+import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
 
 const router = createBrowserRouter([
   {
@@ -120,11 +126,37 @@ const router = createBrowserRouter([
           },
 
           { path: "reviews", Component: Reviews },
-          { path: "users", Component: AllUsers },
+          {
+            path: "users",
+            children: [
+              { index: true, Component: AllUsers },
+              { path: ":id", Component: UserDetails },
+            ],
+          },
+
           { path: "feedbacks", Component: FeedBacks },
           { path: "payments", Component: AllPayments },
-          { path: "guides", Component: AllGuides },
-          { path: "job-posts", Component: JobPosts },
+          {
+            path: "guides",
+            children: [
+              { index: true, Component: AllGuides },
+              { path: ":id", Component: GuideDetails },
+            ],
+          },
+          {
+            path: "jobs",
+            children: [
+              { index: true, Component: Jobs },
+              { path: "create-job", Component: CreateJob },
+              {
+                path: "requests",
+                children: [
+                  { index: true, Component: JobRequests },
+                  { path: ":id", Component: JobUserDetails },
+                ],
+              },
+            ],
+          },
           { path: "settings", Component: Settings },
         ],
       },

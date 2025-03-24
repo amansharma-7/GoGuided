@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DashboardHeader from "../../../common/Header";
+import DashboardHeader from "../../../common/DashboardHeader";
 import ToursList from "./ToursList";
 
 function Tours() {
