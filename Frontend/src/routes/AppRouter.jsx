@@ -20,15 +20,17 @@ import Settings from "../components/dashboard/accounts/Settings";
 
 // user
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
-import UsersBookings from "../components/dashboard/accounts/user/bookings/Bookings";
-import UsersReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
 import Stats from "../components/dashboard/accounts/admin/Stats";
-import AllBookings from "../components/dashboard/accounts/admin/Bookings";
+import Bookings from "../components/dashboard/accounts/admin/Bookings";
+import BookingDetails from "../components/dashboard/accounts/admin/BookingDetails";
 import AllTours from "../components/dashboard/accounts/admin/Tours";
-import AllReviews from "../components/dashboard/accounts/admin/Reviews";
+import AddTour from "../components/dashboard/accounts/admin/AddForm";
+import EditTour from "../components/dashboard/accounts/admin/EditTour";
+import TourBookings from "../components/dashboard/accounts/admin/TourBookings";
+import Reviews from "../components/dashboard/accounts/admin/Reviews";
 import AllUsers from "../components/dashboard/accounts/admin/Users";
 import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
 import AllPayments from "../components/dashboard/accounts/admin/Payments";
@@ -37,7 +39,6 @@ import JobPosts from "../components/dashboard/accounts/admin/JobPosts";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
-import BookingDetails from "../components/dashboard/accounts/admin/BookingDetails";
 
 const router = createBrowserRouter([
   {
@@ -80,8 +81,8 @@ const router = createBrowserRouter([
         children: [
           // user
           { index: true, Component: Settings },
-          { path: "bookings", Component: UsersBookings },
-          { path: "reviews", Component: UsersReviews },
+          { path: "bookings", Component: Bookings },
+          { path: "reviews", Component: Reviews },
         ],
       },
 
@@ -94,7 +95,7 @@ const router = createBrowserRouter([
           {
             path: "bookings",
             children: [
-              { index: true, Component: AllBookings },
+              { index: true, Component: Bookings },
               { path: ":id", Component: BookingDetails },
             ],
           },
@@ -102,11 +103,23 @@ const router = createBrowserRouter([
             path: "tours",
             children: [
               { index: true, Component: AllTours },
-              { path: ":id", Component: BookingDetails },
+              {
+                path: "bookings/:name",
+                Component: TourBookings,
+              },
+              {
+                path: "edit/:name",
+                Component: EditTour,
+              },
+              {
+                path: "add",
+                Component: AddTour,
+                // element: <AddTour />,
+              },
             ],
           },
 
-          { path: "reviews", Component: AllReviews },
+          { path: "reviews", Component: Reviews },
           { path: "users", Component: AllUsers },
           { path: "feedbacks", Component: FeedBacks },
           { path: "payments", Component: AllPayments },

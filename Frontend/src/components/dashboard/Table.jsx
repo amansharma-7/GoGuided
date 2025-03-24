@@ -1,5 +1,4 @@
 import { useState } from "react";
-import useSafeNavigate from "../../utils/useSafeNavigate";
 
 function getStatusStyle(status) {
   switch (status) {
@@ -14,20 +13,16 @@ function getStatusStyle(status) {
   }
 }
 
-function BookingsTable({ headers, bookings, gridCols, itemsPerPage = 5 }) {
-  const navigate = useSafeNavigate();
+export default function BookingsTable({ headers, bookings, itemsPerPage = 5 }) {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Calculate total pages
   const totalPages = Math.ceil(bookings.length / itemsPerPage);
 
-  // Slice bookings based on the current page
   const currentBookings = bookings.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Handle page change
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -35,57 +30,71 @@ function BookingsTable({ headers, bookings, gridCols, itemsPerPage = 5 }) {
   };
 
   return (
-    <div className="space-y-4 overflow-x-auto">
-      {/* Dynamic Table Header */}
-      <div
-        className={`grid ${gridCols} bg-green-200 text-green-900 font-semibold p-2 rounded-md`}
-      >
-        {headers.map((header, index) => (
-          <div key={index}>{header}</div>
-        ))}
-      </div>
+    <div className="w-full pb-4">
+      {/* Scrollable Table Wrapper */}
+      <div className="overflow-x-auto">
+        <div className="min-w-max space-y-1">
+          {/* Header */}
+          <div
+            className="grid bg-green-200 text-green-900 font-semibold rounded-md px-3 py-1"
+            style={{
+              gridTemplateColumns: headers
+                .map((header) => `minmax(${header.width}, 1fr)`)
+                .join(" "),
+            }}
+          >
+            {headers.map((header, index) => (
+              <div key={index} className="p-2">
+                {header.label}
+              </div>
+            ))}
+          </div>
 
-      {/* Dynamic Booking Entries */}
-      <div className="divide-y divide-gray-200 border border-gray-200 rounded-md">
-        {currentBookings.length > 0 ? (
-          currentBookings.map((booking, idx) => (
-            <div
-              key={idx}
-              onClick={() => navigate(`${booking.id}`)}
-              className={`grid ${gridCols} p-2 items-center text-left hover:bg-green-100 transition cursor-pointer`}
-            >
-              {Object.values(booking).map((value, i) => (
-                <div key={i} className="min-w-0">
-                  {/* Conditional styling for "status" */}
-                  {headers[i].toLowerCase() === "status" ? (
-                    <span
-                      className={`px-3 py-1 text-sm rounded-md border ${getStatusStyle(
-                        value
-                      )}`}
-                    >
-                      {value}
-                    </span>
-                  ) : (
-                    <span className="truncate overflow-hidden whitespace-nowrap block">
-                      {value}
-                    </span>
-                  )}
+          {/* Body */}
+          <div className="space-y-0.5">
+            {currentBookings.length > 0 ? (
+              currentBookings.map((booking, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => console.log("Booking clicked:", booking.id)}
+                  className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
+                  style={{
+                    gridTemplateColumns: headers
+                      .map((header) => header.width)
+                      .join(" "),
+                  }}
+                >
+                  {Object.values(booking).map((value, i) => (
+                    <div key={i} className="px-2 py-1.5">
+                      {headers[i].label.toLowerCase() === "status" ? (
+                        <span
+                          className={`text-sm rounded-md border px-2 py-1 ${getStatusStyle(
+                            value
+                          )}`}
+                        >
+                          {value}
+                        </span>
+                      ) : (
+                        <span className="block">{value}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <div className="text-left text-gray-600 p-3">No bookings found.</div>
-        )}
+              ))
+            ) : (
+              <div className="text-gray-600 p-2">No bookings found.</div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Green-Themed Pagination Controls */}
+      {/* Pagination (Outside Scrollable Area) */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center space-x-2 mt-4">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-2 py-1 rounded-md ${
               currentPage === 1
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-green-500 text-white hover:bg-green-600"
@@ -99,7 +108,7 @@ function BookingsTable({ headers, bookings, gridCols, itemsPerPage = 5 }) {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-2 py-1 rounded-md ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-green-500 text-white hover:bg-green-600"
@@ -112,5 +121,3 @@ function BookingsTable({ headers, bookings, gridCols, itemsPerPage = 5 }) {
     </div>
   );
 }
-
-export default BookingsTable;
