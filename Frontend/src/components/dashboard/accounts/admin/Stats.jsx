@@ -85,7 +85,7 @@ function Stats() {
         <StatCard title={"Feedbacks"} value={12} route={"feedbacks"} />
         <StatCard title={"Payments"} value={12} route={"payments"} />
         <StatCard title={"Guides"} value={12} route={"guides"} />
-        <StatCard title={"Jobs"} value={12} route={"job-posts"} />
+        <StatCard title={"Jobs"} value={12} route={"jobs"} />
       </div>
     </div>
   );

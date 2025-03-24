@@ -1,90 +1,93 @@
-import {
-  FaArrowLeft,
-  FaSortAmountUp,
-  FaSortAmountDown,
-  FaSearch,
-} from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaCircleUser } from "react-icons/fa6";
+import { Link, NavLink } from "react-router";
 import useSafeNavigate from "../../utils/useSafeNavigate";
-import FilterDropdown from "./FilterDropdown";
-import { useState } from "react";
 
-function DashboardHeader({
-  title,
-  totalCount,
-  setSearchQuery,
-  sortOrder,
-  setSortOrder,
-  selectedFilters,
-  setSelectedFilters,
-  filterOptions,
-}) {
+const tempUser = {
+  name: "Sudhir Sharma",
+  role: "admin",
+  photo:
+    "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&w=1985&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+};
+
+function Header() {
   const safeNavigate = useSafeNavigate();
-  const [query, setQuery] = useState("");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    setUser(tempUser);
+  }, []);
+
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+
+    if (!user) return safeNavigate("/login");
+
+    switch (user.role) {
+      case "admin":
+        return safeNavigate("/admin");
+      case "guide":
+        return safeNavigate("/guide");
+      default:
+        return safeNavigate("/user");
+    }
+  };
 
   return (
-    <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3 rounded-md shadow-sm mb-2">
-      <div className="flex items-center space-x-4">
-        {/* Back Button */}
-        <button
-          onClick={() => safeNavigate(-1)}
-          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9 w-9 flex items-center justify-center"
-        >
-          <FaArrowLeft className="w-4 h-4" />
-        </button>
+    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-green-100 z-10">
+      <h4 className="font-semibold text-5xl text-green-950 ">
+        <Link to="/">GoGuided</Link>
+      </h4>
+      <nav className="flex items-center space-x-6">
+        <ul className="flex space-x-4 text-2xl text-green-950 font-medium">
+          <li>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/tours"
+              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+            >
+              Tours
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/about"
+              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+            >
+              About Us
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+            >
+              Contact Us
+            </NavLink>
+          </li>
+        </ul>
 
-        {/* Title & Count */}
-        <h3 className="text-lg font-semibold text-green-700">
-          {title}: {totalCount}
-        </h3>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        {/* Search Input */}
-        <input
-          type="text"
-          placeholder={`Search ${title.toLowerCase()}`}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="border border-green-300 px-3 py-1.5 rounded-md text-sm w-64 transition-all focus:border-green-600 focus:border-2 outline-none h-9"
-        />
-
-        {/* Search Button */}
-        <button
-          onClick={() => setSearchQuery(query)}
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md transition flex items-center cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9"
-        >
-          <FaSearch className="w-4 h-4" />
-        </button>
-
-        {/* Sort Button */}
-        <button
-          onClick={() =>
-            setSortOrder((order) => (order === "asc" ? "desc" : "asc"))
-          }
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md transition cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9"
-        >
-          {sortOrder === "asc" ? (
-            <FaSortAmountUp className="w-4 h-4" />
+        <button onClick={handleProfileClick} className="cursor-pointer">
+          {user?.photo ? (
+            <img
+              src={user?.photo}
+              alt={user?.name}
+              className="w-11 h-11 object-cover object-center rounded-full"
+            />
           ) : (
-            <FaSortAmountDown className="w-4 h-4" />
+            <FaCircleUser className="w-11 h-11 text-gray-400" />
           )}
         </button>
-
-        {/* Filter Dropdown (Optional) */}
-        {filterOptions && (
-          <FilterDropdown
-            options={filterOptions}
-            selectedFilters={selectedFilters}
-            setSelectedFilters={(val) => {
-              console.log(val);
-              setSelectedFilters(val);
-            }}
-            style={{ width: "w-36", maxHeight: "max-h-64" }} // only tailwind classes
-          />
-        )}
-      </div>
-    </div>
+      </nav>
+    </header>
   );
 }
 
-export default DashboardHeader;
+export default Header;

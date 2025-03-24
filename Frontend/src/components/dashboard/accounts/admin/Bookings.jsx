@@ -1,4 +1,4 @@
-import BookingsHeader from "../../../common/Header";
+import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
 import { useState } from "react";
 

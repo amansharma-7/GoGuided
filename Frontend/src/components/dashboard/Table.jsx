@@ -3,14 +3,26 @@ import useSafeNavigate from "../../utils/useSafeNavigate";
 
 function getStatusStyle(status) {
   switch (status) {
+    case "Paid":
     case "Completed":
-      return "bg-green-100 text-green-700 border-green-400";
+      return "bg-green-100 text-green-700 border-green-400 px-2 py-1 rounded";
+    case "Pending":
     case "Ongoing":
-      return "bg-yellow-100 text-yellow-700 border-yellow-400";
+      return "bg-yellow-100 text-yellow-700 border-yellow-400 px-2 py-1 rounded";
+    case "Failed":
+    case "Rejected": // 🔹 Added styling for rejected
+      return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
+    case "Refunded":
     case "Upcoming":
-      return "bg-blue-100 text-blue-700 border-blue-400";
+      return "bg-blue-100 text-blue-700 border-blue-400 px-2 py-1 rounded";
+    case "Free":
+      return "bg-gray-100 text-gray-700 border-gray-400 px-2 py-1 rounded";
+    case "Assigned":
+      return "bg-purple-100 text-purple-700 border-purple-400 px-2 py-1 rounded";
+    case "Approved": // 🔹 Added styling for approved
+      return "bg-green-200 text-green-800 border-green-500 px-2 py-1 rounded font-semibold";
     default:
-      return "bg-red-100 text-red-700 border-red-400";
+      return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
   }
 }
 

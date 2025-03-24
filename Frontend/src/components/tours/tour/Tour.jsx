@@ -5,10 +5,11 @@ import { HiArrowTrendingUp } from "react-icons/hi2";
 import { IoLanguage } from "react-icons/io5";
 import Tickets from "./Tickets";
 import Timeline from "./Timeline";
+import Photos from "./Photos";
 
 function Tour() {
   return (
-    <div className="px-32 py-6 ">
+    <div className="px-32 py-6 bg-green-50 ">
       {/* heading */}
       <div>
         <h3 className="font-bold text-2xl text-green-950">The Forest Hiker</h3>
@@ -30,14 +31,7 @@ function Tour() {
       </div>
 
       {/* photos */}
-      <div className="grid grid-rows-2 grid-cols-[0.60fr_0.40fr] gap-2 rounded-lg overflow-hidden ">
-        <div className="bg-yellow-300 row-span-2 h-90">1</div>
-        <div className=" bg-amber-600">2</div>
-        <div className=" grid grid-cols-2 gap-2 bg-amber-100">
-          <div className="bg-red-500">3</div>
-          <div className="bg-blue-500">4</div>
-        </div>
-      </div>
+      <Photos />
 
       {/* overview and booking card */}
       <div className="flex py-6">
