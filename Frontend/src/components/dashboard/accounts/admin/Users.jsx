@@ -2,7 +2,13 @@ import UsersHeader from "../../../common/DashboardHeader";
 import UsersTable from "../../../dashboard/Table";
 import { useState } from "react";
 
-const headers = ["S No.", "Name", "Email", "Number", "Last Visit"];
+const headers = [
+  { label: "S No.", width: "10%" },
+  { label: "Name", width: "20%" },
+  { label: "Email", width: "25%" },
+  { label: "Number", width: "25%" },
+  { label: "Last Visit", width: "20%" },
+];
 
 const usersData = Array.from({ length: 50 }, (_, i) => ({
   id: (i + 1).toString(),
@@ -52,12 +58,7 @@ function UsersList() {
         ]}
       />
 
-      <UsersTable
-        headers={headers}
-        bookings={usersData}
-        gridCols="grid-cols-[1fr_2.5fr_2.5fr_2fr_2fr]" 
-        itemsPerPage={10}
-      />
+      <UsersTable headers={headers} data={usersData} itemsPerPage={9} />
     </div>
   );
 }

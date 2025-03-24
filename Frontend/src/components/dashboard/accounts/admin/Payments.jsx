@@ -2,7 +2,14 @@ import PaymentsHeader from "../../../common/DashboardHeader";
 import PaymentsTable from "../../../dashboard/Table";
 import { useState } from "react";
 
-const headers = ["S No.", "User Name", "Email", "Amount", "Status", "Date"];
+const headers = [
+  { label: "S No.", width: "10%" },
+  { label: "User Name", width: "20%" },
+  { label: "Email", width: "25%" },
+  { label: "Amount", width: "10%" },
+  { label: "Status", width: "20%" },
+  { label: "Date", width: "15%" },
+];
 
 const paymentsData = Array.from({ length: 50 }, (_, i) => ({
   id: (i + 1).toString(),
@@ -48,12 +55,7 @@ function Payments() {
         ]}
       />
 
-      <PaymentsTable
-        headers={headers}
-        bookings={paymentsData}
-        gridCols="grid-cols-[1fr_2fr_2fr_1.5fr_1.5fr_2fr]"
-        itemsPerPage={10}
-      />
+      <PaymentsTable headers={headers} data={paymentsData} itemsPerPage={9} />
     </div>
   );
 }

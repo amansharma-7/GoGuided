@@ -1,15 +1,21 @@
 import UsersHeader from "../../../common/DashboardHeader";
 import UsersTable from "../../Table";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { BiPlusCircle } from "react-icons/bi";
 
 function JobRequests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [selectedFilters, setSelectedFilters] = useState({});
 
-  const headers = ["S No.", "Name", "Email", "Date ", "Status"];
+  const headers = [
+    { label: "S No.", width: "10%" },
+    { label: "Name", width: "25%" },
+    { label: "Email", width: "25%" },
+    { label: "Date", width: "20%" },
+    { label: "Status", width: "20%" },
+  ];
+
+  // const headers = ["S No.", "Name", "Email", "Date ", "Status"];
 
   const jobRequestsData = Array.from({ length: 50 }, (_, i) => ({
     id: (i + 1).toString(),
@@ -25,7 +31,7 @@ function JobRequests() {
   }));
 
   return (
-    <div className="p-6 flex flex-col gap-4 bg-gray-100 min-h-screen">
+    <div className="p-4 flex flex-col bg-gray-100 min-h-screen">
       {/* Job Requests Header */}
       <UsersHeader
         title="Job Requests"
@@ -55,12 +61,7 @@ function JobRequests() {
       />
 
       {/* Job Requests Table */}
-      <UsersTable
-        headers={headers}
-        bookings={jobRequestsData}
-        gridCols="grid-cols-[1fr_2.5fr_2.5fr_2fr_2fr]"
-        itemsPerPage={10}
-      />
+      <UsersTable headers={headers} data={jobRequestsData} itemsPerPage={9} />
     </div>
   );
 }

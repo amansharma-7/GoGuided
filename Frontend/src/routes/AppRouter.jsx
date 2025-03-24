@@ -38,7 +38,6 @@ import AllGuides from "../components/dashboard/accounts/admin/Guides";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
-import BookingDetails from "../components/dashboard/accounts/admin/BookingDetails";
 import UserDetails from "../components/dashboard/accounts/admin/UserDetails";
 import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
 import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetails";

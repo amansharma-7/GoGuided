@@ -5,7 +5,7 @@ function Jobs() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 flex flex-col gap-6  min-h-screen bg-gray-100">
+    <div className="p-4 flex flex-col gap-6  min-h-screen bg-gray-100">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-green-800">Job Management</h2>
         <button
