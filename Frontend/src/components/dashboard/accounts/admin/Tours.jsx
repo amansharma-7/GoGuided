@@ -16,7 +16,7 @@ function Tours() {
   console.log(headerRes);
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-full ">
       <DashboardHeader
         title="Tours"
         totalCount={30}

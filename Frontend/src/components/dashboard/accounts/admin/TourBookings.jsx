@@ -1,16 +1,8 @@
-import BookingsHeader from "../../../common/DashboardHeader";
-import BookingsTable from "../../../dashboard/Table";
 import { useState } from "react";
+import Header from "../../../common/Header";
+import Table from "../../Table";
 
-const headers = [
-  { label: "S No.", width: "10%" },
-  { label: "Tour Name", width: "20%" },
-  { label: "Customer", width: "20%" },
-  { label: "Email", width: "25%" },
-  { label: "Date", width: "15%" },
-  { label: "Status", width: "10%" },
-];
-
+const headers = ["S No.", "Tour Name", "Customer", "Email", "Date", "Status"];
 const bookingsData = Array.from({ length: 50 }, (_, i) => ({
   id: (i + 1).toString(),
   tour: ["Safari Adventure", "Mountain Hike", "Beach Holiday", "City Tour"][
@@ -27,16 +19,14 @@ const bookingsData = Array.from({ length: 50 }, (_, i) => ({
   status: ["Completed", "Ongoing", "Canceled", "Upcoming"][i % 4],
 }));
 
-function Bookings() {
+function TourBookings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [selectedFilters, setSelectedFilters] = useState({});
 
   return (
-    <div className="px-4 py-4">
-      {/* Header Section */}
-
-      <BookingsHeader
+    <div className="p-4">
+      <Header
         title="Bookings"
         totalCount={100}
         searchQuery={searchQuery}
@@ -62,15 +52,14 @@ function Bookings() {
           },
         ]}
       />
-
-      <BookingsTable
+      <Table
         headers={headers}
-        data={bookingsData}
-        itemsPerPage={9}
-        navToBy="name"
+        bookings={bookingsData}
+        gridCols="grid-cols-[1fr_2.5fr_1.5fr_2.5fr_1.25fr_1.25fr]" // Adjust grid sizes to match columns
+        itemsPerPage={10}
       />
     </div>
   );
 }
 
-export default Bookings;
+export default TourBookings;

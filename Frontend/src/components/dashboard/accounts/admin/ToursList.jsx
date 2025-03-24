@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import {
   FaEdit,
   FaTrash,
   FaClipboardList,
   FaChevronDown,
   FaChevronUp,
+  FaPlus,
 } from "react-icons/fa";
+import { BiPlusCircle } from "react-icons/bi";
 
 const tours = [
   {
@@ -53,6 +56,8 @@ export default function ToursList() {
     tourId: null,
   });
 
+  const navigate = useSafeNavigate();
+
   const toggleAccordion = (id) => {
     setExpandedTour(expandedTour === id ? null : id);
   };
@@ -70,7 +75,19 @@ export default function ToursList() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 bg-green-50 p-4">
+    <div className="p-4 pb-20 grid grid-cols-1 gap-6 bg-green-50 overflow-y-auto h-full scrollbar-none">
+      <div
+        className="flex items-center justify-between p-4 bg-green-50 border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        onClick={() => navigate("add")}
+      >
+        <div className="flex items-center gap-2">
+          <BiPlusCircle className="text-green-600 w-6 h-6" />
+          <span className="text-green-700 font-semibold text-lg">
+            Add New Tour
+          </span>
+        </div>
+      </div>
+
       {tours.map((tour) => (
         <div
           key={tour.id}
@@ -131,17 +148,34 @@ export default function ToursList() {
             </div>
           )}
           <div className="flex gap-4 mt-4">
-            <button className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer">
-              <FaEdit size={16} /> Edit
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
+              onClick={() =>
+                navigate(`edit/${tour.name.toLowerCase().split(" ").join("_")}`)
+              }
+            >
+              <FaEdit size={16} />
+              Edit
             </button>
             <button
               onClick={() => handleDelete(tour.id)}
-              disabled={deleteConfirm.show}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600  cursor-pointer"
+              disabled={deleteConfirm.tourId === tour.id}
+              className={`flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 ${
+                deleteConfirm.tourId === tour.id
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
+              }`}
             >
               <FaTrash size={16} /> Delete
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+              onClick={() =>
+                navigate(
+                  `bookings/${tour.name.toLowerCase().split(" ").join("_")}`
+                )
+              }
+            >
               <FaClipboardList size={16} /> View Bookings
             </button>
           </div>
