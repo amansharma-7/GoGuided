@@ -5,7 +5,7 @@ function AccountLayout({ children }) {
   return (
     <div className="px-32 py-4 h-[89vh] grid grid-cols-[0.3fr_0.7fr] bg-white rounded-md overflow-hidden">
       <Sidebar>{children}</Sidebar>
-      <div className=" bg-green-50 rounded-r-md scrollbar-none overflow-y-auto">
+      <div className=" bg-green-50 rounded-r-md overflow-hidden">
         <Outlet />
       </div>
     </div>

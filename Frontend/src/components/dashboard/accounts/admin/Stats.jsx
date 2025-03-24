@@ -56,7 +56,7 @@ function Stats() {
   ];
 
   return (
-    <div className="p-4 flex flex-col space-y-4">
+    <div className="p-4 flex flex-col space-y-4 h-full  overflow-y-scroll scrollbar-none">
       <div className="grid grid-cols-4 gap-4">
         {/* Total Revenue */}
         <SummaryCard

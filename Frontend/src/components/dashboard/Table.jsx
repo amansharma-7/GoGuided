@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useSafeNavigate from "../../utils/useSafeNavigate";
 
 function getStatusStyle(status) {
   switch (status) {
@@ -13,12 +14,19 @@ function getStatusStyle(status) {
   }
 }
 
-export default function BookingsTable({ headers, bookings, itemsPerPage = 5 }) {
+export default function BookingsTable({
+  headers,
+  data,
+  itemsPerPage = 5,
+  navToBy,
+}) {
+  const navigate = useSafeNavigate();
+
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(bookings.length / itemsPerPage);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
-  const currentBookings = bookings.slice(
+  const currentRows = data.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -52,38 +60,40 @@ export default function BookingsTable({ headers, bookings, itemsPerPage = 5 }) {
 
           {/* Body */}
           <div className="space-y-0.5">
-            {currentBookings.length > 0 ? (
-              currentBookings.map((booking, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => console.log("Booking clicked:", booking.id)}
-                  className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
-                  style={{
-                    gridTemplateColumns: headers
-                      .map((header) => header.width)
-                      .join(" "),
-                  }}
-                >
-                  {Object.values(booking).map((value, i) => (
-                    <div key={i} className="px-2 py-1.5">
-                      {headers[i].label.toLowerCase() === "status" ? (
-                        <span
-                          className={`text-sm rounded-md border px-2 py-1 ${getStatusStyle(
-                            value
-                          )}`}
-                        >
-                          {value}
-                        </span>
-                      ) : (
-                        <span className="block">{value}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))
-            ) : (
-              <div className="text-gray-600 p-2">No bookings found.</div>
-            )}
+            {currentRows.map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() =>
+                  navigate(
+                    navToBy === "name" && item?.name
+                      ? item.name.toLowerCase().split(" ").join("_")
+                      : item?.id || ""
+                  )
+                }
+                className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
+                style={{
+                  gridTemplateColumns: headers
+                    .map((header) => header.width)
+                    .join(" "),
+                }}
+              >
+                {Object.values(item).map((value, i) => (
+                  <div key={i} className="px-2 py-1.5">
+                    {headers[i].label.toLowerCase() === "status" ? (
+                      <span
+                        className={`text-sm rounded-md border px-2 py-1 ${getStatusStyle(
+                          value
+                        )}`}
+                      >
+                        {value}
+                      </span>
+                    ) : (
+                      <span className="block">{value}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

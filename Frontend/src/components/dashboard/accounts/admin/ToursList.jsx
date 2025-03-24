@@ -75,7 +75,7 @@ export default function ToursList() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 bg-green-50 p-4">
+    <div className="p-4 pb-20 grid grid-cols-1 gap-6 bg-green-50 overflow-y-auto h-full scrollbar-none">
       <div
         className="flex items-center justify-between p-4 bg-green-50 border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
         onClick={() => navigate("add")}

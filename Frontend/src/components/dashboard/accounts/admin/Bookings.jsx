@@ -33,7 +33,7 @@ function Bookings() {
   const [selectedFilters, setSelectedFilters] = useState({});
 
   return (
-    <div className="p-4">
+    <div className="px-4 py-4">
       {/* Header Section */}
 
       <BookingsHeader
@@ -65,8 +65,9 @@ function Bookings() {
 
       <BookingsTable
         headers={headers}
-        bookings={bookingsData}
-        itemsPerPage={10}
+        data={bookingsData}
+        itemsPerPage={9}
+        navToBy="name"
       />
     </div>
   );
