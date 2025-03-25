@@ -116,10 +116,10 @@ export default function BookingsTable({
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-2 py-1 rounded-md ${
+            className={`px-2 py-1 rounded-md  ${
               currentPage === 1
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-green-500 text-white hover:bg-green-600"
+                : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
             }`}
           >
             Prev
@@ -130,10 +130,10 @@ export default function BookingsTable({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-2 py-1 rounded-md ${
+            className={`px-2 py-1 rounded-md  ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-green-500 text-white hover:bg-green-600"
+                : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
             }`}
           >
             Next
