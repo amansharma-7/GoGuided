@@ -32,7 +32,7 @@ export default function ImageGallery() {
       {/* Image Grid */}
       <div className="h-[500px] grid grid-rows-2 grid-cols-[0.60fr_0.40fr] gap-2 rounded-lg overflow-hidden">
         {/* First Large Image */}
-        <div className="row-span-2 cursor-pointer overflow-hidden rounded-lg">
+        <div className="row-span-2 overflow-hidden rounded-lg">
           <img
             src={images[0]}
             alt="Gallery Image 1"
@@ -41,7 +41,7 @@ export default function ImageGallery() {
         </div>
 
         {/* Second Image */}
-        <div className="cursor-pointer overflow-hidden rounded-lg">
+        <div className=" overflow-hidden rounded-lg">
           <img
             src={images[1]}
             alt="Gallery Image 2"
@@ -52,7 +52,7 @@ export default function ImageGallery() {
         {/* Bottom Two Images */}
         <div className="grid grid-cols-2 gap-2">
           {/* Third Image */}
-          <div className="cursor-pointer overflow-hidden rounded-lg">
+          <div className=" overflow-hidden rounded-lg">
             <img
               src={images[2]}
               alt="Gallery Image 3"
@@ -61,7 +61,7 @@ export default function ImageGallery() {
           </div>
 
           {/* Fourth Image with Button */}
-          <div className="relative cursor-pointer overflow-hidden rounded-lg">
+          <div className="relative  overflow-hidden rounded-lg">
             <img
               src={images[3]}
               alt="Gallery Image 4"

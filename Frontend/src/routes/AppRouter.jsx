@@ -35,6 +35,7 @@ import AllUsers from "../components/dashboard/accounts/admin/Users";
 import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
 import AllPayments from "../components/dashboard/accounts/admin/Payments";
 import AllGuides from "../components/dashboard/accounts/admin/Guides";
+import Refunds from "../components/dashboard/accounts/admin/Refunds";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
@@ -145,6 +146,7 @@ const router = createBrowserRouter([
 
           { path: "feedbacks", Component: FeedBacks },
           { path: "payments", Component: AllPayments },
+          { path: "refunds", Component: Refunds },
           {
             path: "guides",
             children: [

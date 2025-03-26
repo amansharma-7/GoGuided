@@ -58,7 +58,12 @@ function UsersList() {
         ]}
       />
 
-      <UsersTable headers={headers} data={usersData} itemsPerPage={9} />
+      <UsersTable
+        headers={headers}
+        data={usersData}
+        itemsPerPage={9}
+        navToBy={"id"}
+      />
     </div>
   );
 }

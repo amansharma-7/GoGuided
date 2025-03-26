@@ -30,7 +30,7 @@ export default function BookingsTable({
   headers,
   data,
   itemsPerPage = 5,
-  navToBy,
+  navToBy = null,
 }) {
   const navigate = useSafeNavigate();
 
@@ -75,12 +75,15 @@ export default function BookingsTable({
             {currentRows.map((item, idx) => (
               <div
                 key={idx}
-                onClick={() =>
-                  navigate(
-                    navToBy === "name" && item?.name
-                      ? item.name.toLowerCase().split(" ").join("_")
-                      : item?.id || ""
-                  )
+                onClick={
+                  navToBy === null
+                    ? ""
+                    : () =>
+                        navigate(
+                          navToBy === "name" && item?.name
+                            ? item.name.toLowerCase().split(" ").join("_")
+                            : item?.id || ""
+                        )
                 }
                 className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
                 style={{

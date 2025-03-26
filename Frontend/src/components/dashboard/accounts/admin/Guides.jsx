@@ -62,7 +62,12 @@ function Guides() {
         ]}
       />
 
-      <GuidesTable headers={headers} data={GuidesData} itemsPerPage={9} />
+      <GuidesTable
+        headers={headers}
+        data={GuidesData}
+        itemsPerPage={9}
+        navToBy={"id"}
+      />
     </div>
   );
 }

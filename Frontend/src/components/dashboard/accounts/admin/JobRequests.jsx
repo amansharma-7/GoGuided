@@ -61,7 +61,12 @@ function JobRequests() {
       />
 
       {/* Job Requests Table */}
-      <UsersTable headers={headers} data={jobRequestsData} itemsPerPage={9} />
+      <UsersTable
+        headers={headers}
+        data={jobRequestsData}
+        itemsPerPage={9}
+        navToBy={"id"}
+      />
     </div>
   );
 }

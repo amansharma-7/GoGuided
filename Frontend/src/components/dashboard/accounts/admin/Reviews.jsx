@@ -72,7 +72,12 @@ function Reviews() {
         ]}
       />
 
-      <ReviewsTable headers={headers} data={reivewsData} itemsPerPage={9} />
+      <ReviewsTable
+        headers={headers}
+        data={reivewsData}
+        itemsPerPage={9}
+        navToBy={"id"}
+      />
     </div>
   );
 }

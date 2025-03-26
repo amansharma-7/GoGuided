@@ -55,7 +55,12 @@ function Payments() {
         ]}
       />
 
-      <PaymentsTable headers={headers} data={paymentsData} itemsPerPage={9} />
+      <PaymentsTable
+        headers={headers}
+        data={paymentsData}
+        itemsPerPage={9}
+        navToBy={null}
+      />
     </div>
   );
 }
