@@ -34,16 +34,16 @@ function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-green-100 z-10">
-      <h4 className="font-semibold text-5xl text-green-950 ">
+    <header className="flex items-center justify-between px-32 py-4 fixed top-0 left-0 w-full h-20 bg-green-50 z-10">
+      <h4 className="font-semibold text-5xl text-green-800">
         <Link to="/">GoGuided</Link>
       </h4>
       <nav className="flex items-center space-x-6">
-        <ul className="flex space-x-4 text-2xl text-green-950 font-medium">
+        <ul className="flex space-x-4 text-2xl text-green-800 font-medium">
           <li>
             <NavLink
               to="/"
-              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+              className={({ isActive }) => (isActive ? "text-green-700" : "")}
             >
               Home
             </NavLink>
@@ -51,7 +51,7 @@ function Header() {
           <li>
             <NavLink
               to="/tours"
-              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+              className={({ isActive }) => (isActive ? "text-green-700" : "")}
             >
               Tours
             </NavLink>
@@ -59,7 +59,7 @@ function Header() {
           <li>
             <NavLink
               to="/about"
-              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+              className={({ isActive }) => (isActive ? "text-green-700" : "")}
             >
               About Us
             </NavLink>
@@ -67,7 +67,7 @@ function Header() {
           <li>
             <NavLink
               to="/contact"
-              className={({ isActive }) => (isActive ? "text-green-800" : "")}
+              className={({ isActive }) => (isActive ? "text-green-700" : "")}
             >
               Contact Us
             </NavLink>
@@ -82,7 +82,7 @@ function Header() {
               className="w-11 h-11 object-cover object-center rounded-full"
             />
           ) : (
-            <FaCircleUser className="w-11 h-11 text-gray-400" />
+            <FaCircleUser className="w-11 h-11 text-green-600" />
           )}
         </button>
       </nav>

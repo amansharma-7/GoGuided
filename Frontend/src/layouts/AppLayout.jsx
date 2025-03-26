@@ -6,7 +6,7 @@ function AppLayout() {
   return (
     <div className="flex flex-col relative ">
       <Navbar />
-      <main className="mt-20">{<Outlet />}</main>
+      <main className="mt-20 bg-green-50">{<Outlet />}</main>
       <Footer />
     </div>
   );
