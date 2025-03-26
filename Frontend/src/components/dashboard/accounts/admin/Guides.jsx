@@ -2,7 +2,16 @@ import UsersHeader from "../../../common/DashboardHeader";
 import GuidesTable from "../../../dashboard/Table";
 import { useState } from "react";
 
-const headers = ["S No.", "Name", "Email", "Number", "Role", "Status"];
+const headers = [
+  { label: "S No.", width: "10%" },
+  { label: "Name", width: "20%" },
+  { label: "Email", width: "25%" },
+  { label: "Number", width: "10%" },
+  { label: "Role", width: "15%" },
+  { label: "Status", width: "20%" },
+];
+
+// const headers = ["S No.", "Name", "Email", "Number", "Role", "Status"];
 
 const GuidesData = Array.from({ length: 50 }, (_, i) => ({
   id: (i + 1).toString(),
@@ -53,12 +62,7 @@ function Guides() {
         ]}
       />
 
-      <GuidesTable
-        headers={headers}
-        bookings={GuidesData}
-        gridCols="grid-cols-[1fr_2.5fr_2.5fr_2fr_2fr_2fr]" // Adjust grid sizes to match columns
-        itemsPerPage={10}
-      />
+      <GuidesTable headers={headers} data={GuidesData} itemsPerPage={9} />
     </div>
   );
 }

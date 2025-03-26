@@ -44,6 +44,7 @@ import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetail
 import Jobs from "../components/dashboard/accounts/admin/Jobs";
 import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
 import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
+import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
 
 const router = createBrowserRouter([
   {
@@ -113,6 +114,10 @@ const router = createBrowserRouter([
                 Component: TourBookings,
               },
               {
+                path: "bookings/:name/:id",
+                Component: BookingDetails,
+              },
+              {
                 path: "edit/:name",
                 Component: EditTour,
               },
@@ -124,6 +129,13 @@ const router = createBrowserRouter([
           },
 
           {
+            path: "reviews",
+            children: [
+              { index: true, Component: Reviews },
+              { path: ":id", Component: ReviewDetails },
+            ],
+          },
+          {
             path: "users",
             children: [
               { index: true, Component: AllUsers },
@@ -131,7 +143,6 @@ const router = createBrowserRouter([
             ],
           },
 
-          { path: "reviews", Component: Reviews },
           { path: "feedbacks", Component: FeedBacks },
           { path: "payments", Component: AllPayments },
           {

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import 'leaflet/dist/leaflet.css';
 /* @theme {
   --default-font-family: "Roboto", sans-serif;
   --font-family: "Roboto", sans-serif;
@@ -7,10 +7,13 @@
 
 @layer utilities {
   .scrollbar-none {
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
+    /* Firefox */
   }
+
   .scrollbar-none::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none;
+    /* Chrome, Safari */
   }
 }
 

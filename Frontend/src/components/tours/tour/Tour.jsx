@@ -6,6 +6,7 @@ import { IoLanguage } from "react-icons/io5";
 import Tickets from "./Tickets";
 import Timeline from "./Timeline";
 import Photos from "./Photos";
+import Map from "./Map";
 
 function Tour() {
   return (
@@ -34,7 +35,7 @@ function Tour() {
       <Photos />
 
       {/* overview and booking card */}
-      <div className="flex py-6">
+      <div className="flex py-6 justify-between">
         {/* left side */}
         <div className="w-[70%] px-6 py-3 space-y-3">
           <div className="space-y-1">
@@ -69,46 +70,46 @@ function Tour() {
           </div>
         </div>
         {/* right side */}
-        <Tickets />
+        {/* quick facts */}
+        <div className="flex flex-col gap-5 ">
+          <h3 className="text-3xl font-bold text-green-600">QUICK FACTS</h3>
+          <div className="flex gap-3 items-center">
+            <BsSunFill size={20} color="green" />
+            <span className="font-semibold text-xl">DURATION</span>
+            <span className="text-lg font-thin">7 Days</span>
+          </div>
+          <div className="flex gap-3 items-center">
+            <TiGroup size={20} color="green" />
+            <span className="font-semibold text-xl">PARTICIPANTS</span>
+            <span className="text-lg font-thin">7 People</span>
+          </div>
+          <div className="flex gap-3 items-center">
+            <HiArrowTrendingUp size={20} color="green" />
+            <span className="font-semibold text-xl">DIFFICULTY</span>
+            <span className="text-lg font-thin">Medium</span>
+          </div>
+          <div className="flex gap-3 items-center">
+            <FaRegStar size={20} color="green" />
+            <span className="font-semibold text-xl">RATING</span>
+            <span className="text-lg font-thin">4.8/5 </span>
+          </div>
+          <div className="flex gap-3 items-center">
+            <IoLanguage size={20} color="green" />
+            <span className="font-semibold text-xl">Languages</span>
+            <span className="text-lg font-thin">Hindi,English</span>
+          </div>
+        </div>
       </div>
 
-      {/* necessary details */}
-      <div className="flex  gap-96  py-10  ">
-        <div>
-          <h2 className="text-3xl font-bold text-green-600">Itinerary</h2>
+      <h2 className="text-3xl font-bold py-5 px-4 text-green-600">Itinerary</h2>
+      <div className="flex flex-col justify-between">
+        <div className="flex w-full justify-between">
           <Timeline />
+          <Map />
         </div>
-        <div className="  flex flex-col gap-16">
-          {/* quick facts */}
-          <div className="flex flex-col gap-2 ">
-            <h3 className="text-3xl font-bold text-green-600">QUICK FACTS</h3>
-            <div className="flex gap-3 items-center">
-              <BsSunFill size={20} color="green" />
-              <span className="font-semibold text-xl">DURATION</span>
-              <span className="text-lg font-thin">7 Days</span>
-            </div>
-            <div className="flex gap-3 items-center">
-              <TiGroup size={20} color="green" />
-              <span className="font-semibold text-xl">PARTICIPANTS</span>
-              <span className="text-lg font-thin">7 People</span>
-            </div>
-            <div className="flex gap-3 items-center">
-              <HiArrowTrendingUp size={20} color="green" />
-              <span className="font-semibold text-xl">DIFFICULTY</span>
-              <span className="text-lg font-thin">Medium</span>
-            </div>
-            <div className="flex gap-3 items-center">
-              <FaRegStar size={20} color="green" />
-              <span className="font-semibold text-xl">RATING</span>
-              <span className="text-lg font-thin">4.8/5 </span>
-            </div>
-            <div className="flex gap-3 items-center">
-              <IoLanguage size={20} color="green" />
-              <span className="font-semibold text-xl">Languages</span>
-              <span className="text-lg font-thin">Hindi,English</span>
-            </div>
-          </div>
-
+      </div>
+      <div className="  flex p-4 justify-between">
+        <div className="flex flex-col gap-5">
           {/* what's included */}
           <div className="flex flex-col gap-2 ">
             <h3 className="text-3xl font-bold text-green-600">
@@ -145,7 +146,7 @@ function Tour() {
             </div>
           </div>
         </div>
-        {/* itinerary */}
+        <Tickets />
       </div>
     </div>
   );

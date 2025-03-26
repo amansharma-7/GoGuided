@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { AiOutlineClose } from "react-icons/ai";
 
-const UserDetails = () => {
+const GuideDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isSuspending, setIsSuspending] = useState(false);
@@ -41,12 +41,12 @@ const UserDetails = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 border border-green-400 rounded-md bg-green-50 shadow-md">
+    <div className="p-6 space-y-6 border border-green-400 rounded-md bg-green-50 shadow-md h-full overflow-y-auto scrollbar-none">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-green-800">Guide Details</h2>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 text-white rounded-md cursor-pointer hover:bg-green-600"
         >
           Go Back
         </button>
@@ -127,7 +127,11 @@ const UserDetails = () => {
             setIsSuspending(false);
             setIsAssigningTour(false);
           }}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          className={`px-4 py-2 rounded-md  ${
+            isMailing
+              ? "bg-gray-400  cursor-not-allowed"
+              : "bg-green-500 text-white cursor-pointer hover:bg-green-600"
+          }`}
         >
           Send Mail
         </button>
@@ -138,7 +142,11 @@ const UserDetails = () => {
               setIsMailing(false);
               setIsAssigningTour(false);
             }}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            className={`px-4 py-2 rounded-md  ${
+              isSuspending
+                ? "bg-gray-400  cursor-not-allowed"
+                : "bg-red-500 text-white cursor-pointer hover:bg-red-600"
+            }`}
           >
             Suspend
           </button>
@@ -207,4 +215,4 @@ const UserDetails = () => {
   );
 };
 
-export default UserDetails;
+export default GuideDetails;

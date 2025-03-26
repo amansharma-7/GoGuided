@@ -58,7 +58,7 @@ const BookingDetails = () => {
         <h2 className="text-2xl font-bold text-green-800">Booking Details</h2>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 cursor-pointer text-white rounded-md hover:bg-green-600"
         >
           Go Back
         </button>
