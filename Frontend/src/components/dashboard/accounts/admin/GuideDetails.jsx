@@ -125,7 +125,6 @@ const GuideDetails = () => {
           onClick={() => {
             setIsMailing(true);
             setIsSuspending(false);
-            setIsAssigningTour(false);
           }}
           className={`px-4 py-2 rounded-md  ${
             isMailing

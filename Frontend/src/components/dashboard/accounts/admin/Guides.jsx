@@ -6,9 +6,9 @@ const headers = [
   { label: "S No.", width: "10%" },
   { label: "Name", width: "20%" },
   { label: "Email", width: "25%" },
-  { label: "Number", width: "10%" },
+  { label: "Number", width: "15%" },
   { label: "Role", width: "15%" },
-  { label: "Status", width: "20%" },
+  { label: "Status", width: "15%" },
 ];
 
 // const headers = ["S No.", "Name", "Email", "Number", "Role", "Status"];
