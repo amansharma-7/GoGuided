@@ -157,7 +157,7 @@ function Feedbacks() {
       {feedbacks.map((feedback) => (
         <div
           key={feedback.id}
-          className="bg-green-50 rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"
+          className="bg-white rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"
         >
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-green-800 mb-2">
@@ -179,8 +179,8 @@ function Feedbacks() {
             </button>
           </div>
 
-          <div className="flex justify-between text-green-800 bg-green-50 p-3 rounded-md mb-4 shadow-sm">
-            <p className="text-green-800 bg-green-50 p-3 rounded-md mb-4 shadow-sm">
+          <div className="flex justify-between text-green-800  p-3 rounded-md mb-4 shadow-sm">
+            <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
               {feedback.subject}
             </p>
             <p>
@@ -189,7 +189,7 @@ function Feedbacks() {
           </div>
 
           {expandedFeedback === feedback.id && (
-            <div className="grid grid-cols-2 gap-4 p-4 bg-green-50 rounded-md shadow-sm">
+            <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
               <p className="font-normal text-green-700">{feedback.message}</p>
             </div>
           )}
@@ -211,7 +211,7 @@ function Feedbacks() {
                   onChange={(e) => setReplyMessage(e.target.value)}
                   rows="3"
                   placeholder="Enter your reply here..."
-                  className="w-full p-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 border border-green-300 text-green-950 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   onClick={() => handleReply(feedback.id)}
@@ -228,7 +228,7 @@ function Feedbacks() {
                 disabled={feedback.status === "Resolved"}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg  ${
                   feedback.status === "Resolved"
-                    ? " bg-gray-400 cursor-not-allowed"
+                    ? " bg-gray-300 cursor-not-allowed"
                     : "bg-green-500 text-white  hover:bg-green-600 cursor-pointer "
                 }`}
               >

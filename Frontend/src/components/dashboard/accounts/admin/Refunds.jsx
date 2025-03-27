@@ -155,7 +155,7 @@ const Refunds = () => {
       {refunds.map((refund) => (
         <div
           key={refund.id}
-          className="bg-green-50 rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
+          className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-white0"
         >
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-green-800 mb-2">
@@ -177,7 +177,7 @@ const Refunds = () => {
             </button>
           </div>
 
-          <div className="flex justify-between text-green-800 bg-green-50 p-3 rounded-md mb-4 shadow-sm">
+          <div className="flex justify-between text-green-800 bg-white p-3 rounded-md mb-4 shadow-sm">
             <p>
               <strong>Tour: </strong> {refund.tour}
             </p>
@@ -187,7 +187,7 @@ const Refunds = () => {
           </div>
 
           {expandedRefund === refund.id && (
-            <div className="grid grid-cols-1 gap-4 p-4 bg-green-50 rounded-md shadow-sm">
+            <div className="grid grid-cols-1 gap-4 p-4 bg-white rounded-md shadow-sm">
               <p className="font-normal text-green-700">
                 <strong>Message:</strong> {refund.message}
               </p>

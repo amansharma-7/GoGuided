@@ -42,7 +42,7 @@ const UserDetails = () => {
   const handleSendMail = () => {};
 
   return (
-    <div className="p-6 space-y-6 border border-green-400 rounded-md bg-green-50 shadow-md">
+    <div className="p-6 space-y-6 border border-green-400 rounded-md bg-green-50 shadow-md h-full overflow-y-auto scrollbar-hide text-green-950">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-green-800">User Details</h2>
         <button

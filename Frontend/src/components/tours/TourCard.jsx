@@ -1,9 +1,8 @@
 import useSafeNavigate from "../../utils/useSafeNavigate";
 import { MdLocationOn } from "react-icons/md";
 import { CiCalendar, CiFlag1 } from "react-icons/ci";
-import { BiTachometer } from "react-icons/bi";
-import { BsSunFill } from "react-icons/bs";
-import { IoPersonOutline } from "react-icons/io5";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { HiArrowTrendingUp } from "react-icons/hi2";
 
 function TourCard({ id }) {
   const safeNavigate = useSafeNavigate();
@@ -17,32 +16,34 @@ function TourCard({ id }) {
     details: [
       { icon: <MdLocationOn size={18} color="green" />, text: "Jammu, India" },
       { icon: <CiCalendar size={18} color="green" />, text: "April 2025" },
-      { icon: <BiTachometer size={18} color="green" />, text: "Easy" },
-      { icon: <BsSunFill size={18} color="green" />, text: "7 days" },
+      { icon: <HiArrowTrendingUp size={18} color="green" />, text: "Easy" },
       { icon: <CiFlag1 size={18} color="green" />, text: "4 Stops" },
-      { icon: <IoPersonOutline size={18} color="green" />, text: "10 People" },
     ],
-    pricing: {
-      pricePerPerson: 10000,
-      rating: 4.5,
-      reviews: 5,
-    },
+    rating: 4.5,
+    reviews: 5,
   };
 
   return (
-    <div className="grid grid-rows-[0.75fr_1.25fr] overflow-hidden shadow-md shadow-black/15">
-      <div>
+    <div className="grid grid-rows-[0.75fr_1fr]  overflow-hidden shadow-md shadow-black/15">
+      <div className="relative">
         <img
-          className="object-cover object-center h-60 w-full rounded-t-md"
+          className="object-cover object-center h-56 w-full rounded-t-md"
           src={tourData.imageUrl}
           alt={tourData.title}
         />
+        <div className="bg-white h-30 w-[400px] absolute z-1 -bottom-22 -rotate-9 text-black text-center"></div>
+        <div className="flex flex-col items-end px-3 absolute z-3 bottom-12 right-0">
+          <p className="bg-green-600/70 shadow-sm p-2 w-fit text-2xl text-white  ">
+            {tourData.title.split(" ")[0].toUpperCase()}{" "}
+            {tourData.title.split(" ")[1].toUpperCase()}
+          </p>
+          <p className="bg-green-600/80 shadow-md  p-2 w-fit text-2xl text-white absolute top-10">
+            {tourData.title.split(" ")[2].toUpperCase()}
+          </p>
+        </div>
       </div>
-      <div className="bg-white rounded-b-md">
+      <div className="bg-white rounded-b-md z-2">
         <div className="flex flex-col gap-y-1 px-6 py-3">
-          <h3 className="uppercase font-light text-2xl text-green-950">
-            {tourData.title}
-          </h3>
           <p className="font-extralight">{tourData.description}</p>
         </div>
 
@@ -57,23 +58,23 @@ function TourCard({ id }) {
         </div>
 
         {/* Pricing & Booking */}
-        <div className="grid grid-cols-2 px-6 py-4">
-          <div className="flex flex-col font-extralight">
-            <span>
-              <strong className="text-lg font-semibold">
-                &#8377;{tourData.pricing.pricePerPerson}
-              </strong>{" "}
-              per person
-            </span>
-            <span className="">
-              <strong className="text-lg font-semibold">
-                {tourData.pricing.rating}
-              </strong>{" "}
-              rating ({tourData.pricing.reviews})
-            </span>
+        <div className="flex items-center  gap-16 p-5 px-6   ">
+          <div className="">
+            <p className="text-lg text-green-600 font-semibold flex items-center gap-0.5">
+              {Array.from({ length: 5 }, (_, i) =>
+                i < Math.floor(tourData.rating) ? (
+                  <FaStar key={i} className="text-yellow-500" />
+                ) : i < tourData.rating ? (
+                  <FaStarHalfAlt key={i} className="text-yellow-500" />
+                ) : (
+                  <FaRegStar key={i} className="text-yellow-500" />
+                )
+              )}{" "}
+            </p>
           </div>
+
           <button
-            className="m-auto px-10 py-3 bg-green-500 rounded-xl text-white text-lg"
+            className=" px-6 py-2 bg-green-500 rounded-xl cursor-pointer hover:bg-green-600 text-white text-lg"
             onClick={() => safeNavigate(id)}
           >
             Details

@@ -35,12 +35,12 @@ function ReachoutForm() {
           />
         </div>
         <div className="flex flex-col gap-2 col-span-2">
-          <label htmlFor="email" className="text-lg font-medium">
-            Email Address
+          <label htmlFor="subject" className="text-lg font-medium">
+            Subject
           </label>
           <input
-            type="email"
-            id="email"
+            type="text"
+            id="subject"
             className="p-2 border-2 border-black/20 rounded-md"
           />
         </div>

@@ -199,7 +199,7 @@ const BookingDetails = () => {
                   onChange={(e) => setCancellationReason(e.target.value)}
                   rows="3"
                   placeholder="Enter cancellation reason..."
-                  className="w-full p-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-2 border text-green-950 border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   onClick={handleCancel}

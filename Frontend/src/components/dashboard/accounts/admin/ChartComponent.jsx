@@ -26,9 +26,9 @@ const ChartSection = ({ data }) => {
   const showLineChart = data.length > 2;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 ">
       {/* Bar Chart */}
-      <div className=" shadow-black/50 p-4 rounded-md border border-green-200 shadow-sm flex flex-col items-center">
+      <div className=" shadow-black/50 p-4 rounded-md border border-green-200 shadow-sm bg-white flex flex-col items-center">
         <h3 className="text-green-900 font-bold mb-2">Performance Over Time</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={data}>
@@ -41,7 +41,7 @@ const ChartSection = ({ data }) => {
       </div>
 
       {/* Pie Chart */}
-      <div className="shadow-black/50 p-4 rounded-md border border-green-200 shadow-sm flex flex-col items-center">
+      <div className="shadow-black/50 p-4  bg-white rounded-md border border-green-200 shadow-sm flex flex-col items-center">
         <h3 className="text-green-900 font-bold mb-2">Category Distribution</h3>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>

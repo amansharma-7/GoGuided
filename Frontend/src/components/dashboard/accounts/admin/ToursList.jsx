@@ -78,7 +78,7 @@ export default function ToursList() {
   return (
     <div className="p-4 pb-20 grid grid-cols-1 gap-6 bg-green-50 overflow-y-auto h-full scrollbar-none">
       <div
-        className="flex items-center justify-between p-4 bg-green-50 border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
         onClick={() => navigate("add")}
       >
         <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default function ToursList() {
       {tours.map((tour) => (
         <div
           key={tour.id}
-          className="bg-green-50 rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
+          className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
         >
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold text-green-800 mb-2">
@@ -109,11 +109,11 @@ export default function ToursList() {
               )}
             </button>
           </div>
-          <p className="text-green-800 bg-green-50 p-3 rounded-md mb-4 shadow-sm">
+          <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
             {tour.description}
           </p>
           {expandedTour === tour.id && (
-            <div className="grid grid-cols-2 gap-4 p-4 bg-green-50 rounded-md shadow-sm">
+            <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
               <p className="text-green-800 font-medium">
                 Location:{" "}
                 <span className="font-normal text-green-700">

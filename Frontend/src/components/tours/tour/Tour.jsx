@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { FaStar, FaRegStar } from "react-icons/fa";
+import {
+  FaStar,
+  FaRegStar,
+  FaHeart,
+  FaRegHeart,
+  FaArrowLeft,
+} from "react-icons/fa";
 import { BsSunFill } from "react-icons/bs";
 import { TiGroup } from "react-icons/ti";
 import { HiArrowTrendingUp } from "react-icons/hi2";
@@ -13,6 +19,9 @@ import Map from "./Map";
 import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
 import Avatar from "../../common/Avatar";
+import useSafeNavigate from "../../../utils/useSafeNavigate";
+import { use } from "react";
+import { FaH } from "react-icons/fa6";
 const tourData = {
   title: "The Forest Hiker",
   location: "Jammu, India",
@@ -39,13 +48,13 @@ const tourData = {
   ],
   guides: [
     {
-      name: "Aman Sharma",
+      name: "Sudhir Sharma",
       role: "LEAD GUIDE",
       image:
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      name: "Sudhir Sharma",
+      name: "Aman Sharma",
       role: "TOUR GUIDE",
       image: "",
     },
@@ -53,8 +62,11 @@ const tourData = {
 };
 
 function Tour() {
+  const safeNavigate = useSafeNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userReview, setUserReview] = useState(null);
+  const [liked, setLiked] = useState(false);
 
   const handleReviewSubmit = (reviewData) => {
     console.log("Review Submitted:", reviewData);
@@ -64,11 +76,16 @@ function Tour() {
   return (
     <div className="px-32 py-6 flex flex-col gap-6">
       {/* Heading */}
-
       <div className=" shadow-md bg-white rounded-lg p-5 flex justify-between items-center">
         {/* Left Side: Title, Rating, Location */}
         <div className="flex items-center gap-6">
           {/* Title */}
+          <button
+            className="bg-green-600 text-white p-3 rounded-full uppercase font-semibold tracking-wide hover:bg-green-700 transition cursor-pointer"
+            onClick={() => safeNavigate(-1)}
+          >
+            <FaArrowLeft />
+          </button>
           <h3 className="font-bold text-3xl text-green-900">
             {tourData.title}
           </h3>
@@ -85,18 +102,23 @@ function Tour() {
 
         {/* Right Side: Buttons */}
         <div className="flex gap-4">
+          <button
+            className=" text-white  rounded-lg uppercase font-semibold tracking-wide  transition cursor-pointer"
+            onClick={() => setLiked(!liked)}
+          >
+            {liked ? (
+              <FaHeart color="red" size={24} />
+            ) : (
+              <FaRegHeart color="black" size={24} />
+            )}
+          </button>
           <button className="bg-green-700 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-800 transition cursor-pointer">
             Share
           </button>
-          <button className="bg-green-600 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-700 transition cursor-pointer">
-            Wishlist
-          </button>
         </div>
       </div>
-
       {/* Photos */}
       <Photos />
-
       {/* Overview */}
       <div className="flex flex-col md:flex-row rounded-lg gap-10">
         {/* Left Side - Quick Facts */}
@@ -167,7 +189,6 @@ function Tour() {
           </div>
         </div>
       </div>
-
       {/* Itinerary */}
       <div className="flex flex-col justify-between gap-5 rounded-lg p-5 bg-white shadow-sm">
         <h2 className="text-2xl font-bold text-green-900">Itinerary</h2>
@@ -176,7 +197,6 @@ function Tour() {
           <Map />
         </div>
       </div>
-
       {/* Buy and Included Things */}
       <div className="flex p-5 justify-between bg-white shadow-sm rounded-lg">
         {/* Left Side */}
@@ -223,7 +243,6 @@ function Tour() {
         {/* Right Side */}
         <Tickets />
       </div>
-
       {/* Reviews */}
       <div>
         <div className="bg-white rounded-lg shadow-sm p-5">

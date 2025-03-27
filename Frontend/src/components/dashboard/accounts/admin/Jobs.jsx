@@ -17,7 +17,7 @@ function Jobs() {
       </div>
       {/* Create Job Button */}
       <div
-        className="flex items-center justify-between p-4 bg-green-50 border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
         onClick={() => navigate("create-job")}
       >
         <div className="flex items-center gap-2">
@@ -30,7 +30,7 @@ function Jobs() {
       {/* See Applications Button */}
 
       <div
-        className="flex items-center justify-between p-4 bg-green-50 border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
         onClick={() => navigate("requests")}
       >
         <div className="flex items-center gap-2">

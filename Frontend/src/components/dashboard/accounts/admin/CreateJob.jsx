@@ -25,7 +25,7 @@ function CreateJob() {
         className="bg-white p-6 rounded-lg shadow-xl w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-[30px] text-center font-bold mb-4 text-green-950">
+        <h2 className="text-[30px] font-bold mb-4 text-green-950">
           Create a Job
         </h2>
         <form onSubmit={handleSubmit(submitJob)} className="space-y-3">

@@ -22,7 +22,7 @@ function DashboardHeader({
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3 rounded-md shadow-sm mb-2">
+    <div className="flex items-center justify-between bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2">
       <div className="flex items-center space-x-4">
         {/* Back Button */}
         <button

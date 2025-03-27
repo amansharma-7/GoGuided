@@ -12,7 +12,7 @@ import React from "react";
 
 function SummaryCard({ title, icon: Icon, value }) {
   return (
-    <div className="bg-green-50 text-green-950 p-6 border border-green-300 flex flex-col items-center shadow-sm shadow-black/50 rounded-lg space-y-2">
+    <div className="bg-white text-green-950 p-6 border border-green-300 flex flex-col items-center shadow-sm shadow-black/50 rounded-lg space-y-2">
       <div className="flex items-center space-x-2">
         {Icon && <Icon className="text-green-700 text-xl" />}
         <h2 className="text-xl font-semibold">{title}</h2>
@@ -26,7 +26,7 @@ function StatCard({ title, value, route }) {
   const safeNavigate = useSafeNavigate();
 
   return (
-    <div className="text-green-900 p-6 rounded-xl shadow-lg flex justify-between items-center border border-green-300">
+    <div className="text-green-900 bg-white p-6 rounded-xl shadow-lg flex justify-between items-center border border-green-300">
       <div>
         <h2 className="text-xl font-bold">{title}</h2>
         <p className="text-3xl font-bold">{value}</p>
