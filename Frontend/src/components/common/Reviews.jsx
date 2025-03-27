@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import Avatar from "./Avatar";
 
 const allReviews = [
   {
@@ -8,6 +9,8 @@ const allReviews = [
     comment:
       "The tour was absolutely amazing! The guide was knowledgeable and friendly. I learned so much and had a great time exploring new places. It was one of the best experiences I’ve ever had.",
     rating: 5,
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: 2,
@@ -76,9 +79,18 @@ function Reviews() {
             className="min-w-[310px] h-[240px] p-6 border border-green-500 rounded-2xl bg-white shadow-md shadow-black/50 transition-transform duration-200 ease-in-out hover:scale-105 overflow-hidden relative flex flex-col gap-2"
           >
             <div className="flex items-center gap-1 mb-1">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl font-semibold">
-                {review.name.charAt(0)}
-              </div>
+              {review?.image ? (
+                <Avatar size={48} imageURL={review.image} />
+              ) : (
+                <Avatar
+                  size={48}
+                  bgColor={"bg-green-500"}
+                  textColor={"text-white"}
+                  textSize={"text-2xl"}
+                  fontWeight={"font-semibold"}
+                  fullName={review.name}
+                />
+              )}
               <h3 className="text-xl font-semibold text-green-800">
                 {review.name}
               </h3>

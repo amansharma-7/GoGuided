@@ -10,9 +10,9 @@ const tourSchedule = [
   { day: "Day 7", task: "Return Home" },
 ];
 
-const Timeline = () => {
+function Timeline() {
   return (
-    <div className="flex flex-col p-2 items-center w-[30%]">
+    <div className="flex flex-col items-center w-[30%] bg-white py-2 rounded-lg shadow-sm">
       <div className="relative flex flex-col items-center">
         {/* Vertical Line */}
         <div className=" absolute left-[5%] top-11 bottom-11 w-0.5 bg-green-600/50 border-l-2 border-dotted border-green-600"></div>
@@ -30,8 +30,8 @@ const Timeline = () => {
 
               {/* Content */}
               <div className="bg-white shadow-md px-6 py-2 rounded-md flex flex-col justify-center w-64 ">
-                <h3 className="font-bold text-gray-800">{event.day}</h3>
-                <p className="text-gray-600 text-sm">{event.task}</p>
+                <h3 className="font-bold text-green-950">{event.day}</h3>
+                <p className="text-green-950 text-sm">{event.task}</p>
               </div>
             </div>
           ))}
@@ -39,6 +39,6 @@ const Timeline = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Timeline;

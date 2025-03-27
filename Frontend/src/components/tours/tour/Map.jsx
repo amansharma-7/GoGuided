@@ -149,10 +149,11 @@ function Map() {
   ];
 
   return (
-    <div className="relative p-2 w-[70%] z-0">
+    <div className="relative w-[70%] bg-white p-2 rounded-lg shadow-sm">
       <MapContainer
         center={[34.0837, 74.7973]}
         zoom={10}
+        scrollWheelZoom={false}
         className="h-full w-full"
       >
         <TileLayer

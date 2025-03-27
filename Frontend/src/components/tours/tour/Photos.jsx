@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { FaArrowLeft, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
-export default function ImageGallery() {
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Image list
+export default function ImageGallery() {
+  const [galleryState, setGalleryState] = useState({
+    isOpen: false, // Gallery modal state
+    selectedIndex: null, // Single Image Viewer state
+  });
+
   const images = [
     "/images/gallery1.jpg",
     "/images/gallery2.jpeg",
@@ -14,64 +14,71 @@ export default function ImageGallery() {
     "/images/gallery4.jpg",
   ];
 
-  // Open gallery
-  const openGallery = () => setIsGalleryOpen(true);
-  const closeGallery = () => setIsGalleryOpen(false);
+  // Open gallery modal
+  const openGallery = () =>
+    setGalleryState({ isOpen: true, selectedIndex: null });
+
+  // Close gallery modal
+  const closeGallery = () =>
+    setGalleryState({ isOpen: false, selectedIndex: null });
 
   // Open full-screen image viewer
   const openImageViewer = (index) => {
-    setCurrentIndex(index);
-    setSelectedImage(images[index]);
+    setGalleryState((prevState) => ({
+      ...prevState,
+      selectedIndex: index, // Open image but remember if gallery was open
+    }));
   };
 
-  // Close full-screen viewer
-  const closeImageViewer = () => setSelectedImage(null);
+  // Close full-screen viewer: If gallery was open, return to it
+  const closeImageViewer = () => {
+    setGalleryState((prevState) => ({
+      isOpen: prevState.isOpen, // Keep gallery open if it was open
+      selectedIndex: null, // Just close the image preview
+    }));
+  };
 
   return (
-    <>
+    <div className="shadow-md relative shadow-black/80 rounded-lg">
       {/* Image Grid */}
-      <div className="h-[500px] grid grid-rows-2 grid-cols-[0.60fr_0.40fr] gap-2 rounded-lg overflow-hidden">
-        {/* First Large Image */}
+      <div className="h-[500px] grid grid-rows-2 grid-cols-[0.60fr_0.40fr] gap-1 rounded-lg overflow-hidden">
         <div className="row-span-2 overflow-hidden rounded-lg">
           <img
             src={images[0]}
             alt="Gallery Image 1"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover cursor-pointer"
+            onClick={() => openImageViewer(0)}
           />
         </div>
-
-        {/* Second Image */}
-        <div className=" overflow-hidden rounded-lg">
+        <div className="overflow-hidden rounded-lg">
           <img
             src={images[1]}
             alt="Gallery Image 2"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover cursor-pointer"
+            onClick={() => openImageViewer(1)}
           />
         </div>
-
-        {/* Bottom Two Images */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* Third Image */}
-          <div className=" overflow-hidden rounded-lg">
+        <div className="grid grid-cols-2 gap-1">
+          <div className="overflow-hidden rounded-lg">
             <img
               src={images[2]}
               alt="Gallery Image 3"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => openImageViewer(2)}
             />
           </div>
-
-          {/* Fourth Image with Button */}
-          <div className="relative  overflow-hidden rounded-lg">
+          <div className="relative overflow-hidden rounded-lg">
             <img
               src={images[3]}
               alt="Gallery Image 4"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => openImageViewer(3)}
             />
-
-            {/* See All Photos Button */}
             <button
               onClick={openGallery}
-              className="absolute z-10 right-3 bottom-2 bg-green-50 py-1 px-2 rounded-lg cursor-pointer transition duration-300 hover:bg-green-200 hover:scale-105"
+              className="absolute z-10 right-3 bottom-2 bg-green-600 text-white py-2 px-3 rounded-lg cursor-pointer 
+             transition duration-300 hover:bg-green-700 hover:shadow-md"
+              aria-label="See all photos"
             >
               See all Photos
             </button>
@@ -80,51 +87,56 @@ export default function ImageGallery() {
       </div>
 
       {/* Gallery Modal */}
-
-      {isGalleryOpen && (
-        <div className="fixed  inset-0 bg-black/80 flex justify-center items-center z-50 animate-fadeIn">
-          <div className="relative bg-white p-5 rounded-lg max-w-4xl  w-full shadow-lg">
-            {/* Image Grid */}
-            <div className="grid grid-cols-2 gap-3">
+      {galleryState.isOpen && galleryState.selectedIndex === null && (
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-10 animate-fadeIn">
+          <div className="relative bg-green-50 p-2 rounded-lg max-w-5xl w-full h-[600px] shadow-lg">
+            <div className="grid grid-cols-2 gap-2 h-full overflow-y-auto scrollbar-none">
               {images.map((img, index) => (
                 <img
                   key={index}
                   src={img}
-                  className="w-full h-70 object-cover rounded-lg cursor-pointer transition-transform duration-300 "
+                  className="w-full h-full object-cover object-center rounded-lg cursor-pointer transition-transform duration-300"
                   onClick={() => openImageViewer(index)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View image ${index + 1}`}
                 />
               ))}
             </div>
 
-            {/* Close Button */}
             <button
               onClick={closeGallery}
-              className="absolute -top-5 -right-5 bg-gray-800 text-white p-2 rounded-full cursor-pointer transition duration-300 hover:bg-gray-700"
+              className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-green-950 text-green-50 p-2 rounded-full cursor-pointer transition duration-300 hover:bg-green-900"
+              aria-label="Close gallery"
             >
-              <RxCross2 size={25} />
+              <RxCross2 size={24} />
             </button>
           </div>
         </div>
       )}
 
       {/* Full-Screen Image Viewer */}
-      {selectedImage && (
-        <div className="fixed  inset-0 bg-transparent flex justify-center items-center z-50 animate-fadeIn">
-          {/* Close Button */}
-          <button
-            onClick={closeImageViewer}
-            className="absolute top-9 right-74 bg-gray-800 text-white p-2 rounded-full cursor-pointer transition duration-300 hover:bg-gray-700"
-          >
-            <RxCross2 size={30} />
-          </button>
-
-          {/* Full-Screen Image */}
-          <img
-            src={selectedImage}
-            className="w-[58.5%] h-[84%] object-cover rounded-lg shadow-lg transition-transform duration-500 ease-in-out"
-          />
+      {galleryState.selectedIndex !== null && (
+        <div
+          className="fixed inset-0 bg-black/80 flex justify-center items-center z-20 animate-fadeIn"
+          onClick={closeImageViewer} // Click anywhere to close
+        >
+          <div className="relative bg-green-50 p-0.5 rounded-lg shadow-lg max-w-5xl w-full h-[600px]">
+            <button
+              onClick={closeImageViewer}
+              className="absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 bg-green-950 text-green-50 p-2 rounded-full cursor-pointer transition duration-300 hover:bg-green-950"
+              aria-label="Close image viewer"
+            >
+              <RxCross2 size={24} />
+            </button>
+            <img
+              src={images[galleryState.selectedIndex]}
+              className="w-full h-full object-cover rounded-lg shadow-lg transition-transform duration-500 ease-in-out"
+              alt="Full view"
+            />
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

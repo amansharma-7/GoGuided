@@ -1,17 +1,18 @@
 import { useState } from "react";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import { BsSunFill } from "react-icons/bs";
 import { TiGroup } from "react-icons/ti";
-import { FaRegStar } from "react-icons/fa";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { CiCalendar } from "react-icons/ci";
-import { IoClose } from "react-icons/io5";
-import { IoLanguage } from "react-icons/io5";
+import { IoClose, IoLanguage } from "react-icons/io5";
+
 import Tickets from "./Tickets";
 import Timeline from "./Timeline";
 import Photos from "./Photos";
 import Map from "./Map";
 import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
+import Avatar from "../../common/Avatar";
 const tourData = {
   title: "The Forest Hiker",
   location: "Jammu, India",
@@ -40,12 +41,13 @@ const tourData = {
     {
       name: "Aman Sharma",
       role: "LEAD GUIDE",
-      image: "https://api.dicebear.com/5.x/initials/svg?seed=Aman%20Sharma",
+      image:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Sudhir Sharma",
       role: "TOUR GUIDE",
-      image: "https://api.dicebear.com/5.x/initials/svg?seed=Sudhir%20Sharma",
+      image: "",
     },
   ],
 };
@@ -60,23 +62,35 @@ function Tour() {
     setIsModalOpen(false); // Close modal after submission
   };
   return (
-    <div className="px-32 py-6 bg-green-50">
+    <div className="px-32 py-6 flex flex-col gap-6">
       {/* Heading */}
-      <div>
-        <h3 className="font-bold text-2xl text-green-950">{tourData.title}</h3>
-        <div className="py-2 pl-16 flex justify-between">
-          <div className="flex gap-5 items-center">
-            <span className="flex items-center">
-              <span>{tourData.rating} </span>
-              <span className="text-yellow-400 text-2xl">&#9734;</span>
-            </span>
-            <span>{tourData.location}</span>
-            <span>{tourData.bookings}</span>
-          </div>
-          <div className="flex gap-7">
-            <button>Share</button>
-            <button>Wishlist</button>
-          </div>
+
+      <div className=" shadow-md bg-white rounded-lg p-5 flex justify-between items-center">
+        {/* Left Side: Title, Rating, Location */}
+        <div className="flex items-center gap-6">
+          {/* Title */}
+          <h3 className="font-bold text-3xl text-green-900">
+            {tourData.title}
+          </h3>
+
+          {/* Rating */}
+          <span className="flex items-center gap-1 text-xl font-semibold text-green-950">
+            {tourData.rating}
+            <FaStar className="text-yellow-400 text-2xl" />
+          </span>
+
+          {/* Location */}
+          <span className="text-lg text-green-950">{tourData.location}</span>
+        </div>
+
+        {/* Right Side: Buttons */}
+        <div className="flex gap-4">
+          <button className="bg-green-700 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-800 transition cursor-pointer">
+            Share
+          </button>
+          <button className="bg-green-600 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-700 transition cursor-pointer">
+            Wishlist
+          </button>
         </div>
       </div>
 
@@ -84,55 +98,70 @@ function Tour() {
       <Photos />
 
       {/* Overview */}
-      <div className="flex p-6 justify-between">
+      <div className="flex flex-col md:flex-row rounded-lg gap-10">
         {/* Left Side - Quick Facts */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-3xl font-bold text-green-600">QUICK FACTS</h3>
-          <div className="flex gap-3 items-center">
-            <BsSunFill size={20} color="green" />
-            <span className="font-semibold text-xl">DURATION</span>
-            <span className="text-lg font-thin">{tourData.duration}</span>
+        <div className="flex flex-col gap-5 w-full md:w-1/3 bg-white p-5 rounded-lg shadow-sm">
+          <h3 className="text-2xl font-bold text-green-900">Quick Facts</h3>
+
+          <div className="flex items-center gap-3 text-green-950">
+            <BsSunFill size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Duration:</span>
+            <span className="text-lg font-light">{tourData.duration}</span>
           </div>
-          <div className="flex gap-3 items-center">
-            <TiGroup size={20} color="green" />
-            <span className="font-semibold text-xl">PARTICIPANTS</span>
-            <span className="text-lg font-thin">{tourData.participants}</span>
+
+          <div className="flex items-center gap-3 text-green-950">
+            <TiGroup size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Participants:</span>
+            <span className="text-lg font-light">{tourData.participants}</span>
           </div>
-          <div className="flex gap-3 items-center">
-            <HiArrowTrendingUp size={20} color="green" />
-            <span className="font-semibold text-xl">DIFFICULTY</span>
-            <span className="text-lg font-thin">{tourData.difficulty}</span>
+
+          <div className="flex items-center gap-3 text-green-950">
+            <HiArrowTrendingUp size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Difficulty:</span>
+            <span className="text-lg font-light">{tourData.difficulty}</span>
           </div>
-          <div className="flex gap-3 items-center">
-            <FaRegStar size={20} color="green" />
-            <span className="font-semibold text-xl">RATING</span>
-            <span className="text-lg font-thin">{tourData.rating}/5</span>
+
+          <div className="flex items-center gap-3 text-green-950">
+            <FaRegStar size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Rating:</span>
+            <span className="text-lg font-light">{tourData.rating}/5</span>
           </div>
-          <div className="flex gap-3 items-center">
-            <IoLanguage size={20} color="green" />
-            <span className="font-semibold text-xl">Languages</span>
-            <span className="text-lg font-thin">
+
+          <div className="flex items-center gap-3 text-green-950">
+            <IoLanguage size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Languages:</span>
+            <span className="text-lg font-light">
               {tourData.languages.join(", ")}
             </span>
           </div>
-          <div className="flex gap-3 items-center">
-            <CiCalendar size={20} color="green" />
-            <span className="font-semibold text-xl">Date</span>
-            <span className="text-lg font-thin">{tourData.date}</span>
+
+          <div className="flex items-center gap-3 text-green-950">
+            <CiCalendar size={22} className="text-green-500" />
+            <span className="font-medium text-lg">Date:</span>
+            <span className="text-lg font-light">{tourData.date}</span>
           </div>
         </div>
 
         {/* Right Side - Tour Overview */}
-        <div className="w-[70%] px-6 space-y-3">
-          <div className="space-y-1">
-            <h2 className="text-3xl font-bold text-green-600">Tour Overview</h2>
-            <p className="pl-3">{tourData.overview}</p>
+        <div className="w-full md:w-2/3 bg-white p-5 rounded-lg shadow-sm">
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold text-green-900">
+              About This Tour
+            </h3>
+            <p className="text-green-950 leading-relaxed max-h-28 overflow-y-auto scrollbar-none">
+              {tourData.overview}
+            </p>
           </div>
-          <div className="space-y-1">
-            <h4 className="font-semibold text-xl">Tour Highlights</h4>
-            <ul className="list-disc list-inside pl-3">
+
+          <div className="mt-4">
+            <h4 className="text-xl font-semibold text-green-900">
+              Tour Highlights
+            </h4>
+            <ul className="list-disc list-inside text-green-950 mt-2 space-y-2 max-h-36 overflow-y-auto scrollbar-none">
               {tourData.highlights.map((highlight, index) => (
-                <li key={index}>{highlight}</li>
+                <li key={index} className="">
+                  {highlight}
+                </li>
               ))}
             </ul>
           </div>
@@ -140,24 +169,24 @@ function Tour() {
       </div>
 
       {/* Itinerary */}
-      <h2 className="text-3xl font-bold py-5 px-4 text-green-600">Itinerary</h2>
-      <div className="flex flex-col justify-between">
-        <div className="flex w-full justify-between">
+      <div className="flex flex-col justify-between gap-5 rounded-lg p-5 bg-white shadow-sm">
+        <h2 className="text-2xl font-bold text-green-900">Itinerary</h2>
+        <div className="flex gap-10 w-full justify-between  rounded-lg">
           <Timeline />
           <Map />
         </div>
       </div>
 
       {/* Buy and Included Things */}
-      <div className="flex py-6 justify-between">
+      <div className="flex p-5 justify-between bg-white shadow-sm rounded-lg">
         {/* Left Side */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col justify-between">
           {/* What's Included */}
-          <div className="flex flex-col gap-2">
-            <h3 className="text-3xl font-bold text-green-600">
+          <div className="flex flex-col gap-2 shadow-sm p-2 rounded-lg">
+            <h3 className="text-xl font-bold text-green-900">
               What's Included
             </h3>
-            <ul className="pl-3 text-lg font-thin">
+            <ul className="pl-3 text-green-950 tracking-tight">
               {tourData.included.map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
@@ -165,19 +194,27 @@ function Tour() {
           </div>
 
           {/* Tour Guides */}
-          <div className="flex flex-col py-1 gap-2">
-            <h3 className="text-3xl font-bold text-green-600 py-2">
-              Tour Guides
-            </h3>
+          <div className="flex flex-col p-2 gap-2 shadow-sm rounded-lg">
+            <h3 className="text-xl font-bold text-green-900">Tour Guides</h3>
             {tourData.guides.map((guide, index) => (
-              <div key={index} className="flex gap-3 items-center">
-                <img
-                  src={guide.image}
-                  alt="User"
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-                <span className="font-semibold text-xl">{guide.role}</span>
-                <span className="text-lg font-thin">{guide.name}</span>
+              <div key={index} className="flex gap-3 items-center pl-3">
+                {guide?.image ? (
+                  <Avatar size={48} imageURL={guide.image} />
+                ) : (
+                  <Avatar
+                    size={48}
+                    bgColor={"bg-green-500"}
+                    textColor={"text-white"}
+                    textSize={"text-2xl"}
+                    fontWeight={"font-semibold"}
+                    fullName={guide.name}
+                  />
+                )}
+
+                <span className="font-bold text-lg tracking-tighter text-green-900">
+                  {guide.role}
+                </span>
+                <span className="text-green-950">{guide.name}</span>
               </div>
             ))}
           </div>
@@ -188,18 +225,20 @@ function Tour() {
       </div>
 
       {/* Reviews */}
-      <div className="py-4">
-        <div className="flex justify-between px-2">
-          <h2 className="text-3xl font-bold text-green-600">Reviews</h2>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="text-xl font-bold text-green-600 border border-green-300 p-2 rounded-lg"
-          >
-            {userReview ? "Edit Review" : "Add Review"}
-          </button>
-        </div>
+      <div>
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className="flex shadow-sm rounded-sm items-center justify-between p-2">
+            <h2 className="text-2xl font-bold text-green-900">Reviews</h2>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className=" font-bold text-green-600 border border-green-300 p-2 rounded-lg cursor-pointer"
+            >
+              {userReview ? "Edit Review" : "Add Review"}
+            </button>
+          </div>
 
-        <Reviews />
+          <Reviews />
+        </div>
 
         {/* Modal */}
         {isModalOpen && (
