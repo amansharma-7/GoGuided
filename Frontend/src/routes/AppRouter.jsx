@@ -20,6 +20,7 @@ import Settings from "../components/dashboard/accounts/Settings";
 
 // user
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
+import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
@@ -90,7 +91,7 @@ const router = createBrowserRouter([
           // user
           { index: true, Component: Settings },
           { path: "bookings", Component: Bookings },
-          { path: "reviews", Component: Reviews },
+          { path: "reviews", Component: UserReviews },
         ],
       },
 
