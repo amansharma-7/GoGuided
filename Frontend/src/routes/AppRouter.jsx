@@ -21,6 +21,10 @@ import Settings from "../components/dashboard/accounts/Settings";
 // user
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
 import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
+<<<<<<< HEAD
+=======
+import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
+>>>>>>> 4f30b6acb33863bf50b135d753152454b6318ea0
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
@@ -48,6 +52,11 @@ import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
 import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
 import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
+import Completed from "../components/dashboard/accounts/guide/Bookings/Completed";
+import Upcoming from "../components/dashboard/accounts/guide/Bookings/Upcoming";
+import Ongoing from "../components/dashboard/accounts/guide/Bookings/Ongoing";
+import { Component } from "react";
+import Announcements from "../components/dashboard/accounts/user/bookings/Announcements";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +99,17 @@ const router = createBrowserRouter([
         children: [
           // user
           { index: true, Component: Settings },
+<<<<<<< HEAD
           { path: "bookings", Component: Bookings },
+=======
+          {
+            path: "bookings",
+            children: [
+              { index: true, Component: UserBookings },
+              { path: "announcements/:name", Component: Announcements },
+            ],
+          },
+>>>>>>> 4f30b6acb33863bf50b135d753152454b6318ea0
           { path: "reviews", Component: UserReviews },
         ],
       },
@@ -181,6 +200,27 @@ const router = createBrowserRouter([
         children: [
           { index: true, Component: GuideStats },
           { path: "settings", Component: Settings },
+          {
+            path: "completed-bookings",
+            children: [
+              { index: true, Component: Completed },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
+          {
+            path: "ongoing-bookings",
+            children: [
+              { index: true, Component: Ongoing },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
+          {
+            path: "upcoming-bookings",
+            children: [
+              { index: true, Component: Upcoming },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
         ],
       },
 

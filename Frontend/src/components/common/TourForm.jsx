@@ -177,6 +177,32 @@ export default function TourForm({ mode = "add", initialData = {}, onSubmit }) {
             />
           </div>
 
+          {/* Start Date & End Date */}
+          <div>
+            <label className="block mb-2 text-green-700 font-medium">
+              Start Date:
+            </label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:border-green-500"
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-green-700 font-medium">
+              End Date:
+            </label>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:border-green-500"
+            />
+          </div>
+
           {/* Image Upload */}
           <div className="col-span-2">
             <label className="block mb-2 text-green-700 font-medium">
