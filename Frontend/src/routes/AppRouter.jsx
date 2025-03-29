@@ -46,6 +46,7 @@ import Jobs from "../components/dashboard/accounts/admin/Jobs";
 import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
 import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
 import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
+import GuideStats from "../components/dashboard/accounts/guide/Stats";
 
 const router = createBrowserRouter([
   {
@@ -177,8 +178,8 @@ const router = createBrowserRouter([
         path: "/guide",
         Component: GuideDashboard,
         children: [
-          // user
-          { index: true, Component: Settings },
+          { index: true, Component: GuideStats },
+          { path: "settings", Component: Settings },
         ],
       },
 
