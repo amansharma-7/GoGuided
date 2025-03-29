@@ -1,3 +1,5 @@
+import { FaRegCalendarAlt, FaRegCheckCircle } from "react-icons/fa";
+import { FaRegClock, FaStar } from "react-icons/fa6";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import Announcements from "./Announcements";
 import StatusToggle from "./Statustoggle";
@@ -41,7 +43,7 @@ function Stats() {
         {/* Upcoming */}
         <SummaryCard
           title={"Upcoming"}
-          icon={FaIndianRupeeSign}
+          icon={FaRegCalendarAlt}
           value={2}
           navTo={"upcoming-bookings"}
         />

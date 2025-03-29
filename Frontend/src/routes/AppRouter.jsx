@@ -20,6 +20,8 @@ import Settings from "../components/dashboard/accounts/Settings";
 
 // user
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
+import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
+import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
@@ -50,6 +52,8 @@ import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import Completed from "../components/dashboard/accounts/guide/Bookings/Completed";
 import Upcoming from "../components/dashboard/accounts/guide/Bookings/Upcoming";
 import Ongoing from "../components/dashboard/accounts/guide/Bookings/Ongoing";
+import { Component } from "react";
+import Announcements from "../components/dashboard/accounts/user/bookings/Announcements";
 
 const router = createBrowserRouter([
   {
@@ -92,8 +96,14 @@ const router = createBrowserRouter([
         children: [
           // user
           { index: true, Component: Settings },
-          { path: "bookings", Component: Bookings },
-          { path: "reviews", Component: Reviews },
+          {
+            path: "bookings",
+            children: [
+              { index: true, Component: UserBookings },
+              { path: "announcements/:name", Component: Announcements },
+            ],
+          },
+          { path: "reviews", Component: UserReviews },
         ],
       },
 

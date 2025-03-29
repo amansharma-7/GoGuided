@@ -257,20 +257,11 @@ function Tour() {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white  rounded-lg shadow-lg w-200 relative">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-2 right-2 text-green-600 hover:text-green-900 cursor-pointer"
-              >
-                <IoClose size={30} />
-              </button>
-              <AddReview
-                initialReview={userReview}
-                onSubmit={handleReviewSubmit}
-              />
-            </div>
-          </div>
+          <AddReview
+            initialReview={userReview}
+            onSubmit={handleReviewSubmit}
+            setIsModalOpen={setIsModalOpen}
+          />
         )}
       </div>
     </div>
