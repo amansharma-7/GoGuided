@@ -231,10 +231,7 @@ function Tour() {
                   />
                 )}
 
-                <span className="font-bold text-lg tracking-tighter text-green-900">
-                  {guide.role}
-                </span>
-                <span className="text-green-950">{guide.name}</span>
+                <span className="text-2xl text-green-950">{guide.name}</span>
               </div>
             ))}
           </div>

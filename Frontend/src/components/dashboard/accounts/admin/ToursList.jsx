@@ -6,7 +6,6 @@ import {
   FaClipboardList,
   FaChevronDown,
   FaChevronUp,
-  FaPlus,
 } from "react-icons/fa";
 import { BiPlusCircle } from "react-icons/bi";
 import ConfirmationModal from "../../../common/ConfirmationModal";
@@ -23,6 +22,8 @@ const tours = [
     groupSize: "10-15 people",
     description:
       "Explore the depths of the Amazon Rainforest with experienced guides.",
+    startDate: "2025-04-01",
+    endDate: "2025-04-06",
   },
   {
     id: 2,
@@ -35,6 +36,8 @@ const tours = [
     groupSize: "5-10 people",
     description:
       "Conquer the challenging trails of the Himalayas for an unforgettable experience.",
+    startDate: "2025-06-10",
+    endDate: "2025-06-17",
   },
   {
     id: 3,
@@ -47,8 +50,19 @@ const tours = [
     groupSize: "15-20 people",
     description:
       "Witness the stunning wildlife of the Serengeti on this guided safari.",
+    startDate: "2025-03-25",
+    endDate: "2025-03-28",
   },
 ];
+
+const getStatus = (startDate, endDate) => {
+  const today = new Date();
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (today < start) return "Upcoming";
+  if (today >= start && today <= end) return "Ongoing";
+  return "Completed";
+};
 
 export default function ToursList() {
   const [expandedTour, setExpandedTour] = useState(null);
@@ -109,9 +123,12 @@ export default function ToursList() {
               )}
             </button>
           </div>
-          <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
-            {tour.description}
-          </p>
+          <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm">
+            <p className="text-green-800">{tour.description}</p>
+            <p className="text-green-800">
+              <strong>Status:</strong> {getStatus(tour.startDate, tour.endDate)}
+            </p>
+          </div>
           {expandedTour === tour.id && (
             <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
               <p className="text-green-800 font-medium">
@@ -145,6 +162,18 @@ export default function ToursList() {
               <p className="text-green-800 font-bold">
                 Price:{" "}
                 <span className="font-normal text-green-700">{tour.price}</span>
+              </p>
+              <p className="text-green-800 font-bold">
+                Start Date:{" "}
+                <span className="font-normal text-green-700">
+                  {tour.startDate}
+                </span>
+              </p>
+              <p className="text-green-800 font-bold">
+                End Date:{" "}
+                <span className="font-normal text-green-700">
+                  {tour.endDate}
+                </span>
               </p>
             </div>
           )}

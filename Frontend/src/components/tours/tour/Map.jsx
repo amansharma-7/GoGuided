@@ -149,7 +149,7 @@ function Map() {
   ];
 
   return (
-    <div className="relative w-[70%] bg-white p-2 rounded-lg shadow-sm">
+    <div className="relative w-[70%] bg-white p-2 rounded-lg shadow-sm z-0">
       <MapContainer
         center={[34.0837, 74.7973]}
         zoom={10}
