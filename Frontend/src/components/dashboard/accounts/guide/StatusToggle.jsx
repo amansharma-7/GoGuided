@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaExclamationCircle } from "react-icons/fa";
 import ConfirmationModal from "../../../common/ConfirmationModal";
 
@@ -6,9 +6,35 @@ function StatusToggle() {
   const [isAvailable, setIsAvailable] = useState(true);
   const [datePickerField, setDatePickerField] = useState(false);
   const [availableDate, setAvailableDate] = useState("");
+  const [tempDate, setTempDate] = useState(""); // Store user input
   const [confirmModal, setConfirmModal] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
 
-  // Toggle status and decide whether to show modal or date picker
+  // Get today's date adjusted for local timezone
+  const todayDate = new Date(
+    Date.now() - new Date().getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split("T")[0];
+
+  // Handle input change (directly update tempDate)
+  const handleDateChange = (e) => {
+    setTempDate(e.target.value);
+  };
+
+  // Auto-validate when tempDate changes
+  useEffect(() => {
+    if (tempDate) {
+      if (tempDate < todayDate) {
+        setWarningMessage("Please enter a valid future date.");
+        setAvailableDate(""); // Reset available date
+      } else {
+        setWarningMessage(""); // Clear warning if valid
+        setAvailableDate(tempDate); // Store valid date
+      }
+    }
+  }, [tempDate]); // Runs when tempDate updates
+
   const toggleStatus = () => {
     if (isAvailable) {
       openDatePicker();
@@ -17,43 +43,44 @@ function StatusToggle() {
     }
   };
 
-  // Open date picker when setting availability
   const openDatePicker = () => {
     setDatePickerField(true);
   };
 
-  // Close all modals and reset fields
   const closeModals = () => {
     setConfirmModal(false);
     setDatePickerField(false);
     setAvailableDate(""); // Reset selected date
+    setWarningMessage(""); // Clear warning message
+    setTempDate(""); // Reset temp date
   };
 
-  // Confirm status change (handles both available/unavailable)
   const confirmStatusChange = () => {
     setIsAvailable(!isAvailable);
     closeModals();
   };
 
-  // Cancel modal and reset fields
-  const handleCancel = closeModals; // Use closeModals to handle canceling
-
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg text-center border border-green-300">
       {/* Status Heading */}
-      <h2 className="text-xl font-bold text-green-700">Status</h2>
+      <h2 className="text-xl font-bold text-green-950">
+        Status:{" "}
+        <span className="text-green-900">
+          {isAvailable ? "Available" : "Unavailable"}
+        </span>
+      </h2>
 
       {/* Toggle Button */}
       <div className="my-4">
         <button
           onClick={toggleStatus}
-          className={`w-32 py-2 text-white font-semibold rounded-lg transition ${
+          className={`w-32 py-2 text-white font-semibold rounded-lg transition cursor-pointer ${
             isAvailable
-              ? "bg-green-500 hover:bg-green-600"
-              : "bg-red-400 hover:bg-red-500"
+              ? "bg-red-400 hover:bg-red-500"
+              : "bg-green-500 hover:bg-green-600"
           }`}
         >
-          {isAvailable ? "Available" : "Unavailable"}
+          Change
         </button>
       </div>
 
@@ -65,24 +92,22 @@ function StatusToggle() {
           </label>
           <input
             type="date"
-            value={availableDate}
-            min={new Date().toISOString().split("T")[0]}
-            onChange={(e) => setAvailableDate(e.target.value)}
+            value={tempDate}
+            min={todayDate}
+            onChange={handleDateChange} // Auto-validates after full date is entered
             className="border p-2 rounded w-full"
           />
 
-          {/* Warning Message */}
-          {!availableDate && (
+          {/* Warning Message - Show only when invalid date is entered */}
+          {warningMessage && (
             <div className="flex items-center bg-red-100 text-red-700 px-3 py-2 rounded mt-2">
               <FaExclamationCircle className="w-5 h-5 mr-2" />
-              <p className="text-sm font-semibold">
-                Please select an available date!
-              </p>
+              <p className="text-sm font-semibold">{warningMessage}</p>
             </div>
           )}
 
           {/* Confirm Unavailable Button */}
-          {availableDate && (
+          {availableDate && !warningMessage && (
             <>
               <p className="text-sm text-gray-600 mt-2">
                 📅 Available from:{" "}
@@ -109,7 +134,7 @@ function StatusToggle() {
               ? "Are you sure you want to mark yourself as Unavailable?"
               : "Are you sure you want to mark yourself as Available?"
           }
-          onCancel={handleCancel}
+          onCancel={closeModals}
           onConfirm={confirmStatusChange}
         />
       )}
