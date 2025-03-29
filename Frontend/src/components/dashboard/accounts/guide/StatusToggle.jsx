@@ -61,7 +61,7 @@ function StatusToggle() {
   };
 
   return (
-    <div className="w-full p-6 bg-white shadow-lg rounded-lg text-center border border-green-300">
+    <div className="w-full p-6 bg-white shadow-sm rounded-lg text-center">
       {/* Status Heading */}
       <h2 className="text-xl font-bold text-green-950">
         Status:{" "}
@@ -87,7 +87,7 @@ function StatusToggle() {
       {/* Available Mode - Date Picker */}
       {datePickerField && (
         <div className="mt-3">
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 mb-1 cursor-pointer">
             Available From:
           </label>
           <input
@@ -95,7 +95,7 @@ function StatusToggle() {
             value={tempDate}
             min={todayDate}
             onChange={handleDateChange} // Auto-validates after full date is entered
-            className="border p-2 rounded w-full"
+            className="border p-2 rounded w-full border-green-300 outline-none cursor-pointer"
           />
 
           {/* Warning Message - Show only when invalid date is entered */}
@@ -109,7 +109,7 @@ function StatusToggle() {
           {/* Confirm Unavailable Button */}
           {availableDate && !warningMessage && (
             <>
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-sm text-gray-600 mt-2 cursor-pointer">
                 📅 Available from:{" "}
                 <span className="font-semibold">
                   {new Date(availableDate).toLocaleDateString("en-GB")}
@@ -117,7 +117,7 @@ function StatusToggle() {
               </p>
               <button
                 onClick={() => setConfirmModal(true)}
-                className="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
+                className="mt-4 px-4 py-2 bg-red-500 text-white cursor-pointer font-semibold rounded-lg hover:bg-red-600 transition"
               >
                 Confirm Unavailable
               </button>
