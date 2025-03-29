@@ -20,8 +20,7 @@ import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
 import Avatar from "../../common/Avatar";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
-import { use } from "react";
-import { FaH } from "react-icons/fa6";
+
 const tourData = {
   title: "The Forest Hiker",
   location: "Jammu, India",
