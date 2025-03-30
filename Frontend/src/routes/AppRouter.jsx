@@ -21,10 +21,8 @@ import Settings from "../components/dashboard/accounts/Settings";
 // user
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
 import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
-<<<<<<< HEAD
-=======
 import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
->>>>>>> 4f30b6acb33863bf50b135d753152454b6318ea0
+import TourAnnouncements from "../components/dashboard/accounts/user/bookings/Announcements";
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
@@ -55,8 +53,7 @@ import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import Completed from "../components/dashboard/accounts/guide/Bookings/Completed";
 import Upcoming from "../components/dashboard/accounts/guide/Bookings/Upcoming";
 import Ongoing from "../components/dashboard/accounts/guide/Bookings/Ongoing";
-import { Component } from "react";
-import Announcements from "../components/dashboard/accounts/user/bookings/Announcements";
+import Announcements from "../components/dashboard/accounts/user/Announcements";
 
 const router = createBrowserRouter([
   {
@@ -99,17 +96,17 @@ const router = createBrowserRouter([
         children: [
           // user
           { index: true, Component: Settings },
-<<<<<<< HEAD
-          { path: "bookings", Component: Bookings },
-=======
+          {
+            path: "announcements",
+            Component: Announcements,
+          },
           {
             path: "bookings",
             children: [
               { index: true, Component: UserBookings },
-              { path: "announcements/:name", Component: Announcements },
+              { path: "announcements/:name", Component: TourAnnouncements },
             ],
           },
->>>>>>> 4f30b6acb33863bf50b135d753152454b6318ea0
           { path: "reviews", Component: UserReviews },
         ],
       },

@@ -1,18 +1,52 @@
-function OurMission({ missionData }) {
+import { GiPathDistance } from "react-icons/gi";
+import { TbWorldSearch } from "react-icons/tb";
+import { MdSecurity, MdSupportAgent } from "react-icons/md";
+import FeatureCard from "../common/FeatureCard";
+
+const missionData = [
+  {
+    icon: <GiPathDistance size={48} color="green" />,
+    title: "Beyond Bookings",
+    description:
+      "We don’t just help you plan; we help you live. Our curated adventures create immersive, unforgettable moments that turn trips into lasting stories.",
+  },
+  {
+    icon: <TbWorldSearch size={48} color="green" />,
+    title: "Authentic Travel",
+    description:
+      "Travel should feel real. We connect you with local traditions, hidden gems, and unique experiences that go beyond guidebooks for a meaningful journey.",
+  },
+  {
+    icon: <MdSecurity size={48} color="green" />,
+    title: "Safe & Seamless",
+    description:
+      "Your journey is our priority. From careful planning to real-time support, we ensure a smooth, stress-free experience so you can explore with confidence.",
+  },
+  {
+    icon: <MdSupportAgent size={48} color="green" />,
+    title: "24/7 Support",
+    description:
+      "Wherever you go, we're here. Our team is available round the clock for last-minute changes, expert tips, or any assistance you need.",
+  },
+];
+
+function OurMission() {
   return (
-    <div className="px-32 py-6 flex flex-col gap-6 items-center">
-      <h3 className="text-5xl font-bold">Our Mission</h3>
-      <div className="grid grid-cols-4 gap-4">
-        {missionData.map((mission, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-2 items-center w-72 p-4 shadow-sm shadow-black/40 rounded-lg"
-          >
-            {mission.icon}
-            <p className="font-semibold">{mission.title}</p>
-            <p className="px-3 tracking-tight">{mission.description}</p>
-          </div>
-        ))}
+    <div className="space-y-6 w-full px-32 py-6">
+      <div className="text-center text-3xl font-bold text-green-800">
+        Our Mission
+      </div>
+      <div className="w-full rounded-xl">
+        <div className="flex gap-4 items-center">
+          {missionData.map((mission, index) => (
+            <FeatureCard
+              key={index}
+              icon={mission.icon}
+              title={mission.title}
+              description={mission.description}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

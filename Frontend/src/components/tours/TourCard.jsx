@@ -1,8 +1,8 @@
 import useSafeNavigate from "../../utils/useSafeNavigate";
-import { MdLocationOn } from "react-icons/md";
 import { CiCalendar, CiFlag1 } from "react-icons/ci";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { HiArrowTrendingUp } from "react-icons/hi2";
+import { IoLocationOutline } from "react-icons/io5";
 
 function TourCard({ id }) {
   const safeNavigate = useSafeNavigate();
@@ -14,7 +14,10 @@ function TourCard({ id }) {
     imageUrl:
       "https://images.unsplash.com/photo-1529419412599-7bb870e11810?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     details: [
-      { icon: <MdLocationOn size={18} color="green" />, text: "Jammu, India" },
+      {
+        icon: <IoLocationOutline size={18} color="green" />,
+        text: "Jammu, India",
+      },
       { icon: <CiCalendar size={18} color="green" />, text: "April 2025" },
       { icon: <HiArrowTrendingUp size={18} color="green" />, text: "Easy" },
       { icon: <CiFlag1 size={18} color="green" />, text: "4 Stops" },
@@ -24,8 +27,8 @@ function TourCard({ id }) {
   };
 
   return (
-    <div className="grid grid-rows-[0.75fr_1fr]  overflow-hidden shadow-md shadow-black/15">
-      <div className="relative">
+    <div className="grid grid-rows-[0.75fr_1fr]  overflow-hidden shadow-sm shadow-black/15 h-[450px]">
+      <div className="relative overflow-hidden">
         <img
           className="object-cover object-center h-56 w-full rounded-t-md"
           src={tourData.imageUrl}
@@ -58,19 +61,17 @@ function TourCard({ id }) {
         </div>
 
         {/* Pricing & Booking */}
-        <div className="flex items-center  gap-16 p-5 px-6   ">
-          <div className="">
-            <p className="text-lg text-green-600 font-semibold flex items-center gap-0.5">
-              {Array.from({ length: 5 }, (_, i) =>
-                i < Math.floor(tourData.rating) ? (
-                  <FaStar key={i} className="text-yellow-500" />
-                ) : i < tourData.rating ? (
-                  <FaStarHalfAlt key={i} className="text-yellow-500" />
-                ) : (
-                  <FaRegStar key={i} className="text-yellow-500" />
-                )
-              )}{" "}
-            </p>
+        <div className="flex items-center justify-around p-2">
+          <div className="text-lg text-green-600 font-semibold flex items-center gap-0.5">
+            {Array.from({ length: 5 }, (_, i) =>
+              i < Math.floor(tourData.rating) ? (
+                <FaStar key={i} className="text-yellow-500" />
+              ) : i < tourData.rating ? (
+                <FaStarHalfAlt key={i} className="text-yellow-500" />
+              ) : (
+                <FaRegStar key={i} className="text-yellow-500" />
+              )
+            )}
           </div>
 
           <button

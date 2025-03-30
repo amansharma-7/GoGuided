@@ -1,7 +1,7 @@
 import { FaRegCalendarAlt, FaRegCheckCircle } from "react-icons/fa";
 import { FaRegClock, FaStar } from "react-icons/fa6";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
-import Announcements from "./Announcements";
+import Announcements from "../../../common/Announcements";
 import StatusToggle from "./Statustoggle";
 
 function SummaryCard({ title, icon: Icon, value, navTo }) {
@@ -52,7 +52,7 @@ function Stats() {
         <SummaryCard title={"Rating"} icon={FaStar} value={4.8} navTo={null} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 h-[450px]">
+      <div className="grid grid-cols-2 gap-4">
         <Announcements />
         <StatusToggle />
       </div>
