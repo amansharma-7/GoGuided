@@ -1,15 +1,14 @@
 import { FaRegCalendarAlt, FaRegCheckCircle } from "react-icons/fa";
 import { FaRegClock, FaStar } from "react-icons/fa6";
-import useSafeNavigate from "../../../../utils/useSafeNavigate";
-import Announcements from "./Announcements";
+import Announcements from "../../../common/Announcements";
 import StatusToggle from "./Statustoggle";
+import useSafeNavigate from "../../../../utils/useSafeNavigate";
 
-function SummaryCard({ title, icon: Icon, value, navTo }) {
-  const safeNavigate = useSafeNavigate();
+function SummaryCard({ title, icon: Icon, value, onClick }) {
   return (
     <div
       className="bg-white text-green-950 p-6 border border-green-300 flex flex-col items-center shadow-sm shadow-black/50 rounded-lg space-y-2 cursor-pointer "
-      onClick={navTo === null ? "" : () => safeNavigate(navTo)}
+      onClick={onClick}
     >
       <div className="flex items-center space-x-2">
         {Icon && <Icon className="text-green-700 text-xl" />}
@@ -21,6 +20,8 @@ function SummaryCard({ title, icon: Icon, value, navTo }) {
 }
 
 function Stats() {
+  const navigate = useSafeNavigate();
+
   return (
     <div className="p-4 flex flex-col space-y-4 h-full  overflow-y-scroll scrollbar-none">
       <div className="grid grid-cols-4 gap-4">
@@ -29,7 +30,7 @@ function Stats() {
           title={"Completed"}
           icon={FaRegCheckCircle}
           value={24}
-          navTo={"completed-bookings"}
+          onClick={() => navigate("bookings/completed")}
         />
 
         {/* Ongoing */}
@@ -37,7 +38,7 @@ function Stats() {
           title={"Ongoing"}
           icon={FaRegClock}
           value={12}
-          navTo={"ongoing-bookings"}
+          onClick={() => navigate("bookings/ongoing")}
         />
 
         {/* Upcoming */}
@@ -45,14 +46,14 @@ function Stats() {
           title={"Upcoming"}
           icon={FaRegCalendarAlt}
           value={2}
-          navTo={"upcoming-bookings"}
+          onClick={() => navigate("bookings/upcoming")}
         />
 
         {/* Rating */}
         <SummaryCard title={"Rating"} icon={FaStar} value={4.8} navTo={null} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 h-[450px]">
+      <div className="grid grid-cols-2 gap-4">
         <Announcements />
         <StatusToggle />
       </div>

@@ -1,21 +1,92 @@
+import { useState } from "react";
+import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
+import Toast from "../../common/Toast";
+
 function Settings() {
   const user = {
     name: "Sudhir Sharma",
     email: "sudhirsharma9018@gmail.com",
     photo:
-      "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&w=1985&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&w=1985&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D",
+  };
+
+  const [profileImage, setProfileImage] = useState(user.photo);
+  const [isUploading, setIsUploading] = useState(false);
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState({
+    newPassword: false,
+    confirmPassword: false,
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [toast, setToast] = useState(null);
+
+  // Function to show toast
+  const showToast = (message, type) => {
+    setToast({ message, type });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 5000);
+  };
+
+  // Handle Password Change
+  const handlePasswordChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    if (e.target.name === "confirmPassword") {
+      setPasswordError(
+        e.target.value !== formData.newPassword ? "Passwords do not match" : ""
+      );
+    }
+  };
+
+  // Toggle Password Visibility
+  const toggleVisibility = (field) => {
+    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  // Handle Profile Picture Upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setIsUploading(true);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+        setIsUploading(false);
+        showToast("Profile picture updated successfully!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle Password Update
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (formData.newPassword !== formData.confirmPassword) {
+      showToast("Error: Passwords do not match!", "error");
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    showToast("Password updated successfully!", "success");
   };
 
   return (
-    <div className="px-32 py-8 h-full overflow-y-auto scrollbar-none">
-      <div className="px-8 py-6 flex flex-col space-y-6 ">
+    <div className="px-32 py-8 space-y-6 h-full overflow-y-auto scrollbar-none">
+      {/* Toast Message */}
+      {toast && <Toast message={toast.message} type={toast.type} />}
+
+      {/* Account Settings Section */}
+      <div className="p-8 flex flex-col space-y-6 shadow-sm bg-white rounded-lg">
         <h3 className="text-3xl font-semibold uppercase text-green-700">
           Your Account Settings
         </h3>
-        <form
-          // method="post"
-          className="grid grid-cols-1 gap-4 pt-5"
-        >
+        <form className="grid grid-cols-1 gap-4 pt-5">
+          {/* Name */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="name"
@@ -24,11 +95,15 @@ function Settings() {
               Name
             </label>
             <input
+              defaultValue={user.name}
+              disabled
               type="text"
               id="name"
-              className="p-2 border-2 border-black/20 rounded-md"
+              className="p-2 border border-green-300 rounded-md outline-none text-green-950 cursor-not-allowed"
             />
           </div>
+
+          {/* Email */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="email"
@@ -37,83 +112,132 @@ function Settings() {
               Email Address
             </label>
             <input
+              defaultValue={user.email}
+              disabled
               type="email"
               id="email"
-              className="p-2 border-2 border-black/20 rounded-md"
+              className="p-2 border border-green-300 rounded-md outline-none text-green-950 cursor-not-allowed"
             />
           </div>
 
+          {/* Profile Picture Upload */}
           <div className="flex items-center gap-x-6">
-            <div className=" inline-block cursor-pointer overflow-hidden">
-              {user?.photo ? (
-                <img
-                  src={user.photo}
-                  alt={user.name}
-                  className="w-20 h-20 object-cover object-center rounded-full"
-                />
-              ) : (
-                <FaCircleUser className="w-20 h-20 text-white" />
-              )}
-            </div>
-            <div className="cursor-pointer text-green-600 hover:font-semibold ">
-              <span className="border-b-2 py-2 px-1">Choose new photo</span>
-            </div>
+            <label className="relative cursor-pointer">
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-20 h-20 object-cover object-center rounded-full"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <FaCamera className="absolute bottom-0 right-0 bg-white rounded-full p-1 text-green-700 w-6 h-6 shadow-md" />
+            </label>
+            {isUploading ? (
+              <span className="text-green-600">Uploading...</span>
+            ) : null}
           </div>
-
-          <button className="p-4 mt-2 uppercase text-lg text-white bg-green-600 rounded-md hover:bg-green-700 hover:shadow-sm hover:shadow-black/50 hover:cursor-pointer">
-            Save settings
-          </button>
         </form>
       </div>
-      <div className="px-8 py-6 flex flex-col space-y-6 ">
+
+      {/* Password Change Section */}
+      <div className="p-8 flex flex-col space-y-6 shadow-sm rounded-lg bg-white">
         <h3 className="text-3xl font-semibold uppercase text-green-700">
-          Password Change
+          Change Password
         </h3>
         <form
-          // method="post"
           className="grid grid-cols-1 gap-4 pt-5"
+          onSubmit={handlePasswordSubmit}
         >
+          {/* Current Password */}
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="current_password"
+              htmlFor="currentPassword"
               className="text-lg font-medium text-green-900"
             >
               Current password
             </label>
             <input
-              type="text"
-              id="current_password"
-              className="p-2 border-2 border-black/20 rounded-md"
+              type="password"
+              id="currentPassword"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handlePasswordChange}
+              className="p-2 border border-green-300 rounded-md outline-none text-green-950"
             />
           </div>
-          <div className="flex flex-col gap-2">
+
+          {/* New Password with Eye Toggle */}
+          <div className="flex flex-col gap-2 relative">
             <label
-              htmlFor="new_password"
+              htmlFor="newPassword"
               className="text-lg font-medium text-green-900"
             >
               New password
             </label>
-            <input
-              type="password"
-              id="new_password"
-              className="p-2 border-2 border-black/20 rounded-md"
-            />
+            <div className="relative">
+              <input
+                type={showPassword.newPassword ? "text" : "password"}
+                id="newPassword"
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handlePasswordChange}
+                className="p-2 border border-green-300 outline-none rounded-md text-green-950 w-full"
+              />
+              <button
+                type="button"
+                onClick={() => toggleVisibility("newPassword")}
+                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800"
+              >
+                {showPassword.newPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
+
+          {/* Confirm Password with Eye Toggle */}
+          <div className="flex flex-col gap-2 relative">
             <label
-              htmlFor="confirm_password"
+              htmlFor="confirmPassword"
               className="text-lg font-medium text-green-900"
             >
               Confirm password
             </label>
-            <input
-              type="password"
-              id="confirm_password"
-              className="p-2 border-2 border-black/20 rounded-md"
-            />
+            <div className="relative">
+              <input
+                type={showPassword.confirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handlePasswordChange}
+                className="p-2 border border-green-300 outline-none rounded-md text-green-950 w-full"
+              />
+              <button
+                type="button"
+                onClick={() => toggleVisibility("confirmPassword")}
+                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800"
+              >
+                {showPassword.confirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {passwordError && (
+              <span className="text-red-600">{passwordError}</span>
+            )}
           </div>
 
-          <button className="p-4 mt-4 text-lg uppercase text-white bg-green-600 rounded-md hover:bg-green-700 hover:shadow-sm hover:shadow-black/50 hover:cursor-pointer">
+          {/* Update Password Button */}
+          <button
+            className="p-4 mt-4 text-lg uppercase text-white bg-green-600 rounded-md 
+             hover:bg-green-700 hover:shadow-sm 
+             disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={
+              !formData.currentPassword.length ||
+              !formData.newPassword.length ||
+              !formData.confirmPassword.length
+            }
+          >
             Update Password
           </button>
         </form>

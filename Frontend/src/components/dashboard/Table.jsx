@@ -1,38 +1,35 @@
 import { useState } from "react";
 import useSafeNavigate from "../../utils/useSafeNavigate";
+import { useLocation } from "react-router";
 
 function getStatusStyle(status) {
   switch (status) {
-    case "Paid":
-    case "Completed":
+    case "paid":
+    case "completed":
       return "bg-green-100 text-green-700 border-green-400 px-2 py-1 rounded";
-    case "Pending":
-    case "Ongoing":
+    case "pending":
+    case "ongoing":
       return "bg-yellow-100 text-yellow-700 border-yellow-400 px-2 py-1 rounded";
-    case "Failed":
-    case "Rejected": // 🔹 Added styling for rejected
+    case "failed":
+    case "rejected": // 🔹 Added styling for rejected
       return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
-    case "Refunded":
-    case "Upcoming":
+    case "refunded":
+    case "upcoming":
       return "bg-blue-100 text-blue-700 border-blue-400 px-2 py-1 rounded";
-    case "Free":
+    case "free":
       return "bg-gray-100 text-gray-700 border-gray-400 px-2 py-1 rounded";
-    case "Assigned":
+    case "assigned":
       return "bg-purple-100 text-purple-700 border-purple-400 px-2 py-1 rounded";
-    case "Approved": // 🔹 Added styling for approved
+    case "approved": // 🔹 Added styling for approved
       return "bg-green-200 text-green-800 border-green-500 px-2 py-1 rounded font-semibold";
     default:
       return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
   }
 }
 
-export default function BookingsTable({
-  headers,
-  data,
-  itemsPerPage = 5,
-  navToBy = null,
-}) {
+export default function BookingsTable({ headers, data, itemsPerPage = 5 }) {
   const navigate = useSafeNavigate();
+  const { pathname } = useLocation();
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -76,14 +73,9 @@ export default function BookingsTable({
               <div
                 key={idx}
                 onClick={
-                  navToBy === null
-                    ? ""
-                    : () =>
-                        navigate(
-                          navToBy === "name" && item?.name
-                            ? item.name.toLowerCase().split(" ").join("_")
-                            : item?.id || ""
-                        )
+                  pathname === "/admin/payments"
+                    ? () => {}
+                    : () => navigate(item.id)
                 }
                 className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
                 style={{
@@ -93,8 +85,12 @@ export default function BookingsTable({
                 }}
               >
                 {Object.values(item).map((value, i) => (
-                  <div key={i} className="px-3 py-1.5">
-                    {headers[i].label.toLowerCase() === "status" ? (
+                  <div key={i} className="px-2 py-1.5">
+                    {i === 0 ? ( // First column -> Serial Number (S. No.)
+                      <span className="block font-semibold">
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
+                      </span>
+                    ) : headers[i].label.toLowerCase() === "status" ? ( // Status column with styles
                       <span
                         className={`text-sm rounded-md border px-2 py-1 ${getStatusStyle(
                           value
@@ -103,7 +99,7 @@ export default function BookingsTable({
                         {value}
                       </span>
                     ) : (
-                      <span className="block">{value}</span>
+                      <span className="block">{value}</span> // Default case
                     )}
                   </div>
                 ))}

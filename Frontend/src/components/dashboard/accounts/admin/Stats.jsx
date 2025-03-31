@@ -6,9 +6,10 @@ import {
   FaStar,
 } from "react-icons/fa6";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
-import ChartComponent from "./ChartComponent";
+import Announcements from "../../../common/Announcements";
 
 import React from "react";
+import BookingChart from "./BookingChart";
 
 function SummaryCard({ title, icon: Icon, value }) {
   return (
@@ -44,17 +45,6 @@ function StatCard({ title, value, route }) {
 }
 
 function Stats() {
-  const statsData = [
-    { name: "Bookings", value: 12 },
-    { name: "Tours", value: 12 },
-    { name: "Reviews", value: 12 },
-    { name: "Users", value: 12 },
-    { name: "Feedbacks", value: 12 },
-    { name: "Payments", value: 12 },
-    { name: "Guides", value: 12 },
-    { name: "Jobs", value: 12 },
-  ];
-
   return (
     <div className="p-4 flex flex-col space-y-4 h-full  overflow-y-scroll scrollbar-none">
       <div className="grid grid-cols-4 gap-4">
@@ -75,7 +65,10 @@ function Stats() {
         <SummaryCard title={"Rating"} icon={FaStar} value={4.8} />
       </div>
 
-      <ChartComponent data={statsData} />
+      <div className="grid grid-cols-2 gap-4 ">
+        <BookingChart />
+        <Announcements />
+      </div>
 
       <div className="grid grid-cols-4 gap-4 ">
         <StatCard title={"Bookings"} value={12} route={"bookings"} />

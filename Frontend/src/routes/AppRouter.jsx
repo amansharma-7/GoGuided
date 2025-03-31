@@ -22,6 +22,9 @@ import Settings from "../components/dashboard/accounts/Settings";
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
 import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
+import TourAnnouncements from "../components/dashboard/accounts/user/bookings/Announcements";
+import HelpSupport from "../components/dashboard/accounts/user/HelpSupport";
+import Announcements from "../components/dashboard/accounts/user/Announcements";
 
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
@@ -38,22 +41,18 @@ import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
 import AllPayments from "../components/dashboard/accounts/admin/Payments";
 import AllGuides from "../components/dashboard/accounts/admin/Guides";
 import Refunds from "../components/dashboard/accounts/admin/Refunds";
+import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
+import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
+import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
+import Jobs from "../components/dashboard/accounts/admin/Jobs";
+import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetails";
+import UserDetails from "../components/dashboard/accounts/admin/UserDetails";
+import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
-import UserDetails from "../components/dashboard/accounts/admin/UserDetails";
-import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
-import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetails";
-import Jobs from "../components/dashboard/accounts/admin/Jobs";
-import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
-import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
-import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
-import Completed from "../components/dashboard/accounts/guide/Bookings/Completed";
-import Upcoming from "../components/dashboard/accounts/guide/Bookings/Upcoming";
-import Ongoing from "../components/dashboard/accounts/guide/Bookings/Ongoing";
-import { Component } from "react";
-import Announcements from "../components/dashboard/accounts/user/bookings/Announcements";
+import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
 
 const router = createBrowserRouter([
   {
@@ -97,13 +96,18 @@ const router = createBrowserRouter([
           // user
           { index: true, Component: Settings },
           {
+            path: "announcements",
+            Component: Announcements,
+          },
+          {
             path: "bookings",
             children: [
               { index: true, Component: UserBookings },
-              { path: "announcements/:name", Component: Announcements },
+              { path: "announcements/:name", Component: TourAnnouncements },
             ],
           },
           { path: "reviews", Component: UserReviews },
+          { path: "support", Component: HelpSupport },
         ],
       },
 
@@ -194,25 +198,9 @@ const router = createBrowserRouter([
           { index: true, Component: GuideStats },
           { path: "settings", Component: Settings },
           {
-            path: "completed-bookings",
-            children: [
-              { index: true, Component: Completed },
-              { path: ":id", Component: BookingDetails },
-            ],
-          },
-          {
-            path: "ongoing-bookings",
-            children: [
-              { index: true, Component: Ongoing },
-              { path: ":id", Component: BookingDetails },
-            ],
-          },
-          {
-            path: "upcoming-bookings",
-            children: [
-              { index: true, Component: Upcoming },
-              { path: ":id", Component: BookingDetails },
-            ],
+            path: "bookings/:status",
+            Component: GuideBookings,
+            children: [{ path: ":id", Component: BookingDetails }],
           },
         ],
       },
