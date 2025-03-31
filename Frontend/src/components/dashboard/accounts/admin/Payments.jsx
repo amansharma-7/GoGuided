@@ -6,9 +6,9 @@ const headers = [
   { label: "S No.", width: "10%" },
   { label: "User Name", width: "20%" },
   { label: "Email", width: "25%" },
-  { label: "Amount", width: "10%" },
-  { label: "Status", width: "20%" },
+  { label: "Amount", width: "15%" },
   { label: "Date", width: "15%" },
+  { label: "Status", width: "15%" },
 ];
 
 const paymentsData = Array.from({ length: 50 }, (_, i) => ({
@@ -21,8 +21,8 @@ const paymentsData = Array.from({ length: 50 }, (_, i) => ({
     "lucy@example.com",
   ][i % 4],
   amount: ["$100", "$200", "$150", "$250"][i % 4],
-  status: ["Paid", "Pending", "Failed", "Refunded"][i % 4],
   date: `2024-03-${(i % 30) + 1}`.padStart(10, "0"),
+  status: ["Paid", "Pending", "Failed", "Refunded"][i % 4],
 }));
 
 function Payments() {

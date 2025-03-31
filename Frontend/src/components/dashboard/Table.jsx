@@ -56,7 +56,7 @@ export default function BookingsTable({
         <div className="min-w-max space-y-1">
           {/* Header */}
           <div
-            className="grid bg-green-200 text-green-900 font-semibold rounded-md px-3 py-1"
+            className="grid bg-green-200 text-green-900 font-semibold rounded-md px-3 py-1 "
             style={{
               gridTemplateColumns: headers
                 .map((header) => `minmax(${header.width}, 1fr)`)
@@ -93,7 +93,7 @@ export default function BookingsTable({
                 }}
               >
                 {Object.values(item).map((value, i) => (
-                  <div key={i} className="px-2 py-1.5">
+                  <div key={i} className="px-3 py-1.5">
                     {headers[i].label.toLowerCase() === "status" ? (
                       <span
                         className={`text-sm rounded-md border px-2 py-1 ${getStatusStyle(
