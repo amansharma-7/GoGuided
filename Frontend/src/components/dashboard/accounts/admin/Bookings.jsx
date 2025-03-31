@@ -67,7 +67,7 @@ function Bookings() {
         headers={headers}
         data={bookingsData}
         itemsPerPage={9}
-        navToBy="name"
+        navToBy={"id"}
       />
     </div>
   );

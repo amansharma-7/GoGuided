@@ -3,6 +3,7 @@ import { IoBagHandleOutline } from "react-icons/io5";
 import { FaRegStar } from "react-icons/fa";
 import { MdOutlineLogout } from "react-icons/md";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
+import { FiHelpCircle } from "react-icons/fi";
 
 import NavItem from "../NavItem";
 
@@ -27,6 +28,11 @@ function UserLinks() {
       <NavItem to="reviews">
         <FaRegStar className="text-green-200" />
         <span>My Reviews</span>
+      </NavItem>
+
+      <NavItem to="support">
+        <FiHelpCircle className="text-green-200" />
+        <span>Help & Support</span>
       </NavItem>
 
       <NavItem to="logout">
