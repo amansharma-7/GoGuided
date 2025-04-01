@@ -11,23 +11,20 @@ import { useState } from "react";
 function DashboardHeader({
   title,
   totalCount,
-  setSearchQuery,
-  sortOrder,
-  setSortOrder,
-  selectedFilters,
-  setSelectedFilters,
+  filterState,
+  setFilterState,
   filterOptions,
 }) {
-  const safeNavigate = useSafeNavigate();
-  const [query, setQuery] = useState("");
+  const navigate = useSafeNavigate();
+  const [query, setQuery] = useState(filterState.searchQuery || "");
 
   return (
     <div className="flex items-center justify-between bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2 w-full">
       <div className="flex items-center space-x-4">
         {/* Back Button */}
         <button
-          onClick={() => safeNavigate(-1)}
-          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9 w-9 flex items-center justify-center"
+          onClick={() => navigate(-1)}
+          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer h-9 w-9 flex items-center justify-center"
         >
           <FaArrowLeft className="w-4 h-4" />
         </button>
@@ -45,41 +42,44 @@ function DashboardHeader({
           placeholder={`Search ${title.toLowerCase()}`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="border border-green-300 px-3 py-1.5 rounded-md text-sm w-64 transition-all focus:border-green-600 focus:border-2 outline-none h-9"
+          className="border border-green-300 px-3 py-1.5 rounded-md text-sm w-64 focus:border-green-600 focus:border-2 outline-none h-9"
         />
-
-        {/* Search Button */}
         <button
-          onClick={() => setSearchQuery(query)}
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md transition flex items-center cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9"
+          onClick={() =>
+            setFilterState((prevState) => ({
+              ...prevState,
+              searchQuery: query,
+            }))
+          }
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md flex items-center h-9"
         >
           <FaSearch className="w-4 h-4" />
         </button>
 
         {/* Sort Button */}
         <button
-          onClick={() =>
-            setSortOrder((order) => (order === "asc" ? "desc" : "asc"))
-          }
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md transition cursor-pointer focus:outline-none focus:ring-0 focus:border-green-600 h-9"
+          onClick={() => {
+            setFilterState((prevState) => ({
+              ...prevState,
+              sortOrder: prevState.sortOrder === "asc" ? "desc" : "asc",
+            }));
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md h-9"
         >
-          {sortOrder === "asc" ? (
+          {filterState.sortOrder === "asc" ? (
             <FaSortAmountUp className="w-4 h-4" />
           ) : (
             <FaSortAmountDown className="w-4 h-4" />
           )}
         </button>
 
-        {/* Filter Dropdown (Optional) */}
+        {/* Filter Dropdown */}
         {filterOptions && (
           <FilterDropdown
             options={filterOptions}
-            selectedFilters={selectedFilters}
-            setSelectedFilters={(val) => {
-              console.log(val);
-              setSelectedFilters(val);
-            }}
-            style={{ width: "w-36", maxHeight: "max-h-64" }} // only tailwind classes
+            selectedFilters={filterState.selectedFilters}
+            setSelectedFilters={setFilterState}
+            style={{ width: "w-36", maxHeight: "max-h-64" }}
           />
         )}
       </div>
