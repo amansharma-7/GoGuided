@@ -226,10 +226,24 @@ const filterOptions = [
   },
 ];
 
+const getTourStatus = (tour) => {
+  const startDate = new Date(tour.startDate);
+  const endDate = new Date(tour.completionDate);
+
+  if (endDate < new Date()) {
+    return "completed";
+  } else if (startDate <= new Date() && endDate >= new Date()) {
+    return "ongoing";
+  } else {
+    return "upcoming";
+  }
+};
+
 function filterTours(tours, filterState) {
   const { searchQuery, selectedFilters } = filterState;
 
-  if (Object.keys(selectedFilters).length === 0) {
+  // If no filters and no search query, return all tours
+  if (!searchQuery && Object.keys(selectedFilters).length === 0) {
     return tours;
   }
 
@@ -239,19 +253,6 @@ function filterTours(tours, filterState) {
       tour.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
-  const getTourStatus = (tour) => {
-    const startDate = new Date(tour.startDate);
-    const endDate = new Date(tour.completionDate);
-
-    if (endDate < new Date()) {
-      return "completed";
-    } else if (startDate <= new Date() && endDate >= new Date()) {
-      return "ongoing";
-    } else {
-      return "upcoming";
-    }
-  };
 
   if (selectedFilters["Tour Status"]) {
     filteredTours = filteredTours.filter((tour) => {
@@ -313,7 +314,7 @@ function Tours() {
       <div className="flex flex-col justify-center p-3 shadow-sm bg-white rounded-lg h-[100vh]">
         <ToursHeader
           title="Tours"
-          totalCount={tours.length}
+          totalCount={sortedTours.length}
           filterState={filterState}
           setFilterState={setFilterState}
           filterOptions={filterOptions}
