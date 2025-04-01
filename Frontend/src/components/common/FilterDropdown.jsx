@@ -25,10 +25,18 @@ function FilterDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown, options]);
 
-  // Handle selection updates
   const handleSelect = (category, value) => {
-    const newValues = { ...selectedFilters, [category]: value };
-    setSelectedFilters(newValues); // Send updated values to parent
+    setSelectedFilters((prevFilters) => {
+      const selectedFilters = { ...prevFilters.selectedFilters };
+
+      if (selectedFilters[category] === value) {
+        delete selectedFilters[category];
+      } else {
+        selectedFilters[category] = value;
+      }
+
+      return { ...prevFilters, selectedFilters };
+    });
   };
 
   return (
@@ -45,15 +53,15 @@ function FilterDropdown({
       {/* Dropdown Menu */}
       {openDropdown && (
         <div
-          className={`${Object.values(style).join(
-            " "
-          )} absolute right-0 mt-2 flex flex-col gap-1 bg-green-100 border border-green-300 shadow-lg rounded-md z-50 overflow-y-auto `}
+          className={`absolute right-0 mt-2 flex flex-col gap-1 bg-green-100 border border-green-300 shadow-lg rounded-md z-50 overflow-y-auto ${
+            style?.width || "w-48"
+          }`}
         >
           {options.map((group) => (
-            <div key={group.label} className="">
+            <div key={group.label}>
               {/* Clickable Label */}
               <div
-                className="px-4 py-2 text-green-700 font-semibold bg-green-200 cursor-pointer hover:bg-green-200"
+                className="px-4 py-2 text-green-800 font-semibold bg-green-200 cursor-pointer hover:bg-green-300"
                 onClick={() =>
                   setOpenGroup(openGroup === group.label ? null : group.label)
                 }
@@ -67,14 +75,17 @@ function FilterDropdown({
                   {group.children.map((option) => (
                     <li
                       key={option.value}
-                      className={`px-4 py-2 text-sm cursor-pointer hover:bg-green-200 transition ${
+                      className={`px-4 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-green-200 transition ${
                         selectedFilters[group.label] === option.value
-                          ? "bg-green-300"
+                          ? "font-bold text-green-900 bg-green-300"
                           : ""
                       }`}
                       onClick={() => handleSelect(group.label, option.value)}
                     >
                       {option.label}
+                      {selectedFilters[group.label] === option.value && (
+                        <span>✅</span>
+                      )}
                     </li>
                   ))}
                 </ul>
