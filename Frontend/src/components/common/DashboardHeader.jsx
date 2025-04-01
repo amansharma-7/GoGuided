@@ -76,7 +76,6 @@ function DashboardHeader({
             options={filterOptions}
             selectedFilters={selectedFilters}
             setSelectedFilters={(val) => {
-              console.log(val);
               setSelectedFilters(val);
             }}
             style={{ width: "w-36", maxHeight: "max-h-64" }} // only tailwind classes

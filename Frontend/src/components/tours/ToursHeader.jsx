@@ -18,14 +18,15 @@ function ToursHeader() {
       setSelectedFilters={setSelectedFilters}
       filterOptions={[
         {
-          label: "Category 1",
+          label: "Difficulty",
           children: [
-            { label: "Option 1", value: "opt1" },
-            { label: "Option 2", value: "opt2" },
+            { label: "Easy", value: "easy" },
+            { label: "Medium", value: "medium" },
+            { label: "Hard", value: "hard" },
           ],
         },
         {
-          label: "Category 2",
+          label: "",
           children: [
             { label: "Option A", value: "optA" },
             { label: "Option B", value: "optB" },

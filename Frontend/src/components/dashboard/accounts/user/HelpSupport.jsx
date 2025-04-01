@@ -92,7 +92,7 @@ function HelpSupport() {
           </div>
         )}
 
-        <div className="p-4 h-40 overflow-y-auto bg-white rounded shadow-md">
+        <div className="p-4 h-40 overflow-y-auto bg-white rounded shadow-md scrollbar-hide">
           {chat.map((msg, index) => (
             <p
               key={index}

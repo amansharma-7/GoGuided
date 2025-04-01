@@ -34,7 +34,7 @@ function TourCard({ id }) {
           src={tourData.imageUrl}
           alt={tourData.title}
         />
-        <div className="bg-white h-30 w-[400px] absolute z-1 -bottom-22 -rotate-9 text-black text-center"></div>
+        <div className="bg-white h-30 w-[120%] absolute z-1 -bottom-21 -rotate-9 text-black text-center"></div>
         <div className="flex flex-col items-end px-3 absolute z-3 bottom-12 right-0">
           <p className="bg-green-600/70 shadow-sm p-2 w-fit text-2xl text-white  ">
             {tourData.title.split(" ")[0].toUpperCase()}{" "}
