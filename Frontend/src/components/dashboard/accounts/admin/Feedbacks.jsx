@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FeedbackHeader from "../../../common/DashboardHeader";
 import { FaChevronDown, FaChevronUp, FaPen, FaTimes } from "react-icons/fa";
 
@@ -106,17 +106,43 @@ const feedbackList = [
 ];
 
 function Feedbacks() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
   const [expandedFeedback, setExpandedFeedback] = useState(null);
   const [replyingFeedback, setReplyingFeedback] = useState(null);
   const [replyMessage, setReplyMessage] = useState("");
-  const [feedbacks, setFeedback] = useState(feedbackList);
+
+  const [feedbacks, setFeedbacks] = useState(feedbackList);
+
+  // const [users, setUsers] = useState(usersData);
+
+  useEffect(() => {
+    function fetchFeedbacks(query) {
+      return feedbackList.filter(
+        (user) =>
+          user &&
+          user.name &&
+          user.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredFeedbacks = fetchFeedbacks(filterState.searchQuery);
+    setFeedbacks(filteredFeedbacks);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedFeedbacks = [...feedbacks].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
 
   const handleReply = (id) => {
     // console.log("Reply sent:", replyMessage);
-    setFeedback((feedbacks) =>
+    setFeedbacks((feedbacks) =>
       feedbacks.map((feedback) =>
         feedback.id === id ? { ...feedback, status: "Resolved" } : feedback
       )
@@ -129,13 +155,9 @@ function Feedbacks() {
     <div className="px-4 py-4 h-full overflow-y-auto scrollbar-hide">
       <FeedbackHeader
         title="Feedbacks"
-        totalCount={feedbackList.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedFeedbacks.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
             label: "Category 1",
@@ -154,7 +176,7 @@ function Feedbacks() {
         ]}
       />
 
-      {feedbacks.map((feedback) => (
+      {sortedFeedbacks.map((feedback) => (
         <div
           key={feedback.id}
           className="bg-white rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"

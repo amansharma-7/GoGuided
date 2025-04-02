@@ -1,6 +1,6 @@
 import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -24,51 +24,72 @@ const bookingsData = Array.from({ length: 50 }, (_, i) => ({
     "lucy@example.com",
   ][i % 4],
   date: `2023-09-${(i % 30) + 1}`.padStart(9, "0"), // Dates from 2023-09-01 to 2023-09-30
-  status: ["Completed", "Ongoing", "Canceled", "Upcoming"][i % 4],
+  status: ["completed", "ongoing", "canceled", "upcoming"][i % 4],
 }));
 
 function Bookings() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
+  const [bookings, setBookings] = useState(bookingsData);
+
+  useEffect(() => {
+    function fetchBookings(query) {
+      return bookingsData.filter(
+        (booking) =>
+          !query ||
+          booking.tour.toLowerCase().includes(query.toLowerCase()) ||
+          booking.customer.toLowerCase().includes(query.toLowerCase()) ||
+          booking.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredBookings = fetchBookings(filterState.searchQuery);
+    setBookings(filteredBookings);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedBookings = [...bookings].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? new Date(a.date) - new Date(b.date)
+      : new Date(b.date) - new Date(a.date);
+  });
 
   return (
     <div className="px-4 py-4">
-      {/* Header Section */}
-
       <BookingsHeader
         title="Bookings"
-        totalCount={100}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedBookings.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Booking Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Upcoming", value: "upcoming" },
+              { label: "Ongoing", value: "ongoing" },
+              { label: "Cancelled", value: "cancelled" },
+              { label: "Completed", value: "completed" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Date Filter",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+              {
+                label: "Custom Range",
+                value: "custom_range",
+                type: "date_picker",
+              },
             ],
           },
         ]}
       />
 
-      <BookingsTable
-        headers={headers}
-        data={bookingsData}
-        itemsPerPage={9}
-        navToBy={"id"}
-      />
+      <BookingsTable headers={headers} data={sortedBookings} itemsPerPage={9} />
     </div>
   );
 }

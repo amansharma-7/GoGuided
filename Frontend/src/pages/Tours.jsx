@@ -226,19 +226,6 @@ const filterOptions = [
   },
 ];
 
-const getTourStatus = (tour) => {
-  const startDate = new Date(tour.startDate);
-  const endDate = new Date(tour.completionDate);
-
-  if (endDate < new Date()) {
-    return "completed";
-  } else if (startDate <= new Date() && endDate >= new Date()) {
-    return "ongoing";
-  } else {
-    return "upcoming";
-  }
-};
-
 function filterTours(tours, filterState) {
   const { searchQuery, selectedFilters } = filterState;
 
@@ -289,14 +276,25 @@ function filterTours(tours, filterState) {
   return filteredTours;
 }
 
+function getTourStatus(tour) {
+  const startDate = new Date(tour.startDate);
+  const endDate = new Date(tour.completionDate);
+
+  if (endDate < new Date()) {
+    return "completed";
+  } else if (startDate <= new Date() && endDate >= new Date()) {
+    return "ongoing";
+  } else {
+    return "upcoming";
+  }
+}
+
 function Tours() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
     sortOrder: "asc",
     selectedFilters: [],
   });
-
-  console.log(filterState);
 
   const filteredTours = filterTours(tours, filterState);
 
