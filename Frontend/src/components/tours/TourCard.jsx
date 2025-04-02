@@ -1,5 +1,5 @@
 import useSafeNavigate from "../../utils/useSafeNavigate";
-import formatDate from "../../utils/formatDate";
+import { formatDate } from "../../utils/utils";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { CiCalendar, CiFlag1 } from "react-icons/ci";

@@ -1,4 +1,4 @@
-function formatDate(dateStr) {
+export function formatDate(dateStr) {
   // Parse the input date string (assuming it's in YYYY-MM-DD format)
   const date = new Date(dateStr);
 
@@ -14,4 +14,3 @@ function formatDate(dateStr) {
   // Return the formatted date as 'DD MMM YYYY'
   return `${day} ${month} ${year}`;
 }
-export default formatDate;

@@ -10,51 +10,6 @@ import {
 import { BiPlusCircle } from "react-icons/bi";
 import ConfirmationModal from "../../../common/ConfirmationModal";
 
-const tours = [
-  {
-    id: 1,
-    name: "Forest Adventure",
-    location: "Amazon Rainforest",
-    duration: "5 days",
-    price: "$500",
-    type: "Adventure",
-    difficulty: "Intermediate",
-    groupSize: "10-15 people",
-    description:
-      "Explore the depths of the Amazon Rainforest with experienced guides.",
-    startDate: "2025-04-01",
-    endDate: "2025-04-06",
-  },
-  {
-    id: 2,
-    name: "Mountain Hiking",
-    location: "Himalayas",
-    duration: "7 days",
-    price: "$800",
-    type: "Hiking",
-    difficulty: "Advanced",
-    groupSize: "5-10 people",
-    description:
-      "Conquer the challenging trails of the Himalayas for an unforgettable experience.",
-    startDate: "2025-06-10",
-    endDate: "2025-06-17",
-  },
-  {
-    id: 3,
-    name: "Safari Exploration",
-    location: "Serengeti",
-    duration: "3 days",
-    price: "$400",
-    type: "Wildlife Safari",
-    difficulty: "Easy",
-    groupSize: "15-20 people",
-    description:
-      "Witness the stunning wildlife of the Serengeti on this guided safari.",
-    startDate: "2025-03-25",
-    endDate: "2025-03-28",
-  },
-];
-
 const getStatus = (startDate, endDate) => {
   const today = new Date();
   const start = new Date(startDate);
@@ -64,7 +19,7 @@ const getStatus = (startDate, endDate) => {
   return "Completed";
 };
 
-export default function ToursList() {
+export default function ToursList({ tours }) {
   const [expandedTour, setExpandedTour] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({
     show: false,
@@ -92,7 +47,7 @@ export default function ToursList() {
   return (
     <div className="p-4 pb-20 grid grid-cols-1 gap-6 bg-green-50 overflow-y-auto h-full scrollbar-none">
       <div
-        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all h-16"
         onClick={() => navigate("add")}
       >
         <div className="flex items-center gap-2">

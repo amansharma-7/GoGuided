@@ -1,6 +1,6 @@
 import UsersHeader from "../../../common/DashboardHeader";
 import UsersTable from "../../../dashboard/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -24,22 +24,42 @@ const usersData = Array.from({ length: 50 }, (_, i) => ({
 }));
 
 function UsersList() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
+  const [users, setUsers] = useState(usersData);
+
+  useEffect(() => {
+    function fetchUsers(query) {
+      return usersData.filter(
+        (user) =>
+          user &&
+          user.name &&
+          user.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredUsers = fetchUsers(filterState.searchQuery);
+    setUsers(filteredUsers);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedUsers = [...users].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
 
   return (
     <div className="p-4">
       {/* Header Section */}
       <UsersHeader
         title="Users"
-        totalCount={usersData.length} // Since we're showing one user
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedUsers.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
             label: "Category 1",
@@ -58,12 +78,7 @@ function UsersList() {
         ]}
       />
 
-      <UsersTable
-        headers={headers}
-        data={usersData}
-        itemsPerPage={9}
-        navToBy={"id"}
-      />
+      <UsersTable headers={headers} data={sortedUsers} itemsPerPage={9} />
     </div>
   );
 }
