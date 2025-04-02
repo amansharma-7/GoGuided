@@ -41,7 +41,17 @@ function DashboardHeader({
           type="text"
           placeholder={`Search ${title.toLowerCase()}`}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setQuery(value);
+
+            if (value === "") {
+              setFilterState((prevState) => ({
+                ...prevState,
+                searchQuery: "",
+              }));
+            }
+          }}
           className="border border-green-300 px-3 py-1.5 rounded-md text-sm w-64 focus:border-green-600 focus:border-2 outline-none h-9"
         />
         <button
@@ -79,7 +89,7 @@ function DashboardHeader({
             options={filterOptions}
             selectedFilters={filterState.selectedFilters}
             setSelectedFilters={setFilterState}
-            style={{ width: "w-36", maxHeight: "max-h-64" }}
+            style={{ width: "w-42", maxHeight: "max-h-64" }}
           />
         )}
       </div>

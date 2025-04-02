@@ -11,6 +11,7 @@ function FilterDropdown({
   const [openGroup, setOpenGroup] = useState(
     options.length > 0 ? options[0].label : null
   );
+  const [tempDateFilters, setTempDateFilters] = useState({}); // Temporary local state
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -25,6 +26,7 @@ function FilterDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown, options]);
 
+  // Handle regular filter selection
   const handleSelect = (category, value) => {
     setSelectedFilters((prevFilters) => {
       const selectedFilters = { ...prevFilters.selectedFilters };
@@ -36,6 +38,55 @@ function FilterDropdown({
       }
 
       return { ...prevFilters, selectedFilters };
+    });
+  };
+
+  // Update temp date filters locally
+  const handleTempDateChange = (key, value) => {
+    setTempDateFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Commit both dates to state and add "Date Interval" entry to selectedFilters
+  const handleCommitDates = (category) => {
+    const { startDate, endDate } = tempDateFilters;
+
+    if (startDate && endDate) {
+      setSelectedFilters((prevFilters) => {
+        const updatedFilters = { ...prevFilters.selectedFilters };
+
+        // Add "Date Interval" entry
+        updatedFilters[category] = { startDate, endDate };
+
+        return {
+          ...prevFilters,
+          selectedFilters: updatedFilters,
+        };
+      });
+    } else {
+      alert("Please enter both Start Date and End Date.");
+    }
+  };
+
+  // Clear date filter
+  const handleClearDates = (category) => {
+    // Clear temp date filters
+    setTempDateFilters((prev) => ({
+      ...prev,
+      startDate: "",
+      endDate: "",
+    }));
+
+    // Clear selectedFilters entry for Date Interval
+    setSelectedFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters.selectedFilters };
+      delete updatedFilters[category]; // Remove the entry
+      return {
+        ...prevFilters,
+        selectedFilters: updatedFilters,
+      };
     });
   };
 
@@ -72,22 +123,70 @@ function FilterDropdown({
               {/* Options List */}
               {openGroup === group.label && (
                 <ul className="flex flex-col bg-green-100 border-t border-green-300">
-                  {group.children.map((option) => (
-                    <li
-                      key={option.value}
-                      className={`px-4 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-green-200 transition ${
-                        selectedFilters[group.label] === option.value
-                          ? "font-bold text-green-900 bg-green-300"
-                          : ""
-                      }`}
-                      onClick={() => handleSelect(group.label, option.value)}
-                    >
-                      {option.label}
-                      {selectedFilters[group.label] === option.value && (
-                        <span>✅</span>
+                  {group.children.map((option) => {
+                    if (option.type === "date") {
+                      return (
+                        <li
+                          key={option.key}
+                          className="px-4 py-2 flex flex-col relative"
+                        >
+                          <label className="text-green-800 font-medium">
+                            {option.label}
+                          </label>
+                          <input
+                            type="date"
+                            value={tempDateFilters[option.key] || ""}
+                            onChange={(e) =>
+                              handleTempDateChange(option.key, e.target.value)
+                            }
+                            className="border border-green-300 rounded px-2 py-1"
+                          />
+                        </li>
+                      );
+                    } else {
+                      return (
+                        <li
+                          key={option.value}
+                          className={`px-4 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-green-200 transition ${
+                            selectedFilters[group.label] === option.value
+                              ? "font-bold text-green-900 bg-green-300"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleSelect(group.label, option.value)
+                          }
+                        >
+                          {option.label}
+                          {selectedFilters[group.label] === option.value && (
+                            <span>✅</span>
+                          )}
+                        </li>
+                      );
+                    }
+                  })}
+                  {/* Commit Dates Button */}
+                  {group.label === "Date Interval" && (
+                    <div className="flex items-center justify-between mt-2 px-2 p-1">
+                      <button
+                        onClick={() => handleClearDates(group.label)}
+                        className={`cursor-pointer  text-white px-2 py-1 rounded-md ${
+                          tempDateFilters.startDate || tempDateFilters.endDate
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        ❌
+                      </button>
+                      {tempDateFilters.startDate && tempDateFilters.endDate && (
+                        <button
+                          onClick={() => handleCommitDates(group.label)}
+                          className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md"
+                        >
+                          Apply Dates
+                        </button>
                       )}
-                    </li>
-                  ))}
+                    </div>
+                  )}
                 </ul>
               )}
             </div>

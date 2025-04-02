@@ -198,7 +198,6 @@ const tours = [
     reviews: 22,
   },
 ];
-
 const filterOptions = [
   {
     label: "Tour Status",
@@ -224,12 +223,33 @@ const filterOptions = [
       { label: "Long (15+ Days)", value: "15+" },
     ],
   },
+
+  {
+    label: "Date Interval",
+    children: [
+      { label: "Start Date", key: "startDate", type: "date" },
+      { label: "End Date", key: "endDate", type: "date" },
+    ],
+  },
 ];
+
+const getTourStatus = (tour) => {
+  const startDate = new Date(tour.startDate);
+  const endDate = new Date(tour.completionDate);
+
+  if (endDate < new Date()) {
+    return "completed";
+  } else if (startDate <= new Date() && endDate >= new Date()) {
+    return "ongoing";
+  } else {
+    return "upcoming";
+  }
+};
 
 function filterTours(tours, filterState) {
   const { searchQuery, selectedFilters } = filterState;
-
-  if (Object.keys(selectedFilters).length === 0) {
+  // If no filters and no search query, return all tours
+  if (!searchQuery && Object.keys(selectedFilters).length === 0) {
     return tours;
   }
 
@@ -239,19 +259,6 @@ function filterTours(tours, filterState) {
       tour.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
-  const getTourStatus = (tour) => {
-    const startDate = new Date(tour.startDate);
-    const endDate = new Date(tour.completionDate);
-
-    if (endDate < new Date()) {
-      return "completed";
-    } else if (startDate <= new Date() && endDate >= new Date()) {
-      return "ongoing";
-    } else {
-      return "upcoming";
-    }
-  };
 
   if (selectedFilters["Tour Status"]) {
     filteredTours = filteredTours.filter((tour) => {
@@ -284,6 +291,17 @@ function filterTours(tours, filterState) {
       return true;
     });
   }
+  if (selectedFilters["Date Interval"]) {
+    const { startDate, endDate } = selectedFilters["Date Interval"];
+    // console.log("s and e", startDate, endDate);
+    filteredTours = filteredTours.filter((tour) => {
+      const tourStartDate = new Date(tour.startDate);
+      const tourEndDate = new Date(tour.completionDate);
+      return (
+        tourStartDate >= new Date(startDate) && tourEndDate <= new Date(endDate)
+      );
+    });
+  }
 
   return filteredTours;
 }
@@ -295,7 +313,7 @@ function Tours() {
     selectedFilters: [],
   });
 
-  console.log(filterState);
+  // console.log("options", filterState);
 
   const filteredTours = filterTours(tours, filterState);
 
@@ -313,7 +331,7 @@ function Tours() {
       <div className="flex flex-col justify-center p-3 shadow-sm bg-white rounded-lg h-[100vh]">
         <ToursHeader
           title="Tours"
-          totalCount={tours.length}
+          totalCount={sortedTours.length}
           filterState={filterState}
           setFilterState={setFilterState}
           filterOptions={filterOptions}
