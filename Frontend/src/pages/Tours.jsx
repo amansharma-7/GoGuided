@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ToursHeader from "../components/common/DashboardHeader";
 import ToursGrid from "../components/tours/ToursGrid";
-
+import NoResult from "./NoResult";
 const tours = [
   {
     id: 1,
@@ -227,8 +227,8 @@ const filterOptions = [
   {
     label: "Date Interval",
     children: [
-      { label: "Start Date", key: "startDate", type: "date" },
-      { label: "End Date", key: "endDate", type: "date" },
+      { label: "Start Date", value: "startDate", type: "date" },
+      { label: "End Date", value: "endDate", type: "date" },
     ],
   },
 ];
@@ -325,7 +325,6 @@ function Tours() {
       return new Date(b.startDate) - new Date(a.startDate);
     }
   });
-
   return (
     <div className="px-32">
       <div className="flex flex-col justify-center p-3 shadow-sm bg-white rounded-lg h-[100vh]">
@@ -336,8 +335,11 @@ function Tours() {
           setFilterState={setFilterState}
           filterOptions={filterOptions}
         />
-
-        <ToursGrid tours={sortedTours} />
+        {sortedTours.length > 0 ? (
+          <ToursGrid tours={sortedTours} />
+        ) : (
+          <NoResult />
+        )}
       </div>
     </div>
   );

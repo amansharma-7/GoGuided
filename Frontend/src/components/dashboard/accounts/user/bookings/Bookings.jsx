@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaTrash,
   FaChevronDown,
@@ -8,8 +8,9 @@ import {
 import { useNavigate } from "react-router";
 import BookingsHeader from "../../../../common/DashboardHeader";
 import ConfirmationModal from "../../../../common/ConfirmationModal";
+import NoResult from "../../../../../pages/NoResult";
 
-const bookings = [
+const bookingsData = [
   {
     id: 1,
     tourName: "Forest Adventure",
@@ -47,9 +48,14 @@ const getStatus = (startDate, endDate) => {
 };
 
 export default function Bookings() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
+  const [bookings, setBookings] = useState(bookingsData);
+
   const navigate = useNavigate(); // For navigation
   const [expandedBooking, setExpandedBooking] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -78,102 +84,141 @@ export default function Bookings() {
     navigate(`announcements/${tourId}`); // Navigate to the announcements page
   };
 
+  useEffect(() => {
+    function fetchBookings(query) {
+      return bookingsData.filter(
+        (booking) =>
+          !query || booking.tourName.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredBookings = fetchBookings(filterState.searchQuery);
+    setBookings(filteredBookings);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedBookings = [...bookings].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? new Date(a.startDate) - new Date(b.startDate)
+      : new Date(b.startDate) - new Date(a.startDate);
+  });
+
   return (
     <div className="p-4 pb-20 grid grid-cols-1 gap-2 bg-green-50 overflow-y-auto h-full scrollbar-none">
       <BookingsHeader
         title="Your Bookings"
-        totalCount={bookings.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedBookings.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Booking Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Upcoming", value: "upcoming" },
+              { label: "Ongoing", value: "ongoing" },
+              { label: "Cancelled", value: "cancelled" },
+              { label: "Completed", value: "completed" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Tour",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "tour1", value: "tour1" },
+              { label: "tour2", value: "tour2" },
+              { label: "tour3", value: "tour3" },
+            ],
+          },
+          {
+            label: "Date Filter",
+            children: [
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
 
-      {bookings.map((booking) => (
-        <div
-          key={booking.id}
-          className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-green-800 mb-2">
-              {booking.tourName}
-            </h2>
-            <button
-              onClick={() => toggleAccordion(booking.id)}
-              className="text-green-800 hover:text-green-600 transition cursor-pointer"
+      {sortedBookings.length > 0 ? (
+        <>
+          {sortedBookings.map((booking) => (
+            <div
+              key={booking.id}
+              className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
             >
-              {expandedBooking === booking.id ? (
-                <FaChevronUp size={20} />
-              ) : (
-                <FaChevronDown size={20} />
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-green-800 mb-2">
+                  {booking.tourName}
+                </h2>
+                <button
+                  onClick={() => toggleAccordion(booking.id)}
+                  className="text-green-800 hover:text-green-600 transition cursor-pointer"
+                >
+                  {expandedBooking === booking.id ? (
+                    <FaChevronUp size={20} />
+                  ) : (
+                    <FaChevronDown size={20} />
+                  )}
+                </button>
+              </div>
+              <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm">
+                <p className="text-green-800">
+                  <strong>Status:</strong>{" "}
+                  {getStatus(booking.startDate, booking.endDate)}
+                </p>
+              </div>
+              {expandedBooking === booking.id && (
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
+                  <p className="text-green-800 font-medium">
+                    Start Date:{" "}
+                    <span className="font-normal text-green-700">
+                      {booking.startDate}
+                    </span>
+                  </p>
+                  <p className="text-green-800 font-medium">
+                    End Date:{" "}
+                    <span className="font-normal text-green-700">
+                      {booking.endDate}
+                    </span>
+                  </p>
+                  <p className="text-green-800 font-medium">
+                    Tour Guides:{" "}
+                    <span className="font-normal text-green-700">
+                      {booking.tourGuide[0]}, {booking.tourGuide[1]}
+                    </span>
+                  </p>
+                </div>
               )}
-            </button>
-          </div>
-          <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm">
-            <p className="text-green-800">
-              <strong>Status:</strong>{" "}
-              {getStatus(booking.startDate, booking.endDate)}
-            </p>
-          </div>
-          {expandedBooking === booking.id && (
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
-              <p className="text-green-800 font-medium">
-                Start Date:{" "}
-                <span className="font-normal text-green-700">
-                  {booking.startDate}
-                </span>
-              </p>
-              <p className="text-green-800 font-medium">
-                End Date:{" "}
-                <span className="font-normal text-green-700">
-                  {booking.endDate}
-                </span>
-              </p>
-              <p className="text-green-800 font-medium">
-                Tour Guides:{" "}
-                <span className="font-normal text-green-700">
-                  {booking.tourGuide[0]}, {booking.tourGuide[1]}
-                </span>
-              </p>
-            </div>
-          )}
-          <div className="flex gap-4 mt-4">
-            <button
-              onClick={() => handleCancel(booking.id)}
-              className={`flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600
-                  
-                   "cursor-pointer"
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={() => viewAnnouncements(booking.tourId)}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
+                >
+                  <FaBullhorn size={16} /> View Announcements
+                </button>
+                {getStatus(booking.startDate, booking.endDate) ===
+                  "Upcoming" && (
+                  <button
+                    onClick={() => handleCancel(booking.id)}
+                    className={`flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer
               }`}
-            >
-              <FaTrash size={16} /> Cancel Booking
-            </button>
-            <button
-              onClick={() => viewAnnouncements(booking.tourId)}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
-            >
-              <FaBullhorn size={16} /> View Announcements
-            </button>
-          </div>
-        </div>
-      ))}
+                  >
+                    <FaTrash size={16} /> Cancel Booking
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </>
+      ) : (
+        <NoResult />
+      )}
 
       {deleteConfirm.show && (
         <ConfirmationModal

@@ -1,6 +1,7 @@
 import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
+import NoResult from "../../../../pages/NoResult";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -75,21 +76,39 @@ function Bookings() {
             ],
           },
           {
+            label: "Tour",
+            children: [
+              { label: "tour1", value: "tour1" },
+              { label: "tour2", value: "tour2" },
+              { label: "tour3", value: "tour3" },
+            ],
+          },
+          {
             label: "Date Filter",
             children: [
               { label: "This Month", value: "this_month" },
               { label: "This Year", value: "this_year" },
-              {
-                label: "Custom Range",
-                value: "custom_range",
-                type: "date_picker",
-              },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
-      />
-
-      <BookingsTable headers={headers} data={sortedBookings} itemsPerPage={9} />
+      />{" "}
+      {sortedBookings.length > 0 ? (
+        <BookingsTable
+          headers={headers}
+          data={sortedBookings}
+          itemsPerPage={9}
+        />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

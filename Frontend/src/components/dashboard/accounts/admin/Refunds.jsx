@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RefundsHeader from "../../../common/DashboardHeader";
 import { FaCheck, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import ConfirmationModal from "../../../common/ConfirmationModal";
+import NoResult from "../../../../pages/NoResult";
 const refundList = [
   {
     id: "rfd001",
@@ -63,7 +64,7 @@ const refundList = [
     email: "chris.miller@example.com",
     tour: "Beach Holiday",
     date: "2024-03-12",
-    status: "Completed",
+    status: "Approved",
     message: "Received my refund. Thanks for the quick response!",
   },
   {
@@ -72,7 +73,7 @@ const refundList = [
     email: "amanda.garcia@example.com",
     tour: "City Tour",
     date: "2024-03-07",
-    status: "Pending",
+    status: "Rejected",
     message: "Requesting refund due to incorrect booking date.",
   },
   {
@@ -81,7 +82,7 @@ const refundList = [
     email: "brian.martinez@example.com",
     tour: "Safari Adventure",
     date: "2024-03-14",
-    status: "Completed",
+    status: "Approved",
     message: "Refund processed. Appreciate the support team’s help!",
   },
   {
@@ -90,15 +91,17 @@ const refundList = [
     email: "olivia.anderson@example.com",
     tour: "Mountain Hike",
     date: "2024-03-09",
-    status: "Pending",
+    status: "Rejected",
     message: "Requesting a refund as I had to reschedule my trip.",
   },
 ];
 
 const Refunds = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
   const [expandedRefund, setExpandedRefund] = useState(null);
   const [refunds, setRefunds] = useState(refundList);
   const [refundConfirm, setRefundConfirm] = useState({
@@ -123,97 +126,132 @@ const Refunds = () => {
     setRefundConfirm({ show: false, refundId: null });
   };
 
+  useEffect(() => {
+    function fetchRefunds(query) {
+      return refunds.filter(
+        (refund) =>
+          !query ||
+          refund.tour.toLowerCase().includes(query.toLowerCase()) ||
+          refund.customer.toLowerCase().includes(query.toLowerCase()) ||
+          refund.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredRefunds = fetchRefunds(filterState.searchQuery);
+    setRefunds(filteredRefunds);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedRefunds = [...refunds].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.status === "Pending"
+        ? -1
+        : 1
+      : b.status === "Pending"
+      ? -1
+      : 1;
+  });
   return (
     <div className="px-4 py-4 h-full overflow-y-auto scrollbar-hide">
       <RefundsHeader
         title="Refunds"
-        totalCount={refunds.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedRefunds.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Refund Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Pending", value: "pending", type: "boolean" },
+              { label: "Approved", value: "approved", type: "boolean" },
+              { label: "Rejected", value: "rejected", type: "boolean" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Tour",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "tour1", value: "tour1" },
+              { label: "tour2", value: "tour2" },
+              { label: "tour3", value: "tour3" },
+            ],
+          },
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
-
-      {refunds.map((refund) => (
-        <div
-          key={refund.id}
-          className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-white0"
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-green-800 mb-2">
-              {refund.customer} - {refund.tour}
-            </h2>
-            <button
-              onClick={() =>
-                setExpandedRefund(
-                  expandedRefund === refund.id ? null : refund.id
-                )
-              }
-              className="text-green-800 hover:text-green-600 transition cursor-pointer"
+      {sortedRefunds.length > 0 ? (
+        <>
+          {sortedRefunds.map((refund) => (
+            <div
+              key={refund.id}
+              className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-white0"
             >
-              {expandedRefund === refund.id ? (
-                <FaChevronUp size={20} />
-              ) : (
-                <FaChevronDown size={20} />
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-green-800 mb-2">
+                  {refund.customer} - {refund.tour}
+                </h2>
+                <button
+                  onClick={() =>
+                    setExpandedRefund(
+                      expandedRefund === refund.id ? null : refund.id
+                    )
+                  }
+                  className="text-green-800 hover:text-green-600 transition cursor-pointer"
+                >
+                  {expandedRefund === refund.id ? (
+                    <FaChevronUp size={20} />
+                  ) : (
+                    <FaChevronDown size={20} />
+                  )}
+                </button>
+              </div>
+
+              <div className="flex justify-between text-green-800 bg-white p-3 rounded-md mb-4 shadow-sm">
+                <p>
+                  <strong>Tour: </strong> {refund.tour}
+                </p>
+                <p>
+                  <strong>Status:</strong> {refund.status}
+                </p>
+              </div>
+
+              {expandedRefund === refund.id && (
+                <div className="grid grid-cols-1 gap-4 p-4 bg-white rounded-md shadow-sm">
+                  <p className="font-normal text-green-700">
+                    <strong>Message:</strong> {refund.message}
+                  </p>
+                  <p className="font-normal text-green-700">
+                    <strong>Email:</strong> {refund.email}
+                  </p>
+                  <p className="font-normal text-green-700">
+                    <strong>Date:</strong> {refund.date}
+                  </p>
+                </div>
               )}
-            </button>
-          </div>
 
-          <div className="flex justify-between text-green-800 bg-white p-3 rounded-md mb-4 shadow-sm">
-            <p>
-              <strong>Tour: </strong> {refund.tour}
-            </p>
-            <p>
-              <strong>Status:</strong> {refund.status}
-            </p>
-          </div>
-
-          {expandedRefund === refund.id && (
-            <div className="grid grid-cols-1 gap-4 p-4 bg-white rounded-md shadow-sm">
-              <p className="font-normal text-green-700">
-                <strong>Message:</strong> {refund.message}
-              </p>
-              <p className="font-normal text-green-700">
-                <strong>Email:</strong> {refund.email}
-              </p>
-              <p className="font-normal text-green-700">
-                <strong>Date:</strong> {refund.date}
-              </p>
+              <button
+                onClick={() => handleRefund(refund.id)}
+                disabled={refund.status === "Completed"}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${
+                  refund.status === "Completed"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-500 hover:bg-green-600 cursor-pointer"
+                }`}
+              >
+                <FaCheck size={16} />{" "}
+                {refund.status === "Completed" ? "Approved" : "Approve Refund"}
+              </button>
             </div>
-          )}
+          ))}
+        </>
+      ) : (
+        <NoResult />
+      )}
 
-          <button
-            onClick={() => handleRefund(refund.id)}
-            disabled={refund.status === "Completed"}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${
-              refund.status === "Completed"
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-500 hover:bg-green-600 cursor-pointer"
-            }`}
-          >
-            <FaCheck size={16} />{" "}
-            {refund.status === "Completed" ? "Approved" : "Approve Refund"}
-          </button>
-        </div>
-      ))}
       {refundConfirm.show && (
         <ConfirmationModal
           text={"Are you sure you want to refund this payment?"}

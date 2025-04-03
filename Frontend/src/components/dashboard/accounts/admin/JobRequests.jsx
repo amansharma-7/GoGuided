@@ -1,72 +1,122 @@
-import UsersHeader from "../../../common/DashboardHeader";
-import UsersTable from "../../Table";
-import { useState } from "react";
+import NoResult from "../../../../pages/NoResult";
+import JobsHeader from "../../../common/DashboardHeader";
+import JobTable from "../../Table";
+import { useEffect, useState } from "react";
+const headers = [
+  { label: "S No.", width: "10%" },
+  { label: "Name", width: "25%" },
+  { label: "Email", width: "25%" },
+  { label: "Date", width: "20%" },
+  { label: "Status", width: "20%" },
+];
+
+const jobRequestsData = Array.from({ length: 50 }, (_, i) => ({
+  id: (i + 1).toString(),
+  name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
+  email: [
+    "john@example.com",
+    "jane@example.com",
+    "sam@example.com",
+    "lucy@example.com",
+  ][i % 4],
+  date: `2023-09-${(i % 30) + 1}`.padStart(9, "0"), // Ensuring a proper date format
+  status: ["Pending", "Approved", "Rejected"][i % 3], // Rotating statuses
+}));
 
 function JobRequests() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+  const [jobRequests, setJobRequests] = useState(jobRequestsData);
 
-  const headers = [
-    { label: "S No.", width: "10%" },
-    { label: "Name", width: "25%" },
-    { label: "Email", width: "25%" },
-    { label: "Date", width: "20%" },
-    { label: "Status", width: "20%" },
-  ];
+  useEffect(() => {
+    function fetchJobRequests(query) {
+      return jobRequests.filter(
+        (request) =>
+          !query ||
+          request.name.toLowerCase().includes(query.toLowerCase()) ||
+          request.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
 
-  // const headers = ["S No.", "Name", "Email", "Date ", "Status"];
+    const filteredRequests = fetchJobRequests(filterState.searchQuery);
+    setJobRequests(filteredRequests);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
 
-  const jobRequestsData = Array.from({ length: 50 }, (_, i) => ({
-    id: (i + 1).toString(),
-    name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
-    email: [
-      "john@example.com",
-      "jane@example.com",
-      "sam@example.com",
-      "lucy@example.com",
-    ][i % 4],
-    Date: `2024-03-${String((i % 30) + 1).padStart(2, "0")}`, // Ensuring a proper date format
-    status: ["Pending", "Approved", "Rejected"][i % 3], // Rotating statuses
-  }));
+  const sortedRequests = [...jobRequests].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? new Date(a.date) - new Date(b.date)
+      : new Date(b.date) - new Date(a.date);
+  });
 
   return (
     <div className="p-4 flex flex-col bg-gray-100 min-h-screen">
       {/* Job Requests Header */}
-      <UsersHeader
+      <JobsHeader
         title="Job Requests"
-        totalCount={jobRequestsData.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedRequests.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Experience Level",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Above 1 Year", value: "above_1" },
+              { label: "Above 2 Years", value: "above_2" },
+              { label: "Above 3 Years", value: "above_3" },
+              { label: "Above 5 Years", value: "above_5" },
+              { label: "Below 1 Year", value: "below_1" },
+              { label: "Below 2 Years", value: "below_2" },
+              { label: "Below 3 Years", value: "below_3" },
+              { label: "Fresher", value: "fresher" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Status",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "Pending", value: "pending" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+            ],
+          },
+          {
+            label: "Job Type",
+            children: [
+              { label: "Full-Time", value: "fullTime" },
+              { label: "Part-Time", value: "partTime" },
+              { label: "Internship", value: "internship" },
+              { label: "Contract", value: "contract" },
+            ],
+          },
+          {
+            label: "Date Filter",
+            children: [
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
-
-      {/* Job Requests Table */}
-      <UsersTable
-        headers={headers}
-        data={jobRequestsData}
-        itemsPerPage={9}
-        navToBy={"id"}
-      />
+      {sortedRequests.length > 0 ? (
+        <JobTable
+          headers={headers}
+          data={sortedRequests}
+          itemsPerPage={9}
+          navToBy={"id"}
+        />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

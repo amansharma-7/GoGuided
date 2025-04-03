@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaEdit,
   FaTrash,
@@ -13,9 +13,14 @@ import AddEditReviewModal from "../../../../common/AddReview";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal";
 
 function Reviews() {
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
   const navigate = useSafeNavigate();
 
-  // Manage reviewed and unreviewed tours as state
   const [reviewedTours, setReviewedTours] = useState([
     {
       id: 1,
@@ -32,14 +37,45 @@ function Reviews() {
       date: "2025-03-26",
     },
   ]);
+
   const [unreviewedTours, setUnreviewedTours] = useState([
     { id: 3, tourName: "Safari Exploration", date: "2025-03-24" },
     { id: 4, tourName: "Beach Retreat", date: "2025-03-20" },
   ]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  useEffect(() => {
+    function fetchReviews(reviewsData, query) {
+      return reviewsData.filter(
+        (review) =>
+          !query ||
+          review.tourName.toLowerCase().includes(query.toLowerCase()) ||
+          review?.reviewText?.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredReviewedTours = fetchReviews(
+      reviewedTours,
+      filterState.searchQuery
+    );
+    setReviewedTours(filteredReviewedTours);
+    const filteredUneviewedTours = fetchReviews(
+      unreviewedTours,
+      filterState.searchQuery
+    );
+    setUnreviewedTours(filteredUneviewedTours);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedReviewedTours = [...reviewedTours].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.tourName.localeCompare(b.tourName)
+      : b.tourName.localeCompare(a.tourName);
+  });
+  const sortedUnreviewedTours = [...unreviewedTours].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.tourName.localeCompare(b.tourName)
+      : b.tourName.localeCompare(a.tourName);
+  });
+
   const [deleteConfirm, setDeleteConfirm] = useState({
     show: false,
     reviewId: null,
@@ -106,31 +142,18 @@ function Reviews() {
     <div className="p-4 flex flex-col bg-green-50 h-full">
       <ReviewsHeader
         title="Reviews"
-        totalCount={reviewedTours.length + unreviewedTours.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
-        filterOptions={[
-          {
-            label: "Status",
-            children: [
-              { label: "Reviewed", value: "reviewed" },
-              { label: "Unreviewed", value: "unreviewed" },
-            ],
-          },
-        ]}
+        totalCount={sortedReviewedTours.length + sortedUnreviewedTours.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
       />
       <div className="flex flex-col gap-4 overflow-y-auto h-full scrollbar-none">
         {/* Reviewed Tours Section */}
-        {reviewedTours.length > 0 && (
+        {sortedReviewedTours.length > 0 && (
           <h2 className="text-2xl font-bold text-green-900 mb-2">
             Reviewed Tours
           </h2>
         )}
-        {reviewedTours.map((review) => (
+        {sortedReviewedTours.map((review) => (
           <div
             key={review.id}
             className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-700"
@@ -183,12 +206,12 @@ function Reviews() {
         ))}
 
         {/* Unreviewed Tours Section */}
-        {unreviewedTours.length > 0 && (
+        {sortedUnreviewedTours.length > 0 && (
           <h2 className="text-2xl font-bold text-green-700 mt-6 mb-2">
             Tours Awaiting Your Feedback
           </h2>
         )}
-        {unreviewedTours.map((tour) => (
+        {sortedUnreviewedTours.map((tour) => (
           <div
             key={tour.id}
             className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"

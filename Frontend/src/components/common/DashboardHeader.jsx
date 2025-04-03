@@ -17,7 +17,24 @@ function DashboardHeader({
 }) {
   const navigate = useSafeNavigate();
   const [query, setQuery] = useState(filterState.searchQuery || "");
+  if (totalCount <= 0) {
+    return (
+      <div className=" bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2 w-full">
+        <div className="flex items-center space-x-4">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer h-9 w-9 flex items-center justify-center"
+          >
+            <FaArrowLeft className="w-4 h-4" />
+          </button>
 
+          {/* Title & Count */}
+          <h3 className="text-lg font-semibold text-green-700">No Results</h3>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex items-center justify-between bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2 w-full">
       <div className="flex items-center space-x-4">
@@ -61,7 +78,7 @@ function DashboardHeader({
               searchQuery: query,
             }))
           }
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md flex items-center h-9"
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md flex cursor-pointer items-center h-9"
         >
           <FaSearch className="w-4 h-4" />
         </button>
@@ -74,7 +91,7 @@ function DashboardHeader({
               sortOrder: prevState.sortOrder === "asc" ? "desc" : "asc",
             }));
           }}
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md h-9"
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md h-9 cursor-pointer"
         >
           {filterState.sortOrder === "asc" ? (
             <FaSortAmountUp className="w-4 h-4" />

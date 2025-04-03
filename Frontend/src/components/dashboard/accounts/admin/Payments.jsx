@@ -1,6 +1,7 @@
+import NoResult from "../../../../pages/NoResult";
 import PaymentsHeader from "../../../common/DashboardHeader";
 import PaymentsTable from "../../../dashboard/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -21,27 +22,47 @@ const paymentsData = Array.from({ length: 50 }, (_, i) => ({
     "lucy@example.com",
   ][i % 4],
   amount: ["$100", "$200", "$150", "$250"][i % 4],
-  date: `2024-03-${(i % 30) + 1}`.padStart(10, "0"),
+  date: `2023-09-${(i % 30) + 1}`.padStart(9, "0"),
   status: ["Paid", "Pending", "Failed", "Refunded"][i % 4],
 }));
 
 function Payments() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
+
+  const [payments, setPayments] = useState(paymentsData);
+
+  useEffect(() => {
+    function fetchPayments(query) {
+      return paymentsData.filter(
+        (payment) =>
+          !query ||
+          payment.name.toLowerCase().includes(query.toLowerCase()) ||
+          payment.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredPayments = fetchPayments(filterState.searchQuery);
+    setPayments(filteredPayments);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedPayments = [...payments].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? new Date(a.date) - new Date(b.date)
+      : new Date(b.date) - new Date(a.date);
+  });
 
   return (
     <div className="p-4">
       {/* Header Section */}
       <PaymentsHeader
         title="Payments"
-        totalCount={paymentsData.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedPayments.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
             label: "Status",
@@ -52,15 +73,32 @@ function Payments() {
               { label: "Refunded", value: "refunded" },
             ],
           },
+          {
+            label: "Date Filter",
+            children: [
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
+            ],
+          },
         ]}
       />
-
-      <PaymentsTable
-        headers={headers}
-        data={paymentsData}
-        itemsPerPage={9}
-        navToBy={null}
-      />
+      {sortedPayments.length > 0 ? (
+        <PaymentsTable
+          headers={headers}
+          data={sortedPayments}
+          itemsPerPage={9}
+          navToBy={null}
+        />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

@@ -123,11 +123,11 @@ function FilterDropdown({
               {/* Options List */}
               {openGroup === group.label && (
                 <ul className="flex flex-col bg-green-100 border-t border-green-300">
-                  {group.children.map((option) => {
+                  {group.children.map((option, index) => {
                     if (option.type === "date") {
                       return (
                         <li
-                          key={option.key}
+                          key={index}
                           className="px-4 py-2 flex flex-col relative"
                         >
                           <label className="text-green-800 font-medium">
@@ -135,9 +135,9 @@ function FilterDropdown({
                           </label>
                           <input
                             type="date"
-                            value={tempDateFilters[option.key] || ""}
+                            value={tempDateFilters[option.value] || ""}
                             onChange={(e) =>
-                              handleTempDateChange(option.key, e.target.value)
+                              handleTempDateChange(option.value, e.target.value)
                             }
                             className="border border-green-300 rounded px-2 py-1"
                           />

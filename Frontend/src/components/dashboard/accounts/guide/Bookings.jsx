@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../Table";
 import { useParams } from "react-router";
+import NoResult from "../../../../pages/NoResult";
 
 const AllData = ["completed", "ongoing", "upcoming"].flatMap((status) =>
   Array.from({ length: 10 }, (_, i) => ({
@@ -32,15 +33,35 @@ const headers = [
 
 function Bookings() {
   const params = useParams();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
 
   const data = AllData.filter((item) => item.status === params.status);
 
-  const bookings = [...data].sort((a, b) => {
-    return sortOrder === "asc"
-      ? new Date(a.date) - new Date(b.date) // Ascending order
-      : new Date(b.date) - new Date(a.date); // Descending order
+  const [bookings, setBookings] = useState(data);
+
+  useEffect(() => {
+    function fetchBookings(query) {
+      return bookings.filter(
+        (booking) =>
+          !query ||
+          booking.tour.toLowerCase().includes(query.toLowerCase()) ||
+          booking.customer.toLowerCase().includes(query.toLowerCase()) ||
+          booking.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredBookings = fetchBookings(filterState.searchQuery);
+    setBookings(filteredBookings);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedBookings = [...bookings].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? new Date(a.date) - new Date(b.date)
+      : new Date(b.date) - new Date(a.date);
   });
 
   return (
@@ -49,14 +70,20 @@ function Bookings() {
 
       <BookingsHeader
         title={`Bookings`}
-        totalCount={bookings.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
+        filterState={filterState}
+        setFilterState={setFilterState}
+        totalCount={sortedBookings.length}
       />
 
-      <BookingsTable headers={headers} data={bookings} itemsPerPage={9} />
+      {sortedBookings.length > 0 ? (
+        <BookingsTable
+          headers={headers}
+          data={sortedBookings}
+          itemsPerPage={9}
+        />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

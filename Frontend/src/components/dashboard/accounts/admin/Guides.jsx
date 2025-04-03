@@ -1,6 +1,7 @@
+import NoResult from "../../../../pages/NoResult";
 import UsersHeader from "../../../common/DashboardHeader";
 import GuidesTable from "../../../dashboard/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -28,46 +29,74 @@ const GuidesData = Array.from({ length: 50 }, (_, i) => ({
 }));
 
 function Guides() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [filterState, setFilterState] = useState({
+    searchQuery: "",
+    sortOrder: "asc",
+    selectedFilters: [],
+  });
 
+  const [guides, setGuides] = useState(GuidesData);
+
+  useEffect(() => {
+    function fetchGuides(query) {
+      return GuidesData.filter(
+        (guide) =>
+          !query ||
+          guide.name.toLowerCase().includes(query.toLowerCase()) ||
+          guide.email.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    const filteredGuides = fetchGuides(filterState.searchQuery);
+    setGuides(filteredGuides);
+  }, [filterState.searchQuery, filterState.selectedFilters]);
+
+  const sortedGuides = [...guides].sort((a, b) => {
+    return filterState.sortOrder === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  });
   return (
     <div className="p-4">
       {/* Header Section */}
       <UsersHeader
         title="Guides"
-        totalCount={GuidesData.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSortOrder={setSortOrder}
-        sortOrder={sortOrder}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
+        totalCount={sortedGuides.length}
+        filterState={filterState}
+        setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Activity",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Below 3 Tours", value: "below_3" },
+              { label: "Below 5 Tours", value: "below_5" },
+              { label: "Below 10 Tours", value: "below_10" },
+              { label: "Above 10 Tours", value: "above_10" },
+              { label: "No Tours Conducted", value: "no_tours" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Status",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
+              { label: "Suspended", value: "suspended" },
+              { label: "Free", value: "free" },
+              { label: "Assigned", value: "assigned" },
             ],
           },
         ]}
       />
-
-      <GuidesTable
-        headers={headers}
-        data={GuidesData}
-        itemsPerPage={9}
-        navToBy={"id"}
-      />
+      {sortedGuides.length > 0 ? (
+        <GuidesTable
+          headers={headers}
+          data={sortedGuides}
+          itemsPerPage={9}
+          navToBy={"id"}
+        />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

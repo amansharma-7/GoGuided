@@ -1,7 +1,7 @@
 import UsersHeader from "../../../common/DashboardHeader";
 import UsersTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
-
+import NoResult from "../../../../pages/NoResult";
 const headers = [
   { label: "S No.", width: "10%" },
   { label: "Name", width: "20%" },
@@ -77,8 +77,11 @@ function UsersList() {
           },
         ]}
       />
-
-      <UsersTable headers={headers} data={sortedUsers} itemsPerPage={9} />
+      {sortedUsers.length > 0 ? (
+        <UsersTable headers={headers} data={sortedUsers} itemsPerPage={9} />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

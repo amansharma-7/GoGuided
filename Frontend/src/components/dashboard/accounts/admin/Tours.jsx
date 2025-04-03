@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardHeader from "../../../common/DashboardHeader";
 import ToursList from "./ToursList";
+import NoResult from "../../../../pages/NoResult";
 
 const toursData = [
   {
@@ -85,23 +86,36 @@ function Tours() {
         setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Booking Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Upcoming", value: "upcoming" },
+              { label: "Ongoing", value: "ongoing" },
+              { label: "Cancelled", value: "cancelled" },
+              { label: "Completed", value: "completed" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Date Filter",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
-
-      <ToursList tours={sortedTours} />
+      {sortedTours.length > 0 ? (
+        <ToursList tours={sortedTours} />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

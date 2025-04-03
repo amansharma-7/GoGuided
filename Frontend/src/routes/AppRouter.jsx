@@ -200,8 +200,9 @@ const router = createBrowserRouter([
           {
             path: "bookings/:status",
             Component: GuideBookings,
-            children: [{ path: ":id", Component: BookingDetails }],
+            // children: [{ path: ":id", Component: BookingDetails }],
           },
+          { path: "bookings/:name/:id", Component: BookingDetails },
         ],
       },
 

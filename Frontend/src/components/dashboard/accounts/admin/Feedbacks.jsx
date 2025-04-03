@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import FeedbackHeader from "../../../common/DashboardHeader";
 import { FaChevronDown, FaChevronUp, FaPen, FaTimes } from "react-icons/fa";
+import NoResult from "../../../../pages/NoResult";
 
 const feedbackList = [
   {
@@ -160,106 +161,124 @@ function Feedbacks() {
         setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              {
+                label: "Pending",
+                value: "pendingReview",
+              },
+              { label: "Resolved", value: "resolved" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Date Filter",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
-
-      {sortedFeedbacks.map((feedback) => (
-        <div
-          key={feedback.id}
-          className="bg-white rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"
-        >
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-green-800 mb-2">
-              {feedback.name}
-            </h2>
-            <button
-              onClick={() =>
-                setExpandedFeedback(
-                  expandedFeedback === feedback.id ? null : feedback.id
-                )
-              }
-              className="text-green-800 hover:text-green-600 transition cursor-pointer"
+      {sortedFeedbacks.length > 0 ? (
+        <>
+          {sortedFeedbacks.map((feedback) => (
+            <div
+              key={feedback.id}
+              className="bg-white rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"
             >
-              {expandedFeedback === feedback.id ? (
-                <FaChevronUp size={20} />
-              ) : (
-                <FaChevronDown size={20} />
-              )}
-            </button>
-          </div>
-
-          <div className="flex justify-between text-green-800  p-3 rounded-md mb-4 shadow-sm">
-            <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
-              {feedback.subject}
-            </p>
-            <p>
-              <strong>Status:</strong> {feedback.status}
-            </p>
-          </div>
-
-          {expandedFeedback === feedback.id && (
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
-              <p className="font-normal text-green-700">{feedback.message}</p>
-            </div>
-          )}
-
-          {replyingFeedback === feedback.id ? (
-            <div className="relative p-4 bg-white border border-green-300 rounded-md shadow space-y-4 mt-4">
-              <button
-                onClick={() => setReplyingFeedback(null)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes size={18} className="text-green-500" />
-              </button>
-              <div className="space-y-2">
-                <p className="text-green-700 font-semibold ">
-                  Write your response:
-                </p>
-                <textarea
-                  value={replyMessage}
-                  onChange={(e) => setReplyMessage(e.target.value)}
-                  rows="3"
-                  placeholder="Enter your reply here..."
-                  className="w-full p-2 border border-green-300 text-green-950 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-green-800 mb-2">
+                  {feedback.name}
+                </h2>
                 <button
-                  onClick={() => handleReply(feedback.id)}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                  onClick={() =>
+                    setExpandedFeedback(
+                      expandedFeedback === feedback.id ? null : feedback.id
+                    )
+                  }
+                  className="text-green-800 hover:text-green-600 transition cursor-pointer"
                 >
-                  Send Reply
+                  {expandedFeedback === feedback.id ? (
+                    <FaChevronUp size={20} />
+                  ) : (
+                    <FaChevronDown size={20} />
+                  )}
                 </button>
               </div>
+
+              <div className="flex justify-between text-green-800  p-3 rounded-md mb-4 shadow-sm">
+                <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
+                  {feedback.subject}
+                </p>
+                <p>
+                  <strong>Status:</strong> {feedback.status}
+                </p>
+              </div>
+
+              {expandedFeedback === feedback.id && (
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
+                  <p className="font-normal text-green-700">
+                    {feedback.message}
+                  </p>
+                </div>
+              )}
+
+              {replyingFeedback === feedback.id ? (
+                <div className="relative p-4 bg-white border border-green-300 rounded-md shadow space-y-4 mt-4">
+                  <button
+                    onClick={() => setReplyingFeedback(null)}
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                  >
+                    <FaTimes size={18} className="text-green-500" />
+                  </button>
+                  <div className="space-y-2">
+                    <p className="text-green-700 font-semibold ">
+                      Write your response:
+                    </p>
+                    <textarea
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      rows="3"
+                      placeholder="Enter your reply here..."
+                      className="w-full p-2 border border-green-300 text-green-950 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                    <button
+                      onClick={() => handleReply(feedback.id)}
+                      className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer"
+                    >
+                      Send Reply
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-4 mt-4">
+                  <button
+                    onClick={() => setReplyingFeedback(feedback.id)}
+                    disabled={feedback.status === "Resolved"}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg  ${
+                      feedback.status === "Resolved"
+                        ? " bg-gray-300 cursor-not-allowed"
+                        : "bg-green-500 text-white  hover:bg-green-600 cursor-pointer "
+                    }`}
+                  >
+                    <FaPen size={16} /> Write Response
+                  </button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex gap-4 mt-4">
-              <button
-                onClick={() => setReplyingFeedback(feedback.id)}
-                disabled={feedback.status === "Resolved"}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg  ${
-                  feedback.status === "Resolved"
-                    ? " bg-gray-300 cursor-not-allowed"
-                    : "bg-green-500 text-white  hover:bg-green-600 cursor-pointer "
-                }`}
-              >
-                <FaPen size={16} /> Write Response
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+          ))}
+        </>
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }

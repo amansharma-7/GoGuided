@@ -2,6 +2,7 @@ import ReviewsHeader from "../../../common/DashboardHeader";
 import ReviewsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
 import StarRatings from "react-star-ratings";
+import NoResult from "../../../../pages/NoResult";
 
 const reivewsData = Array.from({ length: 50 }, (_, i) => ({
   id: (i + 1).toString(),
@@ -79,23 +80,44 @@ function Reviews() {
         setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Rating",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
+              { label: "Above 1", value: "above_1" },
+              { label: "Above 2", value: "above_2" },
+              { label: "Above 3", value: "above_3" },
+              { label: "Above 4", value: "above_4" },
             ],
           },
           {
-            label: "Category 2",
+            label: "Tour",
             children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "tour1", value: "tour1" },
+              { label: "tour2", value: "tour2" },
+              { label: "tour3", value: "tour3" },
+            ],
+          },
+          {
+            label: "Date Filter",
+            children: [
+              { label: "This Month", value: "this_month" },
+              { label: "This Year", value: "this_year" },
+            ],
+          },
+
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
             ],
           },
         ]}
       />
-
-      <ReviewsTable headers={headers} data={sortedReviews} itemsPerPage={9} />
+      {sortedReviews.length > 0 ? (
+        <ReviewsTable headers={headers} data={sortedReviews} itemsPerPage={9} />
+      ) : (
+        <NoResult />
+      )}
     </div>
   );
 }
