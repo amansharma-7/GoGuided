@@ -2,6 +2,7 @@ import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
 import NoResult from "../../../../pages/NoResult";
+import axios from "axios";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -10,6 +11,41 @@ const headers = [
   { label: "Email", width: "25%" },
   { label: "Date", width: "15%" },
   { label: "Status", width: "10%" },
+];
+
+const filterOptions = [
+  {
+    label: "Booking Status",
+    children: [
+      { label: "Upcoming", value: "upcoming" },
+      { label: "Ongoing", value: "ongoing" },
+      { label: "Cancelled", value: "cancelled" },
+      { label: "Completed", value: "completed" },
+    ],
+  },
+  {
+    label: "Tour",
+    children: [
+      { label: "tour1", value: "tour1" },
+      { label: "tour2", value: "tour2" },
+      { label: "tour3", value: "tour3" },
+    ],
+  },
+  {
+    label: "Date Filter",
+    children: [
+      { label: "This Month", value: "this_month" },
+      { label: "This Year", value: "this_year" },
+    ],
+  },
+
+  {
+    label: "Date Interval",
+    children: [
+      { label: "Start Date", value: "startDate", type: "date" },
+      { label: "End Date", value: "endDate", type: "date" },
+    ],
+  },
 ];
 
 const bookingsData = Array.from({ length: 50 }, (_, i) => ({
@@ -28,14 +64,55 @@ const bookingsData = Array.from({ length: 50 }, (_, i) => ({
   status: ["completed", "ongoing", "canceled", "upcoming"][i % 4],
 }));
 
+const buildQueryParams = (state) => {
+  const params = {};
+
+  if (state.searchQuery) params.q = state.searchQuery;
+
+  const filters = state.selectedFilters;
+
+  for (const key in filters) {
+    if (key === "Date Interval") {
+      const { startDate, endDate } = filters[key];
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+    } else {
+      // Replace spaces with camelCase or underscore if your backend doesn't support spaces
+      const normalizedKey = key.replace(/\s+/g, "");
+      params[normalizedKey] = filters[key];
+    }
+  }
+
+  return params;
+};
+
 function Bookings() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
     sortOrder: "asc",
-    selectedFilters: [],
+    selectedFilters: {},
   });
 
+  console.log(filterState.searchQuery, filterState.selectedFilters);
+
   const [bookings, setBookings] = useState(bookingsData);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const params = buildQueryParams(filterState);
+
+  //     try {
+  //       const response = axios.get("http://localhost:5000/api/bookings", {
+  //         params,
+  //       });
+  //       console.log(response.data);
+  //     } catch (error) {
+  //       console.error("GET request failed:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [filterState.searchQuery, filterState.selectedFilters]);
 
   useEffect(() => {
     function fetchBookings(query) {
@@ -65,41 +142,9 @@ function Bookings() {
         totalCount={sortedBookings.length}
         filterState={filterState}
         setFilterState={setFilterState}
-        filterOptions={[
-          {
-            label: "Booking Status",
-            children: [
-              { label: "Upcoming", value: "upcoming" },
-              { label: "Ongoing", value: "ongoing" },
-              { label: "Cancelled", value: "cancelled" },
-              { label: "Completed", value: "completed" },
-            ],
-          },
-          {
-            label: "Tour",
-            children: [
-              { label: "tour1", value: "tour1" },
-              { label: "tour2", value: "tour2" },
-              { label: "tour3", value: "tour3" },
-            ],
-          },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
-            ],
-          },
+        filterOptions={filterOptions}
+      />
 
-          {
-            label: "Date Interval",
-            children: [
-              { label: "Start Date", value: "startDate", type: "date" },
-              { label: "End Date", value: "endDate", type: "date" },
-            ],
-          },
-        ]}
-      />{" "}
       {sortedBookings.length > 0 ? (
         <BookingsTable
           headers={headers}
