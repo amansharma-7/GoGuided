@@ -1,31 +1,37 @@
-exports.auth = async (req, res, next) => {
+const jwt = require("jsonwebtoken");
+
+exports.isLoggedIn = async (req, res, next) => {
   try {
-    // console.log("data is", req.body);
-    const token =
-      req.cookies.token ||
-      req.header("Authorization").replace("Bearer ", "") ||
-      req.body.token;
+    let token = null;
+
+    // Safely extract token from cookies or Authorization header
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      token = req.headers.authorization.replace("Bearer ", "");
+    }
+
     if (!token) {
       return res.status(401).json({
         success: false,
+        message: "Unauthorized access.",
       });
     }
 
-    // verify the token
-    try {
-      const decode = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (e) {
-      return res.status(401).json({
-        success: false,
-        message: "token is invalid",
-      });
-    }
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+
     next();
   } catch (err) {
-    // console.log(err);
+    console.error("Token verification error:", err.message);
+
     return res.status(401).json({
       success: false,
-      message: "Something went wrong while verifying token",
+      message: "Unauthorized access.",
     });
   }
 };
