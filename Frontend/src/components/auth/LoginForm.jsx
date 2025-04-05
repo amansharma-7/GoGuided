@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link } from "react-router";
+import ForgotPasswordModal from "./ForgotPassword"; // ✅ Import it
 
 function LoginForm() {
   const {
@@ -11,15 +12,16 @@ function LoginForm() {
   } = useForm();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const onSubmit = (data) => {
     console.log("Form submitted with data:", data);
-    // Add your authentication logic here
+    // Authentication logic
   };
 
   return (
-    <div className="flex items-center justify-center h-[85vh] ">
-      <div className="w-full max-w-md  p-8 rounded-lg shadow-lg bg-green-50">
+    <div className="flex items-center justify-center h-[85vh] relative">
+      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-green-50 z-10">
         <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Log In
         </h2>
@@ -72,14 +74,12 @@ function LoginForm() {
                 <AiOutlineEye fontSize={24} />
               )}
             </span>
-            {errors.password && (
-              <p className="text-red-400 text-xs">{errors.password.message}</p>
-            )}
-            <Link to="/forgot-password">
-              <p className="mt-1 text-md text-green-900 hover:underline">
-                Forgot Password?
-              </p>
-            </Link>
+            <p
+              className="mt-1 text-md text-green-900 hover:underline cursor-pointer"
+              onClick={() => setShowForgotModal(true)}
+            >
+              Forgot Password?
+            </p>
           </label>
 
           {/* Submit Button */}
@@ -99,6 +99,12 @@ function LoginForm() {
           </p>
         </form>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+      />
     </div>
   );
 }
