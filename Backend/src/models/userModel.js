@@ -36,12 +36,16 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   {
     timestamps: true, // createdAt, updatedAt
   }
 );
 
+// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
