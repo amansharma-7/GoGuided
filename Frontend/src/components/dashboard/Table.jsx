@@ -1,6 +1,8 @@
 import { useState } from "react";
 import useSafeNavigate from "../../utils/useSafeNavigate";
 import { useLocation } from "react-router";
+import StarRatings from "react-star-ratings";
+import RatingStars from "../common/RatingStars";
 
 function getStatusStyle(status) {
   switch (status) {
@@ -98,6 +100,8 @@ export default function BookingsTable({ headers, data, itemsPerPage = 5 }) {
                       >
                         {value}
                       </span>
+                    ) : headers[i].label.toLowerCase() === "rating" ? ( // Status column with styles
+                      <RatingStars Review_Count={value} />
                     ) : (
                       <span className="block">{value}</span> // Default case
                     )}

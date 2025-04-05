@@ -11,7 +11,29 @@ import useSafeNavigate from "../../../../../utils/useSafeNavigate";
 import ReviewsHeader from "../../../../common/DashboardHeader";
 import AddEditReviewModal from "../../../../common/AddReview";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal";
+import NoResult from "../../../../../pages/NoResult";
 
+const reviewed = [
+  {
+    id: 1,
+    tourName: "Forest Adventure",
+    rating: 5,
+    reviewText: "Amazing experience! Would love to go again.",
+    date: "2025-03-28",
+  },
+  {
+    id: 2,
+    tourName: "Mountain Hiking",
+    rating: 4,
+    reviewText: "Challenging but rewarding. Highly recommend!",
+    date: "2025-03-26",
+  },
+];
+
+const unreviewed = [
+  { id: 3, tourName: "Safari Exploration", date: "2025-03-24" },
+  { id: 4, tourName: "Beach Retreat", date: "2025-03-20" },
+];
 function Reviews() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
@@ -21,27 +43,9 @@ function Reviews() {
 
   const navigate = useSafeNavigate();
 
-  const [reviewedTours, setReviewedTours] = useState([
-    {
-      id: 1,
-      tourName: "Forest Adventure",
-      rating: 5,
-      reviewText: "Amazing experience! Would love to go again.",
-      date: "2025-03-28",
-    },
-    {
-      id: 2,
-      tourName: "Mountain Hiking",
-      rating: 4,
-      reviewText: "Challenging but rewarding. Highly recommend!",
-      date: "2025-03-26",
-    },
-  ]);
+  const [reviewedTours, setReviewedTours] = useState(reviewed);
 
-  const [unreviewedTours, setUnreviewedTours] = useState([
-    { id: 3, tourName: "Safari Exploration", date: "2025-03-24" },
-    { id: 4, tourName: "Beach Retreat", date: "2025-03-20" },
-  ]);
+  const [unreviewedTours, setUnreviewedTours] = useState(unreviewed);
 
   useEffect(() => {
     function fetchReviews(reviewsData, query) {
@@ -237,6 +241,8 @@ function Reviews() {
             </div>
           </div>
         ))}
+        {sortedReviewedTours.length <= 0 &&
+          sortedUnreviewedTours.length <= 0 && <NoResult />}
       </div>
 
       {/* Add/Edit Review Modal */}

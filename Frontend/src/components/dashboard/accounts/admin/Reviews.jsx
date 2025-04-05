@@ -14,24 +14,7 @@ const reivewsData = Array.from({ length: 50 }, (_, i) => ({
     "lucy@example.com",
   ][i % 4],
   date: `2024-03-${(i % 30) + 1}`.padStart(10, "0"),
-  rating:
-    i % 2 === 0 ? (
-      <StarRatings
-        rating={5}
-        starRatedColor="#FFD700"
-        numberOfStars={5}
-        starDimension="18px"
-        starSpacing="2px"
-      />
-    ) : (
-      <StarRatings
-        rating={4}
-        starRatedColor="#FFD700"
-        numberOfStars={5}
-        starDimension="18px"
-        starSpacing="2px"
-      />
-    ),
+  rating: [4, 5, 4.5][i % 3],
 }));
 
 const headers = [
@@ -94,13 +77,6 @@ function Reviews() {
               { label: "tour1", value: "tour1" },
               { label: "tour2", value: "tour2" },
               { label: "tour3", value: "tour3" },
-            ],
-          },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
             ],
           },
 

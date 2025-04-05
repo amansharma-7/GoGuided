@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { MdLocationOn } from "react-icons/md";
+import JobApplicationForm from "./JobApplicationForm";
+import useSafeNavigate from "../../utils/useSafeNavigate";
 
 export default function JobCard({
   title,
@@ -7,9 +10,10 @@ export default function JobCard({
   level,
   salary,
   posted,
+  lastDate,
   applicants,
 }) {
-  console.log("aman");
+  const navigate = useSafeNavigate();
   return (
     <div className="py-6">
       <div className="border rounded-2xl p-4 shadow-lg w-80 bg-white">
@@ -29,6 +33,9 @@ export default function JobCard({
             {salary}
           </span>
         </div>
+        <div className=" bg-amber-200 text-green-950 text-xs px-3 py-1 rounded-full w-fit">
+          Last Date : {lastDate}
+        </div>
         <div className="grid grid-cols-2 px-2 py-4">
           <div className="flex flex-col font-extralight">
             <span className="text-lg font-semibold">{posted}</span>
@@ -36,7 +43,10 @@ export default function JobCard({
               {applicants} applicants
             </span>
           </div>
-          <button className="m-auto px-3 py-3 bg-green-500 rounded-xl text-white text-md">
+          <button
+            className="m-auto px-3 py-3 bg-green-500 rounded-xl text-white text-md cursor-pointer"
+            onClick={() => navigate(title)}
+          >
             Apply Now
           </button>
         </div>

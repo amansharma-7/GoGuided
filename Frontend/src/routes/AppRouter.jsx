@@ -53,6 +53,8 @@ import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
+import { Component } from "react";
+import JobApplicationForm from "../components/careers/JobApplicationForm";
 
 const router = createBrowserRouter([
   {
@@ -208,7 +210,10 @@ const router = createBrowserRouter([
 
       {
         path: "/careers",
-        Component: Careers,
+        children: [
+          { index: true, Component: Careers },
+          { path: ":name", Component: JobApplicationForm },
+        ],
       },
       {
         path: "/login",

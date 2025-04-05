@@ -73,13 +73,7 @@ function Payments() {
               { label: "Refunded", value: "refunded" },
             ],
           },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
-            ],
-          },
+
           {
             label: "Date Interval",
             children: [

@@ -62,17 +62,11 @@ function UsersList() {
         setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Category 1",
+            label: "Status",
             children: [
-              { label: "Option 1", value: "opt1" },
-              { label: "Option 2", value: "opt2" },
-            ],
-          },
-          {
-            label: "Category 2",
-            children: [
-              { label: "Option A", value: "optA" },
-              { label: "Option B", value: "optB" },
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
+              { label: "Suspended", value: "suspended" },
             ],
           },
         ]}

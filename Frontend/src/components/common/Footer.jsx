@@ -63,7 +63,7 @@ function Footer() {
               </li>
               <li>
                 <NavLink to="/careers" className="hover:text-green-700">
-                  Career
+                  Join Us
                 </NavLink>
               </li>
             </ul>

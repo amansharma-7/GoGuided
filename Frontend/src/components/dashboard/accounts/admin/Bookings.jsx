@@ -75,21 +75,6 @@ function Bookings() {
               { label: "Completed", value: "completed" },
             ],
           },
-          {
-            label: "Tour",
-            children: [
-              { label: "tour1", value: "tour1" },
-              { label: "tour2", value: "tour2" },
-              { label: "tour3", value: "tour3" },
-            ],
-          },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
-            ],
-          },
 
           {
             label: "Date Interval",
@@ -99,7 +84,7 @@ function Bookings() {
             ],
           },
         ]}
-      />{" "}
+      />
       {sortedBookings.length > 0 ? (
         <BookingsTable
           headers={headers}

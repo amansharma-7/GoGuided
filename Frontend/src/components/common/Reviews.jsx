@@ -17,42 +17,42 @@ const allReviews = [
     name: "Bob",
     comment:
       "A wonderful experience! The places we visited were breathtaking. I would highly recommend this tour to anyone interested in history and culture.",
-    rating: 4.3,
+    rating: 4.5,
   },
   {
     id: 3,
     name: "Charlie",
     comment:
       "Great experience overall. The tour was well organized, and I learned a lot. The guide shared unique insights that I wouldn’t have known otherwise. Definitely worth it!",
-    rating: 4.8,
+    rating: 4.5,
   },
   {
     id: 4,
     name: "Diana",
     comment:
       "It was okay. Some parts could be improved. There were a few delays that made the experience less enjoyable.",
-    rating: 3.2,
+    rating: 3.5,
   },
   {
     id: 5,
     name: "Eve",
     comment:
       "I loved the experience! Would definitely recommend it to friends. The group was friendly, and the guide kept it engaging. Perfect for exploring new places.",
-    rating: 4.6,
+    rating: 4.5,
   },
   {
     id: 6,
     name: "Frank",
     comment:
       "An unforgettable journey! The guide made everything interesting. I got to see places I never imagined I would see. Truly a remarkable experience!",
-    rating: 4.9,
+    rating: 4.5,
   },
   {
     id: 7,
     name: "Grace",
     comment:
       "It was nice, but a bit too crowded for my liking. Still, I enjoyed learning about the history of the locations.",
-    rating: 3.7,
+    rating: 3.5,
   },
   {
     id: 8,

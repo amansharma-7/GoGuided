@@ -20,6 +20,7 @@ import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
 import Avatar from "../../common/Avatar";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
+import ShareModal from "../../common/ShareModal";
 
 const tourData = {
   title: "The Forest Hiker",
@@ -66,6 +67,8 @@ function Tour() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userReview, setUserReview] = useState(null);
   const [liked, setLiked] = useState(false);
+  const [share, setShare] = useState(false);
+  const shareUrl = window.location.origin + location.pathname;
 
   const handleReviewSubmit = (reviewData) => {
     console.log("Review Submitted:", reviewData);
@@ -111,7 +114,10 @@ function Tour() {
               <FaRegHeart color="black" size={24} />
             )}
           </button>
-          <button className="bg-green-700 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-800 transition cursor-pointer">
+          <button
+            className="bg-green-700 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-800 transition cursor-pointer"
+            onClick={() => setShare(!share)}
+          >
             Share
           </button>
         </div>
@@ -261,6 +267,14 @@ function Tour() {
             initialReview={userReview}
             onSubmit={handleReviewSubmit}
             setIsModalOpen={setIsModalOpen}
+          />
+        )}
+
+        {share && (
+          <ShareModal
+            isOpen={share}
+            setIsModalOpen={setShare}
+            shareUrl={shareUrl}
           />
         )}
       </div>

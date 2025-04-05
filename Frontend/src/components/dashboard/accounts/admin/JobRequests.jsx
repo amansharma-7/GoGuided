@@ -90,13 +90,6 @@ function JobRequests() {
               { label: "Contract", value: "contract" },
             ],
           },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
-            ],
-          },
 
           {
             label: "Date Interval",

@@ -4,6 +4,7 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { CiCalendar, CiFlag1 } from "react-icons/ci";
 import { HiArrowTrendingUp } from "react-icons/hi2";
+import RatingStars from "../common/RatingStars";
 
 function TourCard({ tour }) {
   const navigate = useSafeNavigate();
@@ -56,15 +57,7 @@ function TourCard({ tour }) {
         {/* Rating & Booking */}
         <div className="flex items-center justify-around p-2">
           <div className="text-lg text-green-600 font-semibold flex items-center gap-0.5">
-            {Array.from({ length: 5 }, (_, i) =>
-              i < Math.floor(tour.rating) ? (
-                <FaStar key={i} className="text-yellow-500" />
-              ) : i < tour.rating ? (
-                <FaStarHalfAlt key={i} className="text-yellow-500" />
-              ) : (
-                <FaRegStar key={i} className="text-yellow-500" />
-              )
-            )}
+            <RatingStars Review_Count={tour.rating} />
           </div>
 
           <button

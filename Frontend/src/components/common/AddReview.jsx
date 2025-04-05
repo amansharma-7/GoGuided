@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 function AddReview({ initialReview = null, onSubmit, setIsModalOpen }) {
   const [rating, setRating] = useState(initialReview?.rating || 0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState(initialReview?.reviewText || "");
   const [hasReviewed, setHasReviewed] = useState(!!initialReview);
 
@@ -21,6 +22,12 @@ function AddReview({ initialReview = null, onSubmit, setIsModalOpen }) {
     onSubmit(newReview);
 
     setHasReviewed(true); // Mark as reviewed
+  };
+  const handleMouseMove = (star, event) => {
+    const { left, width } = event.target.getBoundingClientRect();
+    const x = event.clientX - left;
+    const isHalf = x < width / 2;
+    setHoverRating(isHalf ? star - 0.5 : star);
   };
 
   return (
@@ -46,17 +53,46 @@ function AddReview({ initialReview = null, onSubmit, setIsModalOpen }) {
               </h2>
               <div className="flex flex-col gap-4">
                 {/* Rating Selection */}
-                <div className="flex space-x-2 ">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <FaStar
-                      key={star}
-                      size={24}
-                      className={`cursor-pointer ${
-                        star <= rating ? "text-yellow-500" : "text-gray-300"
-                      }`}
-                      onClick={() => setRating(star)}
-                    />
-                  ))}
+                <div className="flex space-x-2">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const isHalfStar =
+                      rating === star - 0.5 || hoverRating === star - 0.5;
+                    return (
+                      <div
+                        key={star}
+                        className="cursor-pointer relative"
+                        onMouseMove={(e) => handleMouseMove(star, e)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => setRating(hoverRating || star)}
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          position: "relative",
+                        }}
+                      >
+                        {/* Full Star (Gray Background) */}
+                        <FaStar
+                          size={30}
+                          className="absolute top-0 left-0 text-gray-300"
+                          style={{ zIndex: 1 }}
+                        />
+                        {/* Half or Full Star (Yellow Foreground) */}
+                        {isHalfStar ? (
+                          <FaStarHalfAlt
+                            size={30}
+                            className="absolute top-0 left-0 text-yellow-500"
+                            style={{ zIndex: 2 }}
+                          />
+                        ) : rating >= star || hoverRating >= star ? (
+                          <FaStar
+                            size={30}
+                            className="absolute top-0 left-0 text-yellow-500"
+                            style={{ zIndex: 2 }}
+                          />
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
                 {/* Review Input */}
                 <textarea

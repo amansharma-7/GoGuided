@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import BookingsHeader from "../../../../common/DashboardHeader";
 import ConfirmationModal from "../../../../common/ConfirmationModal";
 import NoResult from "../../../../../pages/NoResult";
+import NoBooking from "./NoBooking";
 
 const bookingsData = [
   {
@@ -102,6 +103,14 @@ export default function Bookings() {
       : new Date(b.startDate) - new Date(a.startDate);
   });
 
+  if (
+    !sortedBookings.length &&
+    !filterState.searchQuery &&
+    !filterState.selectedFilters.length
+  ) {
+    return <NoBooking />;
+  }
+
   return (
     <div className="p-4 pb-20 grid grid-cols-1 gap-2 bg-green-50 overflow-y-auto h-full scrollbar-none">
       <BookingsHeader
@@ -127,14 +136,6 @@ export default function Bookings() {
               { label: "tour3", value: "tour3" },
             ],
           },
-          {
-            label: "Date Filter",
-            children: [
-              { label: "This Month", value: "this_month" },
-              { label: "This Year", value: "this_year" },
-            ],
-          },
-
           {
             label: "Date Interval",
             children: [

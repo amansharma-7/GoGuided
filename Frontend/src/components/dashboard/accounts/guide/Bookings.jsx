@@ -73,6 +73,23 @@ function Bookings() {
         filterState={filterState}
         setFilterState={setFilterState}
         totalCount={sortedBookings.length}
+        filterOptions={[
+          {
+            label: "Tour",
+            children: [
+              { label: "tour1", value: "tour1" },
+              { label: "tour2", value: "tour2" },
+              { label: "tour3", value: "tour3" },
+            ],
+          },
+          {
+            label: "Date Interval",
+            children: [
+              { label: "Start Date", value: "startDate", type: "date" },
+              { label: "End Date", value: "endDate", type: "date" },
+            ],
+          },
+        ]}
       />
 
       {sortedBookings.length > 0 ? (
