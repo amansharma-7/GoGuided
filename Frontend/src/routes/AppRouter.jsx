@@ -225,7 +225,7 @@ const router = createBrowserRouter([
         Component: SignupForm,
       },
       {
-        path: "/change-password", // route with token from email
+        path: "/change-password/:id", // route with token from email
         Component: UpdatePassword,
       },
       {
