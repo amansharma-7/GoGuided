@@ -1,4 +1,3 @@
-const { log } = require("console");
 const mongoose = require("mongoose");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") }); // Optional if .env is at root
