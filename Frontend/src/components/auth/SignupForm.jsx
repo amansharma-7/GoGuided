@@ -83,6 +83,41 @@ function SignupForm() {
             )}
           </label>
 
+          {/* Contact Field */}
+          <label className="w-full">
+            <p className="mb-1 text-lg text-green-950">Contact</p>
+            <div className="flex gap-x-4">
+              <select
+                {...register("countryCode", { required: "Code is required" })}
+                className="w-1/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+              >
+                <option value="+1">+1 (US)</option>
+                <option value="+91">+91 (IN)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+61">+61 (AU)</option>
+                <option value="+81">+81 (JP)</option>
+              </select>
+
+              <input
+                type="tel"
+                placeholder="Enter contact number"
+                {...register("contactNumber", {
+                  required: "Contact number is required",
+                  pattern: {
+                    value: /^[0-9]{7,15}$/,
+                    message: "Invalid contact number",
+                  },
+                })}
+                className="w-2/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+              />
+            </div>
+            {(errors.countryCode || errors.contactNumber) && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.countryCode?.message || errors.contactNumber?.message}
+              </p>
+            )}
+          </label>
+
           {/* Password Fields */}
           <div className="flex gap-x-4">
             <label className="relative w-full">

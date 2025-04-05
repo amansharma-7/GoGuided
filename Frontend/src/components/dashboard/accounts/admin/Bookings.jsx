@@ -142,32 +142,9 @@ function Bookings() {
         totalCount={sortedBookings.length}
         filterState={filterState}
         setFilterState={setFilterState}
-<<<<<<< HEAD
-        filterOptions={[
-          {
-            label: "Booking Status",
-            children: [
-              { label: "Upcoming", value: "upcoming" },
-              { label: "Ongoing", value: "ongoing" },
-              { label: "Cancelled", value: "cancelled" },
-              { label: "Completed", value: "completed" },
-            ],
-          },
-
-          {
-            label: "Date Interval",
-            children: [
-              { label: "Start Date", value: "startDate", type: "date" },
-              { label: "End Date", value: "endDate", type: "date" },
-            ],
-          },
-        ]}
-      />
-=======
         filterOptions={filterOptions}
       />
 
->>>>>>> 0da78bc720cff9587a052f02c3915b0fed7c264e
       {sortedBookings.length > 0 ? (
         <BookingsTable
           headers={headers}
