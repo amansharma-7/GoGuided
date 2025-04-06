@@ -15,13 +15,16 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/.+\@.+\..+/, "Please fill a valid email address"],
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please enter a valid email address",
+      ],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: 6,
-      select: false, // do not return password by default
+      select: false,
     },
     role: {
       type: String,
@@ -31,21 +34,26 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
+      match: [/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"],
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
     },
     isActive: {
       type: Boolean,
       default: true,
     },
-
+    emailVerificationToken: String,
+    emailVerificationTokenExpires: Date,
     resetPasswordToken: String,
-    resetPasswordExpire: Date,
+    resetPasswordTokenExpires: Date,
   },
   {
-    timestamps: true, // createdAt, updatedAt
+    timestamps: true,
   }
 );
 
-// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
