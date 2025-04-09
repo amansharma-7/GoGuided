@@ -8,11 +8,51 @@ const path = require("path"); // For handling file paths
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    const tours = await Tour.find()
+      .lean()
+      .select(
+        "thumbnail title overview location startDate difficulty tourSpots"
+      );
+
+    const data = tours.map(({ tourSpots, ...rest }) => ({
+      ...rest,
+      stops: tourSpots?.length || 0,
+    }));
+
     res.status(200).json({
       status: "success",
-      results: tours.length,
-      data: { tours },
+      results: data.length,
+      data: { tours: data },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+exports.getTourBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const tour = await Tour.findOne({ slug })
+      .lean() // Performance boost
+      .populate("reviews");
+    // .populate("guides");
+
+    if (!tour) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Tour not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        tour,
+      },
     });
   } catch (error) {
     res.status(500).json({

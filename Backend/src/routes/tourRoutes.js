@@ -18,5 +18,6 @@ router.post(
   tourMidleware.validateTour,
   tourController.createTour // Create the tour
 );
+router.get("/:slug", tourController.getTourBySlug);
 
 module.exports = router;
