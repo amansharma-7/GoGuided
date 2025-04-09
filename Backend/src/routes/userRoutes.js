@@ -3,7 +3,6 @@ const authController = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();
-const auth = require("../Controllers/auth");
 
 router.post("/signup", authController.signup);
 router.get("/verify-email", authController.verifyEmail);

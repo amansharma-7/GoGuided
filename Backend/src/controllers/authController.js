@@ -48,6 +48,8 @@ const generateVerificationToken = (user) => {
 };
 
 exports.signup = async (req, res) => {
+  console.log(req.files, req.body);
+
   try {
     const { firstName, lastName, email, password, confirmPassword, role } =
       req.body;
