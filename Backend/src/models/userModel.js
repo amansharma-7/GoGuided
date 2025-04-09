@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema(
     emailVerificationTokenExpires: Date,
     resetPasswordToken: String,
     resetPasswordTokenExpires: Date,
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Booking" }],
   },
   {
     timestamps: true,

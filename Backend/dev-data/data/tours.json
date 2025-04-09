@@ -1,0 +1,319 @@
+[
+  {
+    "title": "Kerala Backwaters",
+    "location": "Kerala",
+    "tourSpots": [
+      {
+        "day": 1,
+        "lat": 9.5018,
+        "lng": 76.3388,
+        "desc": "Arrival at Alleppey"
+      },
+      { "day": 2, "lat": 9.585, "lng": 76.521, "desc": "Houseboat cruise" }
+    ],
+    "duration": "4 days",
+    "participants": 8,
+    "difficulty": "Easy",
+    "languages": ["English", "Malayalam"],
+    "startDate": "2025-09-05T00:00:00.000Z",
+    "overview": "Relax in the serene backwaters of Kerala",
+    "highlights": ["Houseboat stay", "Lush greenery", "Traditional cuisine"],
+    "included": ["Accommodation", "Meals", "Guide"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/kerala/gallery10.jpg"
+    ],
+    "price": 18000,
+    "currency": "INR"
+  },
+  {
+    "title": "Sundarbans Exploration",
+    "location": "West Bengal",
+    "tourSpots": [
+      {
+        "day": 1,
+        "lat": 21.9497,
+        "lng": 89.1833,
+        "desc": "Arrival at Sundarbans"
+      },
+      {
+        "day": 2,
+        "lat": 21.9445,
+        "lng": 89.183,
+        "desc": "Mangrove boat safari"
+      }
+    ],
+    "duration": "3 days",
+    "participants": 12,
+    "difficulty": "Medium",
+    "languages": ["English", "Bengali"],
+    "startDate": "2025-11-20T00:00:00.000Z",
+    "overview": "Explore the largest mangrove forest in the world",
+    "highlights": ["Mangrove forests", "Tiger reserve", "River safaris"],
+    "included": ["Meals", "Guide", "Boat transport"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/sundarbans/gallery10.jpg"
+    ],
+    "price": 14000,
+    "currency": "INR"
+  },
+  {
+    "title": "Ladakh Adventure",
+    "location": "Ladakh",
+    "tourSpots": [
+      { "day": 1, "lat": 34.1526, "lng": 77.5771, "desc": "Arrival at Leh" },
+      { "day": 2, "lat": 34.2432, "lng": 77.1892, "desc": "Visit Pangong Lake" }
+    ],
+    "duration": "6 days",
+    "participants": 8,
+    "difficulty": "Hard",
+    "languages": ["English", "Hindi"],
+    "startDate": "2025-08-12T00:00:00.000Z",
+    "overview": "High altitude adventure in Ladakh",
+    "highlights": ["Pangong Lake", "Monasteries", "Mountain passes"],
+    "included": ["Accommodation", "Transport", "Guide"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712567890/tours/ladakh/gallery10.jpg"
+    ],
+    "price": 22000,
+    "currency": "INR"
+  },
+  {
+    "title": "Majestic Himalayas",
+    "location": "Himachal Pradesh",
+    "tourSpots": [
+      { "day": 1, "lat": 32.2432, "lng": 77.1892, "desc": "Arrival at Manali" },
+      {
+        "day": 2,
+        "lat": 32.2396,
+        "lng": 77.1887,
+        "desc": "Solang Valley Adventure"
+      },
+      {
+        "day": 3,
+        "lat": 32.3667,
+        "lng": 77.1167,
+        "desc": "Rohtang Pass excursion"
+      }
+    ],
+    "duration": "5 days",
+    "participants": 10,
+    "difficulty": "Medium",
+    "languages": ["English", "Hindi"],
+    "startDate": "2025-06-10T00:00:00.000Z",
+    "overview": "Explore the beauty of the Himalayas",
+    "highlights": ["Snow peaks", "River rafting", "Scenic valleys"],
+    "included": ["Guide", "Meals", "Transport"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/himalayas/gallery10.jpg"
+    ],
+    "price": 15000,
+    "currency": "INR"
+  },
+  {
+    "title": "Desert Safari",
+    "location": "Rajasthan",
+    "tourSpots": [
+      { "day": 1, "lat": 26.9124, "lng": 75.7873, "desc": "Arrival at Jaipur" },
+      {
+        "day": 2,
+        "lat": 27.0238,
+        "lng": 74.2179,
+        "desc": "Camel ride in Jodhpur"
+      }
+    ],
+    "duration": "3 days",
+    "participants": 15,
+    "difficulty": "Easy",
+    "languages": ["English", "Hindi"],
+    "startDate": "2025-07-15T00:00:00.000Z",
+    "overview": "Explore the deserts of Rajasthan",
+    "highlights": ["Camel Safari", "Sand dunes", "Cultural shows"],
+    "included": ["Guide", "Meals"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/desert/gallery10.jpg"
+    ],
+    "price": 12000,
+    "currency": "INR"
+  },
+  {
+    "title": "Backwaters of Kerala",
+    "location": "Kerala",
+    "tourSpots": [
+      { "day": 1, "lat": 9.9312, "lng": 76.2673, "desc": "Arrival at Kochi" },
+      {
+        "day": 2,
+        "lat": 9.4981,
+        "lng": 76.3388,
+        "desc": "Houseboat cruise at Alleppey"
+      },
+      {
+        "day": 3,
+        "lat": 8.5241,
+        "lng": 76.9366,
+        "desc": "Beach relaxation at Kovalam"
+      }
+    ],
+    "duration": "4 days",
+    "participants": 8,
+    "difficulty": "Easy",
+    "languages": ["English", "Malayalam"],
+    "startDate": "2025-08-20T00:00:00.000Z",
+    "overview": "Experience the tranquility of Kerala's backwaters",
+    "highlights": ["Houseboat stay", "Local cuisine", "Ayurvedic spa"],
+    "included": ["Guide", "Meals", "Accommodation"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/kerala/gallery10.jpg"
+    ],
+    "price": 18000,
+    "currency": "INR"
+  },
+  {
+    "title": "Sundarbans Adventure",
+    "location": "West Bengal",
+    "tourSpots": [
+      {
+        "day": 1,
+        "lat": 22.0567,
+        "lng": 88.9037,
+        "desc": "Arrival at Godkhali"
+      },
+      {
+        "day": 2,
+        "lat": 21.9497,
+        "lng": 88.6756,
+        "desc": "Safari through mangroves"
+      },
+      {
+        "day": 3,
+        "lat": 21.8578,
+        "lng": 88.6337,
+        "desc": "Local village visit"
+      }
+    ],
+    "duration": "3 days",
+    "participants": 12,
+    "difficulty": "Medium",
+    "languages": ["English", "Bengali"],
+    "startDate": "2025-09-05T00:00:00.000Z",
+    "overview": "Discover the mangrove forests of Sundarbans",
+    "highlights": ["Tiger spotting", "Mangrove safari", "Local culture"],
+    "included": ["Guide", "Meals", "Boat safari"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/sundarbans/gallery10.jpg"
+    ],
+    "price": 16000,
+    "currency": "INR"
+  },
+  {
+    "title": "Goa Beach Getaway",
+    "location": "Goa",
+    "tourSpots": [
+      { "day": 1, "lat": 15.2993, "lng": 74.124, "desc": "Arrival at Panaji" },
+      {
+        "day": 2,
+        "lat": 15.4909,
+        "lng": 73.8278,
+        "desc": "Beach hopping in North Goa"
+      },
+      {
+        "day": 3,
+        "lat": 15.4027,
+        "lng": 73.7751,
+        "desc": "Relax at South Goa beaches"
+      }
+    ],
+    "duration": "4 days",
+    "participants": 20,
+    "difficulty": "Easy",
+    "languages": ["English", "Konkani"],
+    "startDate": "2025-10-15T00:00:00.000Z",
+    "overview": "Relax and unwind in Goa",
+    "highlights": ["Beach parties", "Water sports", "Sunsets"],
+    "included": ["Accommodation", "Transport"],
+    "thumbnail": "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/thumbnail.jpg",
+    "images": [
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery1.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery2.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery3.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery4.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery5.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery6.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery7.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery8.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery9.jpg",
+      "https://res.cloudinary.com/demo/image/upload/v1712500000/tours/goa/gallery10.jpg"
+    ],
+    "price": 20000,
+    "currency": "INR"
+  }
+]
