@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/userModel");
 const Email = require("../../utils/email");
+const AppError = require("../../utils/appError");
 // Token generator function
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -47,33 +48,24 @@ const generateVerificationToken = (user) => {
   return verificationToken;
 };
 
-exports.signup = async (req, res) => {
-  console.log(req.files, req.body);
-
+exports.signup = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password, confirmPassword, role } =
       req.body;
 
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "All fields are required.",
-      });
+      return next(new AppError("All fields are required.", 400));
     }
 
     if (password !== confirmPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Password and confirm password do not match.",
-      });
+      return next(
+        new AppError("Password and confirm password do not match.", 400)
+      );
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Email already in use.",
-      });
+      return next(new AppError("Email already in use.", 400));
     }
 
     const fullName = `${firstName.trim()} ${lastName.trim()}`;
@@ -97,10 +89,9 @@ exports.signup = async (req, res) => {
     ).sendVerification();
 
     if (!emailResponse.success) {
-      return res.status(500).json({
-        status: "fail",
-        message: "There was an issue sending the verification email.",
-      });
+      return next(
+        new AppError("There was an issue sending the verification email.", 500)
+      );
     }
 
     res.status(201).json({
@@ -108,21 +99,16 @@ exports.signup = async (req, res) => {
       message: "Account created successfully. Please verify your email.",
     });
   } catch (error) {
-    res.status(400).json({
-      status: "fail",
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.query;
 
     if (!token) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Token is missing" });
+      return next(new AppError("Token is missing", 400));
     }
 
     // Hash the token to compare with DB
@@ -135,9 +121,7 @@ exports.verifyEmail = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Token is invalid or has expired" });
+      return next(new AppError("Token is invalid or has expired", 400));
     }
 
     // Mark user as verified
@@ -150,8 +134,7 @@ exports.verifyEmail = async (req, res) => {
       .status(200)
       .json({ status: "success", message: "Email verified successfully!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    next(err);
   }
 };
 
@@ -159,27 +142,18 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Please provide email and password",
-    });
+    return next(new AppError("Please provide email and password", 400));
   }
 
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
+    return next(new AppError("Invalid email or password", 401));
   }
 
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
+    return next(new AppError("Invalid email or password", 401));
   }
 
   // Check if email is verified
@@ -190,17 +164,18 @@ exports.login = async (req, res) => {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
     await new Email(user, verificationUrl).sendVerification();
 
-    return res.status(403).json({
-      status: "fail",
-      message:
+    return next(
+      new AppError(
         "Your email is not verified. A new verification link has been sent to your email.",
-    });
+        403
+      )
+    );
   }
 
   createAndSendToken(user, req, res);
 };
 
-exports.forgotPassword = async (req, res) => {
+exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -233,40 +208,36 @@ exports.forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email.",
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: "Server error." });
+    next(err);
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.resetPassword = async (req, res, next) => {
   try {
     const { password, confirmPassword } = req.body;
     const token = req.query && req.query.token;
 
     // Validate input presence
     if (!password || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Both password and confirm password are required.",
-      });
+      return next(
+        new AppError("Both password and confirm password are required.", 400)
+      );
     }
 
     // Validate password match
     if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Passwords do not match.",
-      });
+      return next(new AppError("Passwords do not match.", 400));
     }
 
     // Optional: Validate password strength (recommended)
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        success: false,
-        message:
+      return next(
+        new AppError(
           "Password must be at least 8 characters long and contain at least one letter and one number.",
-      });
+          400
+        )
+      );
     }
 
     // Hash the token (since it's stored hashed in DB)
@@ -279,17 +250,14 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired token.",
-      });
+      return next(new AppError("Invalid or expired token.", 400));
     }
 
     user.password = password;
 
     // Clear reset token fields
     user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetPasswordTokenExpires = undefined;
 
     await user.save();
 
@@ -298,74 +266,66 @@ exports.resetPassword = async (req, res) => {
       message: "Password has been reset successfully.",
     });
   } catch (err) {
-    console.error("Reset password error:", err.message);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server error. Please try again later.",
-    });
+    next(err);
   }
 };
 
-exports.updatePassword = async (req, res) => {
+exports.updatePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
 
     // Validate input presence
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-      return res.status(400).json({
-        success: false,
-        message:
+      return next(
+        new AppError(
           "All fields (current, new, and confirm new password) are required.",
-      });
+          400
+        )
+      );
     }
 
     // Validate new password and confirm new password match
     if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "New password and confirm password do not match.",
-      });
+      return next(
+        new AppError("New password and confirm password do not match.", 400)
+      );
     }
 
     // Optional: Validate password strength (recommended)
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
-      return res.status(400).json({
-        success: false,
-        message:
+      return next(
+        new AppError(
           "Password must be at least 8 characters long and contain at least one letter and one number.",
-      });
+          400
+        )
+      );
     }
 
     // Get the user from the request (you should already have this from auth middleware)
     const user = await User.findById(req.user.id).select("+password");
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-      });
+      return next(new AppError("User not found.", 404));
     }
 
     // Check if current password is correct
     const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Current password is incorrect.",
-      });
+      return next(new AppError("Current password is incorrect.", 400));
     }
 
     // Check if new password is different from current password
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
 
     if (isSamePassword) {
-      return res.status(400).json({
-        success: false,
-        message: "New password must be different from the current password.",
-      });
+      return next(
+        new AppError(
+          "New password must be different from the current password.",
+          400
+        )
+      );
     }
 
     user.password = newPassword;
@@ -377,11 +337,6 @@ exports.updatePassword = async (req, res) => {
       message: "Password updated successfully.",
     });
   } catch (err) {
-    console.error("Update password error:", err.message);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server error. Please try again later.",
-    });
+    next(err);
   }
 };

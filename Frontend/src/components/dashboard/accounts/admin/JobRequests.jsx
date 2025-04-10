@@ -82,15 +82,12 @@ function JobRequests() {
             ],
           },
           {
-            label: "Job Type",
+            label: "Job Title",
             children: [
-              { label: "Full-Time", value: "fullTime" },
-              { label: "Part-Time", value: "partTime" },
-              { label: "Internship", value: "internship" },
-              { label: "Contract", value: "contract" },
+              { label: "Job 1", value: "Job 1" },
+              { label: "Job 2", value: "Job 2" },
             ],
           },
-
           {
             label: "Date Interval",
             children: [

@@ -48,6 +48,9 @@ import Jobs from "../components/dashboard/accounts/admin/Jobs";
 import JobUserDetails from "../components/dashboard/accounts/admin/JobUserDetails";
 import UserDetails from "../components/dashboard/accounts/admin/UserDetails";
 import GuideDetails from "../components/dashboard/accounts/admin/GuideDetails";
+import ManageJobs from "../components/dashboard/accounts/admin/ManageJobs";
+import AllAdmins from "../components/dashboard/accounts/admin/AllAdmins";
+import AddNewAdmin from "../components/dashboard/accounts/admin/AddNewAdmin";
 
 // guide
 import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
@@ -180,6 +183,7 @@ const router = createBrowserRouter([
             children: [
               { index: true, Component: Jobs },
               { path: "create-job", Component: CreateJob },
+              { path: "manage-jobs", Component: ManageJobs },
               {
                 path: "requests",
                 children: [
@@ -190,6 +194,13 @@ const router = createBrowserRouter([
             ],
           },
           { path: "settings", Component: Settings },
+          {
+            path: "manage-admins",
+            children: [
+              { index: true, Component: AllAdmins },
+              { path: "add-admin", Component: AddNewAdmin },
+            ],
+          },
         ],
       },
 
