@@ -13,7 +13,7 @@ router.post(
   //   authMiddleware.restrictToAdmin,
   upload.fields([
     { name: "thumbnail", maxCount: 1 },
-    { name: "images", maxCount: 10 },
+    { name: "images", maxCount: 20 },
   ]), // accepts form-data (text & files)
   tourMidleware.validateTour,
   tourController.createTour // Create the tour

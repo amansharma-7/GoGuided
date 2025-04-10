@@ -3,6 +3,8 @@ const morgan = require("morgan");
 const cors = require("cors");
 const authRoutes = require("./src/routes/authRoutes");
 const tourRoutes = require("./src/routes/tourRoutes");
+const jobRoutes = require("./src/routes/jobRoutes");
+
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./src/controllers/errorController");
 
@@ -16,6 +18,7 @@ app.use(express.json()); // Parse JSON bodies
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tours", tourRoutes);
+app.use("/api/job", jobRoutes);
 
 // Handle unhandled routes
 // app.all("*", (req, res, next) => {

@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router";
 import { BiPlusCircle, BiListCheck } from "react-icons/bi";
+import useSafeNavigate from "../../../../utils/useSafeNavigate";
 
 function Jobs() {
-  const navigate = useNavigate();
+  const navigate = useSafeNavigate();
 
   return (
     <div className="p-4 flex flex-col gap-6  min-h-screen bg-gray-100">
@@ -37,6 +37,17 @@ function Jobs() {
           <BiListCheck className="text-green-600 w-6 h-6" />{" "}
           <span className="text-green-700 font-semibold text-lg">
             See Applications
+          </span>
+        </div>
+      </div>
+      <div
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        onClick={() => navigate("manage-jobs")}
+      >
+        <div className="flex items-center gap-2">
+          <BiListCheck className="text-green-600 w-6 h-6" />{" "}
+          <span className="text-green-700 font-semibold text-lg">
+            Manage Jobs
           </span>
         </div>
       </div>

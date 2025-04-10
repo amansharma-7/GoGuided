@@ -26,7 +26,7 @@ function JobUserDetails() {
         <h2 className="text-2xl font-bold text-green-800">User Details</h2>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer"
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointerj"
         >
           Go Back
         </button>
