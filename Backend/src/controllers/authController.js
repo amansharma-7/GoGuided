@@ -1,385 +1,324 @@
 const bcrypt = require("bcryptjs");
+const ms = require("ms");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/userModel");
+const Account = require("../models/accountModel");
 const Email = require("../../utils/email");
+const catchAsync = require("../../utils/catchAsync");
+const AppError = require("../../utils/appError");
+
 // Token generator function
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN, // already like "90d" or "1h"
   });
 };
 
-const createAndSendToken = (user, req, res) => {
-  const token = signToken(user._id);
-  console.log(process.env.JWT_EXPIRES_IN.slice(0, -1));
+const createAndSendToken = (account, req, res) => {
+  const token = signToken(account._id);
 
   res.cookie("jwt", token, {
-    expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_IN.slice(0, -1) * 24 * 60 * 60 * 1000
-    ),
+    expires: new Date(Date.now() + ms(process.env.JWT_EXPIRES_IN)),
     httpOnly: true,
     secure: req.secure || req.headers["x-forwarded-proto"] === "https",
   });
 
   // Remove password from output
-  user.password = undefined;
+  account.password = undefined;
 
   res.status(200).json({
     status: "success",
     token,
     data: {
-      user,
+      account,
     },
   });
 };
 
-const generateVerificationToken = (user) => {
+const generateVerificationToken = () => {
   const verificationToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = crypto
     .createHash("sha256")
     .update(verificationToken)
     .digest("hex");
 
-  user.emailVerificationToken = hashedToken;
-  user.emailVerificationTokenExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  return verificationToken;
+  return { verificationToken, hashedToken };
 };
 
-exports.signup = async (req, res) => {
-  try {
-    const { firstName, lastName, email, password, confirmPassword, role } =
-      req.body;
+exports.signup = catchAsync(async (req, res, next) => {
+  const { firstName, lastName, email, password, phone, role } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "All fields are required.",
-      });
-    }
+  const name = `${firstName.trim()} ${lastName.trim()}`;
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Password and confirm password do not match.",
-      });
-    }
+  const user = await User.create({ name });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Email already in use.",
-      });
-    }
+  const account = await Account.create({
+    name,
+    email,
+    phone,
+    password,
+    role,
+    user: user._id,
+  });
 
-    const fullName = `${firstName.trim()} ${lastName.trim()}`;
-    const user = await User.create({
-      name: fullName,
-      email,
-      password,
-      role,
-    });
+  const { verificationToken, hashedToken } = generateVerificationToken();
 
-    const verificationToken = generateVerificationToken(user);
+  account.emailVerificationToken = hashedToken;
+  account.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
 
-    await user.save({ validateBeforeSave: false });
+  await account.save({ validateBeforeSave: false });
 
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
-    // Send verification email
-    const emailResponse = await new Email(
-      user,
-      verificationUrl
-    ).sendVerification();
+  // Send verification email
+  const emailResponse = await new Email(
+    account,
+    verificationUrl
+  ).sendVerification();
 
-    if (!emailResponse.success) {
-      return res.status(500).json({
-        status: "fail",
-        message: "There was an issue sending the verification email.",
-      });
-    }
-
-    res.status(201).json({
-      status: "success",
-      message: "Account created successfully. Please verify your email.",
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "fail",
-      message: error.message,
-    });
+  if (!emailResponse.success) {
+    return next(
+      new AppError("There was an issue sending the verification email.", 500)
+    );
   }
-};
 
-exports.verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.query;
+  res.status(201).json({
+    status: "success",
+    message: "Account created successfully.",
+  });
+});
 
-    if (!token) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Token is missing" });
-    }
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  const { token } = req.query;
 
-    // Hash the token to compare with DB
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-    // Find user by token and check expiry
-    const user = await User.findOne({
-      emailVerificationToken: hashedToken,
-      emailVerificationTokenExpires: { $gt: Date.now() },
-    });
-
-    if (!user) {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Token is invalid or has expired" });
-    }
-
-    // Mark user as verified
-    user.isEmailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationTokenExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    res
-      .status(200)
-      .json({ status: "success", message: "Email verified successfully!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "error", message: "Server error" });
+  if (!token) {
+    return next(new AppError("Token is missing", 400));
   }
-};
 
-exports.login = async (req, res) => {
+  // Hash the token to compare with DB
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  // Find user by token and check expiry
+  const account = await Account.findOne({
+    emailVerificationToken: hashedToken,
+    emailVerificationTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!account) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+
+  // Mark user as verified
+  account.isEmailVerified = true;
+  account.emailVerificationToken = undefined;
+  account.emailVerificationTokenExpires = undefined;
+  await account.save({ validateBeforeSave: false });
+
+  createAndSendToken(account, req, res);
+});
+
+exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // 1. Check if email and password exist
   if (!email || !password) {
+    return next(new AppError("Please provide email and password.", 400));
+  }
+
+  // 2. Check if account exists && password is correct
+  const account = await Account.findOne({ email }).select("+password");
+
+  if (!account || !(await bcrypt.compare(password, account.password))) {
+    return next(new AppError("Incorrect email or password.", 400));
+  }
+
+  // 3. Check if email is verified
+  if (!account.isEmailVerified) {
+    // If token expired or not generated, generate a new one and send email
+    if (
+      !account.emailVerificationToken ||
+      account.emailVerificationTokenExpires < Date.now()
+    ) {
+      const { verificationToken, hashedToken } =
+        generateVerificationToken(account);
+
+      account.emailVerificationToken = hashedToken;
+      account.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes expiry
+
+      await account.save({ validateBeforeSave: false });
+
+      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+      await new Email(account, verificationUrl).sendVerification();
+
+      return next(
+        new AppError(
+          "Your verification link has expired. We've sent you a new one, please check your email.",
+          400
+        )
+      );
+    }
+
+    return next(new AppError("Please verify your email to login.", 400));
+  }
+
+  // 4. If everything ok, send token to client
+  createAndSendToken(account, req, res);
+});
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  const account = await Account.findOne({ email });
+  if (!account) {
+    return next(
+      new AppError(
+        "If an account with that email exists, a password reset link has been sent.",
+        200
+      )
+    );
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  account.resetPasswordToken = hashedToken;
+  account.resetPasswordTokenExpires = Date.now() + 30 * 60 * 1000; // 15 minutes
+  await account.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  await new Email(account, resetUrl).sendPasswordReset();
+
+  return res.status(200).json({
+    success: true,
+    message: "Password reset link sent to your email.",
+  });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const { password, confirmPassword } = req.body;
+  const token = req.query && req.query.token;
+
+  // Validate input presence
+  if (!password || !confirmPassword) {
+    return next(
+      new AppError("Both password and confirm password are required.", 400)
+    );
+  }
+
+  // Validate password match
+  if (password !== confirmPassword) {
+    return next(new AppError("Passwords do not match.", 400));
+  }
+
+  // Optional: Validate password strength (recommended)
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    return next(
+      new AppError(
+        "Password must be at least 8 characters long and contain at least one letter and one number.",
+        400
+      )
+    );
+  }
+
+  // Hash the token (since it's stored hashed in DB)
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  // Find user by token and expiry
+  const account = await Account.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!account) {
+    return next(new AppError("Invalid or expired token.", 400));
+  }
+
+  account.password = password;
+
+  // Clear reset token fields
+  account.resetPasswordToken = undefined;
+  account.resetPasswordTokenExpires = undefined;
+
+  await account.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Password has been reset successfully.",
+  });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+  // Validate input presence
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
     return res.status(400).json({
-      status: "fail",
-      message: "Please provide email and password",
-    });
-  }
-
-  const user = await User.findOne({ email }).select("+password");
-
-  if (!user) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
-  }
-
-  const isPasswordCorrect = await bcrypt.compare(password, user.password);
-  if (!isPasswordCorrect) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
-  }
-
-  // Check if email is verified
-  if (!user.isEmailVerified) {
-    const verificationToken = generateVerificationToken(user);
-    await user.save({ validateBeforeSave: false });
-
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-    await new Email(user, verificationUrl).sendVerification();
-
-    return res.status(403).json({
-      status: "fail",
+      success: false,
       message:
-        "Your email is not verified. A new verification link has been sent to your email.",
+        "All fields (current, new, and confirm new password) are required.",
     });
   }
 
-  createAndSendToken(user, req, res);
-};
-
-exports.forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(200).json({
-        success: true,
-        message:
-          "If an account with that email exists, a password reset link has been sent.",
-      });
-    }
-
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-    await user.save();
-
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-    new Email(user, resetUrl).sendPasswordReset();
-
-    return res.status(200).json({
-      success: true,
-      resetToken,
-      message: "Password reset link sent to your email.",
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: "Server error." });
-  }
-};
-
-exports.resetPassword = async (req, res) => {
-  try {
-    const { password, confirmPassword } = req.body;
-    const token = req.query && req.query.token;
-
-    // Validate input presence
-    if (!password || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Both password and confirm password are required.",
-      });
-    }
-
-    // Validate password match
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Passwords do not match.",
-      });
-    }
-
-    // Optional: Validate password strength (recommended)
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must be at least 8 characters long and contain at least one letter and one number.",
-      });
-    }
-
-    // Hash the token (since it's stored hashed in DB)
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-    // Find user by token and expiry
-    const user = await User.findOne({
-      resetPasswordToken: hashedToken,
-      resetPasswordTokenExpires: { $gt: Date.now() },
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired token.",
-      });
-    }
-
-    user.password = password;
-
-    // Clear reset token fields
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Password has been reset successfully.",
-    });
-  } catch (err) {
-    console.error("Reset password error:", err.message);
-
-    return res.status(500).json({
+  // Validate new password and confirm new password match
+  if (newPassword !== confirmNewPassword) {
+    return res.status(400).json({
       success: false,
-      message: "Server error. Please try again later.",
+      message: "New password and confirm password do not match.",
     });
   }
-};
 
-exports.updatePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword, confirmNewPassword } = req.body;
-
-    // Validate input presence
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "All fields (current, new, and confirm new password) are required.",
-      });
-    }
-
-    // Validate new password and confirm new password match
-    if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "New password and confirm password do not match.",
-      });
-    }
-
-    // Optional: Validate password strength (recommended)
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
-    if (!passwordRegex.test(newPassword)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must be at least 8 characters long and contain at least one letter and one number.",
-      });
-    }
-
-    // Get the user from the request (you should already have this from auth middleware)
-    const user = await User.findById(req.user.id).select("+password");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-      });
-    }
-
-    // Check if current password is correct
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Current password is incorrect.",
-      });
-    }
-
-    // Check if new password is different from current password
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-
-    if (isSamePassword) {
-      return res.status(400).json({
-        success: false,
-        message: "New password must be different from the current password.",
-      });
-    }
-
-    user.password = newPassword;
-
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Password updated successfully.",
-    });
-  } catch (err) {
-    console.error("Update password error:", err.message);
-
-    return res.status(500).json({
+  // Optional: Validate password strength (recommended)
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+  if (!passwordRegex.test(newPassword)) {
+    return res.status(400).json({
       success: false,
-      message: "Server error. Please try again later.",
+      message:
+        "Password must be at least 8 characters long and contain at least one letter and one number.",
     });
   }
-};
+
+  // Get the user from the request (you should already have this from auth middleware)
+  const account = await Account.findById(req.user.id).select("+password");
+
+  if (!account) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found.",
+    });
+  }
+
+  // Check if current password is correct
+  const isMatch = await bcrypt.compare(currentPassword, account.password);
+
+  if (!isMatch) {
+    return res.status(400).json({
+      success: false,
+      message: "Current password is incorrect.",
+    });
+  }
+
+  // Check if new password is different from current password
+  const isSamePassword = await bcrypt.compare(newPassword, account.password);
+
+  if (isSamePassword) {
+    return res.status(400).json({
+      success: false,
+      message: "New password must be different from the current password.",
+    });
+  }
+
+  account.password = newPassword;
+
+  await account.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Password updated successfully.",
+  });
+});
