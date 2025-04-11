@@ -1,29 +1,51 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const jobApplicationSchema = new mongoose.Schema({
-  job: {
+  jobId: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: "Job",
-    required: true,
   },
-  applicant: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  resumeUrl: {
+  name: {
     type: String,
-    required: true,
+    required: [true, "Full name is required"],
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    lowercase: true,
+    trim: true,
+  },
+  phone: {
+    type: String,
+    required: [true, "Phone number is required"],
+  },
+  linkedin: {
+    type: String,
+  },
+  portfolio: {
+    type: String,
+  },
+  experience: {
+    type: Number,
+    required: [true, "Experience is required"],
+    min: [0, "Experience cannot be negative"],
+  },
+  resume: {
+    type: String,
+    required: [true, "Resume file path is required"],
   },
   status: {
     type: String,
-    enum: ["Applied", "Reviewed", "Interview", "Rejected", "Accepted"],
-    default: "Applied",
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
   },
-  appliedAt: {
+  submittedAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-export default mongoose.model("JobApplication", jobApplicationSchema);
+const JobApplication = mongoose.model("JobApplication", jobApplicationSchema);
+module.exports = JobApplication;

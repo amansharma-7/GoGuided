@@ -53,7 +53,7 @@ module.exports = class Email {
                 <tr>
                   <td style="padding: 0 30px 20px 30px;">
                     <p>Hello ${this.firstName},</p>
-                    <p>We received a request to reset your password. Click the button below to reset it. This link is valid for only <strong>10 minutes</strong>.</p>
+                    <p>We received a request to reset your password. Click the button below to reset it. This link is valid for only <strong>30 minutes</strong>.</p>
                     <p style="text-align: center; margin: 30px 0;">
                       <a href="${this.url}" style="
                         background-color: #4CAF50;
@@ -166,7 +166,7 @@ module.exports = class Email {
   async sendPasswordReset() {
     const html = this.generatePasswordResetTemplate();
     return await this.send(
-      "Your password reset token (valid for only 10 minutes)",
+      "Your password reset token (valid for only 30 minutes)",
       html
     );
   }

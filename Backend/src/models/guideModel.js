@@ -2,33 +2,26 @@ const mongoose = require("mongoose");
 
 const guideSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    image: {
-      type: String,
-      default: "", // fallback in case image is not provided
-    },
-
-    languages: {
-      type: [String],
-      default: ["English"],
-    },
     experience: {
       type: Number,
-      default: 0, // experience in years
+      default: 0,
       min: 0,
     },
-    phone: {
-      type: String,
-      trim: true,
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Booking" }],
+
+    // New Fields
+    numberOfTours: {
+      type: Number,
+      default: 0,
     },
-    email: {
+    lastTour: {
       type: String,
-      trim: true,
-      lowercase: true,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Inactive", "Suspended"],
+      default: "Active",
     },
   },
   { timestamps: true }

@@ -1,10 +1,13 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const userRoutes = require("./src/routes/userRoutes");
+const authRoutes = require("./src/routes/authRoutes");
 const tourRoutes = require("./src/routes/tourRoutes");
 const jobRoutes = require("./src/routes/jobRoutes");
-const dasError = require("./dasError");
+const applicationRoutes = require("./src/routes/applicationRoutes");
+
+const AppError = require("./utils/appError");
+const globalErrorHandler = require("./src/controllers/errorController");
 
 const app = express();
 
@@ -14,12 +17,17 @@ app.use(morgan("dev")); // Logging
 app.use(express.json()); // Parse JSON bodies
 
 // Routes
-app.use("/api/auth", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/tours", tourRoutes);
 app.use("/api/job", jobRoutes);
+app.use("/api/application", applicationRoutes);
 
-// Error handling middleware
-app.use(dasError);
-// app.use(errorHandler);
+// Handle unhandled routes
+// app.all("*", (req, res, next) => {
+//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+// });
+
+// Global error handling middleware
+app.use(globalErrorHandler);
 
 module.exports = app;
