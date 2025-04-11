@@ -23,6 +23,16 @@ const accountSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
+    profilePicture: {
+      public_id: {
+        type: String,
+        required: true,
+      },
+      secure_url: {
+        type: String,
+        required: true,
+      },
+    },
     role: {
       type: String,
       enum: ["user", "guide", "admin"],
@@ -30,7 +40,7 @@ const accountSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // assuming User is your main user model
+      ref: "User",
     },
     emailVerificationToken: String,
     emailVerificationTokenExpires: Date,

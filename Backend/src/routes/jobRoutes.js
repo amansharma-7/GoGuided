@@ -1,7 +1,8 @@
 const express = require("express");
-const router = express.Router();
 const jobController = require("../controllers/JobController");
 const upload = require("../middlewares/multer");
+
+const router = express.Router();
 
 router.post("/create-job", upload.any(), jobController.createJob);
 

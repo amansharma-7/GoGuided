@@ -19,13 +19,17 @@ const processAndUpload = async (
     const processedBuffer = await imageProcessor.webp({ quality }).toBuffer();
 
     return new Promise((resolve, reject) => {
+      const options = { folder: folderPath };
+      options.overwrite = true; // make sure it replaces the old one
+
       const stream = cloudinary.uploader.upload_stream(
-        { folder: folderPath },
+        options,
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
         }
       );
+
       stream.end(processedBuffer);
     });
   } catch (error) {
@@ -46,7 +50,15 @@ const uploadGalleryImage = async (fileBuffer, slug) => {
   return processAndUpload(fileBuffer, folderPath, 1200, null, 90);
 };
 
+// Upload profile picture
+const uploadProfilePicture = async (fileBuffer, userId) => {
+  const folderPath = `user-profiles/${userId}`;
+  // Typical profile pic size (you can adjust if needed)
+  return processAndUpload(fileBuffer, folderPath, 400, 400, 85);
+};
+
 module.exports = {
   uploadThumbnail,
   uploadGalleryImage,
+  uploadProfilePicture,
 };

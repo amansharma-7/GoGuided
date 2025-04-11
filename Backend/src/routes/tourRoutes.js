@@ -18,6 +18,17 @@ router.post(
   tourMidleware.validateTour,
   tourController.createTour // Create the tour
 );
+router.patch(
+  "/update-tour/:slug",
+  // authMiddleware.isLoggedIn,
+  // authMiddleware.restrictToAdmin,
+  upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "images", maxCount: 20 },
+  ]),
+  tourMidleware.validateTour,
+  tourController.updateTour
+);
 router.get("/:slug", tourController.getTourBySlug);
 
 module.exports = router;

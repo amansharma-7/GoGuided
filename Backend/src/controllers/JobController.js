@@ -1,5 +1,5 @@
 const Job = require("../models/jobModel");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/appError");
 const slugify = require("slugify");
 
 exports.createJob = async (req, res, next) => {
