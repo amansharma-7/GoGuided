@@ -1,6 +1,7 @@
 const express = require("express");
 const authController = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
+const upload = require("../middlewares/multer");
 
 const router = express.Router();
 
@@ -13,6 +14,17 @@ router.patch(
   "/update-password",
   authMiddleware.isLoggedIn,
   authController.updatePassword
+);
+router.patch(
+  "/update-profile",
+  authMiddleware.isLoggedIn,
+  upload.single("profilePicture"),
+  authController.uploadProfilePicture
+);
+router.delete(
+  "/delete-account",
+  authMiddleware.isLoggedIn,
+  authController.deleteAccount
 );
 
 module.exports = router;

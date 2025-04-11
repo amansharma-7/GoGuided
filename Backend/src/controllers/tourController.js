@@ -4,7 +4,7 @@ const {
   uploadGalleryImage,
 } = require("../../utils/cloudinary");
 const slugify = require("slugify");
-const path = require("path"); // For handling file paths
+const cloudinary = require("cloudinary").v2;
 const catchAsync = require("../../utils/catchAsync");
 const AppError = require("../../utils/appError");
 
@@ -45,7 +45,7 @@ exports.getTourBySlug = catchAsync(async (req, res) => {
   });
 });
 
-exports.createTour = catchAsync(async (req, res) => {
+exports.createTour = catchAsync(async (req, res, next) => {
   const tourData = req.body;
   const slug = slugify(tourData.title, { lower: true, strict: true });
 
@@ -89,12 +89,114 @@ exports.createTour = catchAsync(async (req, res) => {
   const newTour = await Tour.create({
     ...tourData,
     slug,
-    thumbnail: thumbnailResult.secure_url,
-    images: galleryResults.map((img) => img.secure_url),
+    thumbnail: {
+      public_id: thumbnailResult.public_id,
+      secure_url: thumbnailResult.secure_url,
+    },
+    images: galleryResults.map((img) => ({
+      public_id: img.public_id,
+      secure_url: img.secure_url,
+    })),
   });
 
   res.status(201).json({
     status: "success",
     data: newTour,
+  });
+});
+
+exports.updateTour = catchAsync(async (req, res, next) => {
+  const { slug: currentSlug } = req.params;
+  const tourData = req.body;
+
+  const tour = await Tour.findOne({ slug: currentSlug });
+
+  if (!tour) {
+    return next(new AppError("No tour found with this slug.", 404));
+  }
+
+  let newSlug = tour.slug;
+
+  // Step 1: If title is provided, generate new slug and check for duplicates
+  if (tourData.title) {
+    newSlug = slugify(tourData.title, { lower: true, strict: true });
+
+    const existingTour = await Tour.findOne({
+      slug: newSlug,
+      _id: { $ne: tour._id },
+    });
+
+    if (existingTour) {
+      return next(
+        new AppError(
+          "A tour with this title already exists. Please use a different title.",
+          400
+        )
+      );
+    }
+
+    tour.title = tourData.title;
+    tour.slug = newSlug;
+  }
+
+  // Step 2: Handle thumbnail upload (if provided)
+  if (req.files.thumbnail && req.files.thumbnail.length !== 1) {
+    return next(
+      new AppError("You must upload exactly one thumbnail image.", 400)
+    );
+  }
+
+  if (req.files.thumbnail && req.files.thumbnail.length === 1) {
+    // Delete old thumbnail
+    await cloudinary.uploader.destroy(tour.thumbnail.public_id);
+
+    // Upload new thumbnail
+    const newThumbnail = await uploadThumbnail(
+      req.files.thumbnail[0].buffer,
+      newSlug
+    );
+
+    tour.thumbnail = {
+      public_id: newThumbnail.public_id,
+      secure_url: newThumbnail.secure_url,
+    };
+  }
+
+  // Step 3: Handle gallery images upload (if provided)
+  if (req.files.images && req.files.images.length > 0) {
+    if (req.files.images.length < 4 || req.files.images.length > 20) {
+      return next(
+        new AppError("You must upload between 4 and 20 gallery images.", 400)
+      );
+    }
+
+    // Delete old images
+    await Promise.all(
+      tour.images.map((img) => cloudinary.uploader.destroy(img.public_id))
+    );
+
+    // Upload new images
+    const newImages = await Promise.all(
+      req.files.images.map((file) => uploadGalleryImage(file.buffer, newSlug))
+    );
+
+    tour.images = newImages.map((img) => ({
+      public_id: img.public_id,
+      secure_url: img.secure_url,
+    }));
+  }
+
+  // Step 4: Update remaining tour data
+  Object.keys(tourData).forEach((field) => {
+    if (field !== "title") {
+      tour[field] = tourData[field];
+    }
+  });
+
+  await tour.save();
+
+  res.status(200).json({
+    status: "success",
+    data: tour,
   });
 });

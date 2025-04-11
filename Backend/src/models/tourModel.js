@@ -49,17 +49,34 @@ const tourSchema = new mongoose.Schema(
     included: [{ type: String, required: true }],
     guides: [{ type: mongoose.Schema.Types.ObjectId, ref: "Guide" }],
     thumbnail: {
-      type: String,
-      required: [true, "A tour must have a thumbnail image"],
+      public_id: {
+        type: String,
+        required: [true, "Thumbnail must have a public_id"],
+      },
+      secure_url: {
+        type: String,
+        required: [true, "Thumbnail must have a secure_url"],
+      },
     },
 
     images: {
-      type: [{ type: String }],
+      type: [
+        {
+          public_id: {
+            type: String,
+            required: [true, "Each image must have a public_id"],
+          },
+          secure_url: {
+            type: String,
+            required: [true, "Each image must have a secure_url"],
+          },
+        },
+      ],
       validate: {
         validator: function (val) {
-          return Array.isArray(val) && val.length > 0;
+          return Array.isArray(val) && val.length >= 4;
         },
-        message: "At least one tour image is required",
+        message: "At least four tour images are required",
       },
       required: true,
     },

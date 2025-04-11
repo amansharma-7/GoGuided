@@ -7,6 +7,8 @@ const Account = require("../models/accountModel");
 const Email = require("../../utils/email");
 const catchAsync = require("../../utils/catchAsync");
 const AppError = require("../../utils/appError");
+const cloudinary = require("cloudinary").v2;
+const { uploadProfilePicture } = require("../../utils/cloudinary");
 
 // Token generator function
 const signToken = (id) => {
@@ -320,5 +322,60 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "Password updated successfully.",
+  });
+});
+
+exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError("No file uploaded.", 400));
+  }
+
+  const userId = req.user.id;
+
+  // Step 1: Check if user exists BEFORE uploading
+  const user = await Account.findById(userId);
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  if (user.profilePicturePublicId) {
+    await cloudinary.uploader.destroy(user.profilePicturePublicId);
+  }
+
+  // Step 2: Upload new image with optional fixed public_id
+  const result = await uploadProfilePicture(req.file.buffer, userId);
+
+  // Step 3: Save new info to user
+  user.profilePicture = {
+    public_id: result.public_id,
+    secure_url: result.secure_url,
+  };
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Profile picture uploaded successfully.",
+    profilePicture: user.profilePicture,
+  });
+});
+
+exports.deleteAccount = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const account = await Account.findById(userId);
+
+  if (!account) {
+    return next(new AppError("User not found.", 404));
+  }
+
+  await Promise.all([
+    User.findByIdAndDelete(account.user),
+    Account.findByIdAndDelete(account._id),
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    message: "Account successfully deleted.",
   });
 });
