@@ -10,15 +10,15 @@ import { BsSunFill } from "react-icons/bs";
 import { TiGroup } from "react-icons/ti";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { CiCalendar } from "react-icons/ci";
-import { IoClose, IoLanguage } from "react-icons/io5";
+import { IoLanguage } from "react-icons/io5";
 
-import Tickets from "./Tickets";
+import CallToAction from "./CallToAction";
+import IncludedAndGuided from "./IncludedAndGuides";
 import Timeline from "./Timeline";
 import Photos from "./Photos";
 import Map from "./Map";
 import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
-import Avatar from "../../common/Avatar";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
 import ShareModal from "../../common/ShareModal";
 
@@ -180,7 +180,7 @@ function Tour() {
             </p>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 pb-1">
             <h4 className="text-xl font-semibold text-green-900">
               Tour Highlights
             </h4>
@@ -203,48 +203,14 @@ function Tour() {
         </div>
       </div>
       {/* Buy and Included Things */}
-      <div className="flex p-5 justify-between bg-white shadow-sm rounded-lg">
-        {/* Left Side */}
-        <div className="flex flex-col justify-between">
-          {/* What's Included */}
-          <div className="flex flex-col gap-2 shadow-sm p-2 rounded-lg">
-            <h3 className="text-xl font-bold text-green-900">
-              What's Included
-            </h3>
-            <ul className="pl-3 text-green-950 tracking-tight">
-              {tourData.included.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Tour Guides */}
-          <div className="flex flex-col p-2 gap-2 shadow-sm rounded-lg">
-            <h3 className="text-xl font-bold text-green-900">Tour Guides</h3>
-            {tourData.guides.map((guide, index) => (
-              <div key={index} className="flex gap-3 items-center pl-3">
-                {guide?.image ? (
-                  <Avatar size={48} imageURL={guide.image} />
-                ) : (
-                  <Avatar
-                    size={48}
-                    bgColor={"bg-green-500"}
-                    textColor={"text-white"}
-                    textSize={"text-2xl"}
-                    fontWeight={"font-semibold"}
-                    fullName={guide.name}
-                  />
-                )}
-
-                <span className="text-2xl text-green-950">{guide.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side */}
-        <Tickets />
+      <div className="flex justify-between items-stretch gap-10 bg-white p-6 rounded-xl shadow-lg h-full">
+        <IncludedAndGuided
+          included={tourData.included}
+          guides={tourData.guides}
+        />
+        <CallToAction />
       </div>
+
       {/* Reviews */}
       <div>
         <div className="bg-white rounded-lg shadow-sm p-5">
