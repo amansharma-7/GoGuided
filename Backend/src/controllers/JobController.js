@@ -1,10 +1,9 @@
 const Job = require("../models/jobModel");
 const AppError = require("../../utils/AppError");
-const slugify = require("slugify");
 
 exports.createJob = async (req, res, next) => {
   try {
-    // console.log(req);
+    // console.log(req.body);
     const {
       title,
       description,
@@ -55,20 +54,6 @@ exports.createJob = async (req, res, next) => {
       return next(new AppError("Number of posts must be at least 1", 400));
     }
 
-    // Generate slug
-    const slug = slugify(title, { lower: true, strict: true });
-
-    // Check for existing job
-    const existingJob = await Job.findOne({ slug, location });
-    if (existingJob) {
-      return next(
-        new AppError(
-          "A job with this title already exists at this location.",
-          400
-        )
-      );
-    }
-
     // Create job
     const newJob = await Job.create({
       title,
@@ -79,7 +64,6 @@ exports.createJob = async (req, res, next) => {
       salary,
       lastDateToApply,
       numberOfPosts,
-      slug,
       createdAt: new Date(),
     });
 
@@ -109,7 +93,8 @@ exports.getAllJobs = async (req, res, next) => {
 // Get job by ID
 exports.getJobById = async (req, res, next) => {
   try {
-    const job = await Job.findById(req.params.id);
+    const { jobId } = req.query;
+    const job = await Job.findById(jobId);
     if (!job) {
       return next(new AppError("Job not found", 404));
     }
@@ -124,10 +109,10 @@ exports.getJobById = async (req, res, next) => {
 };
 
 //update jobs
-exports.updateJob = async (req, res, next) => {
+exports.editJob = async (req, res, next) => {
   try {
-    const jobId = req.params.id;
-    const updateData = req.body;
+    const { jobId } = req.query;
+    console.log(jobId);
 
     // Basic validation
     const {
@@ -136,11 +121,14 @@ exports.updateJob = async (req, res, next) => {
       location,
       type,
       level,
-      salary,
       lastDateToApply,
       numberOfPosts,
-    } = updateData;
+    } = req.body;
 
+    const salary = {
+      min: Number(req.body["salary.min"]),
+      max: Number(req.body["salary.max"]),
+    };
     if (
       !title ||
       !description ||
@@ -160,16 +148,16 @@ exports.updateJob = async (req, res, next) => {
     if (!job) {
       return next(new AppError("Job not found", 404));
     }
-
-    // If title is updated, regenerate slug and check for duplicates
-    if (title && title !== job.title) {
-      const slug = slugify(title, { lower: true, strict: true });
-      const existingJob = await Job.findOne({ slug });
-      if (existingJob && existingJob._id.toString() !== jobId) {
-        return next(new AppError("A job with this title already exists", 400));
-      }
-      updateData.slug = slug;
-    }
+    const updateData = {
+      title,
+      description,
+      location,
+      type,
+      level,
+      lastDateToApply,
+      numberOfPosts,
+      salary,
+    };
 
     // Update the job
     const updatedJob = await Job.findByIdAndUpdate(jobId, updateData, {
@@ -189,7 +177,8 @@ exports.updateJob = async (req, res, next) => {
 // Delete job
 exports.deleteJob = async (req, res, next) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const { jobId } = req.query;
+    const job = await Job.findByIdAndDelete(jobId);
     if (!job) {
       return next(new AppError("Job not found", 404));
     }
