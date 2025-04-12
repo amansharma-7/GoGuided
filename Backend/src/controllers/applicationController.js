@@ -9,6 +9,7 @@ const bcrypt = require("bcryptjs");
 const generateRandomPassword = () =>
   Math.random().toString(36).slice(-8) + "@Guide";
 const { uploadResume } = require("../../utils/cloudinary"); // Import your upload function
+const Email = require("../../utils/email");
 
 exports.submitJobApplication = catchAsync(async (req, res, next) => {
   const { name, email, phone, linkedin, portfolio, experience } = req.body;
@@ -103,10 +104,21 @@ exports.approveApplication = catchAsync(async (req, res, next) => {
     password: hashedPassword,
     role: "guide",
     guide: newGuide._id,
+    isEmailVerified: true,
   });
 
-  //email send pending
+  //email send
+  const loginUrl = `${process.env.FRONTEND_URL}/login`;
+  const emailResponse = await new Email(
+    newAccount,
+    loginUrl
+  ).sendFeedbackResolution();
 
+  if (!emailResponse.success) {
+    return next(
+      new AppError("There was an issue sending the verification email.", 500)
+    );
+  }
   // 3. Update application status
   application.status = "Approved";
   await application.save();

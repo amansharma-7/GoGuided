@@ -5,7 +5,7 @@ module.exports = class Email {
   constructor(user, url) {
     this.to = user.email;
     this.firstName = user.name.split(" ")[0];
-    this.url = url;
+    this.url = url ? url : null;
     this.from = `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`;
   }
 
@@ -139,6 +139,54 @@ module.exports = class Email {
     `;
   }
 
+  generateGuideApprovalTemplate(userName, email, password) {
+    return `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px;">
+      <h2 style="color: #2f855a;">🎉 Congratulations, ${userName}!</h2>
+      <p>
+        We're excited to let you know that your application to become a guide on our platform has been <strong style="color: #2f855a;">approved</strong>!
+      </p>
+      <p>
+        You can now log in to your guide account using the credentials below:
+      </p>
+      <div style="background-color: #f0fdf4; border-left: 4px solid #38a169; padding: 10px 15px; margin: 15px 0;">
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Temporary Password:</strong> ${password}</p>
+      </div>
+      <p style="color: #e53e3e;"><strong>⚠️ Please log in and change your password immediately for security reasons.</strong></p>
+      <p>
+        Welcome aboard, and we look forward to seeing the amazing experiences you’ll create!
+      </p>
+      <p style="margin-top: 30px;">
+        Best regards,<br/>
+        – The Team
+      </p>
+    </div>
+  `;
+  }
+
+  generateFeedbackResponseTemplate({ name, responseMessage }) {
+    return `
+    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+      <h2 style="color: #2f855a;">Hello ${name},</h2>
+
+          <p>Thank you for getting in touch with us. We have reviewed your feedback and marked the issue as <strong style="color: green;">resolved</strong>.</p>
+
+
+      <p>We have reviewed your feedback and marked the issue as <strong style="color: green;">resolved</strong>.</p>
+
+      <p><strong>Our Response:</strong></p>
+      <blockquote style="background-color: #f0fdf4; border-left: 4px solid #38a169; padding: 10px; margin: 10px 0;">
+        ${responseMessage}
+      </blockquote>
+
+      <p>If you have any further concerns or questions, feel free to reply to this email or contact us through the platform.</p>
+
+      <p style="margin-top: 30px;">Best regards,<br/><strong>Your Support Team</strong></p>
+    </div>
+  `;
+  }
+
   async send(subject, html) {
     try {
       const mailOptions = {
@@ -161,6 +209,17 @@ module.exports = class Email {
   async sendVerification() {
     const html = this.generateVerificationTemplate();
     return await this.send("Please verify your email address", html);
+  }
+  async sendGuideApprovalMail(userName, email, password) {
+    const html = this.generateGuideApprovalTemplate(userName, email, password);
+    return await this.send("Please login to join us", html);
+  }
+  async sendFeedbackResolution(userName, responseMessage) {
+    const html = this.generateFeedbackResponseTemplate(
+      userName,
+      responseMessage
+    );
+    return await this.send("Response to Your request", html);
   }
 
   async sendPasswordReset() {
