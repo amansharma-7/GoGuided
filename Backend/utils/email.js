@@ -85,14 +85,14 @@ module.exports = class Email {
     `;
   }
 
-  generateVerificationTemplate() {
+  generateGuideApprovalTemplate() {
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Email Verification</title>
+        <title>Guide Approval Notification</title>
       </head>
       <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; color: #333;">
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -101,13 +101,13 @@ module.exports = class Email {
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                 <tr>
                   <td style="padding: 40px 30px 20px 30px; text-align: center;">
-                    <h2 style="color: #333333;">Verify Your Email Address</h2>
+                    <h2 style="color: #333333;">Your Guide Application Has Been Approved</h2>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 0 30px 20px 30px;">
                     <p>Hello ${this.firstName},</p>
-                    <p>Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.</p>
+                    <p>We are pleased to inform you that your application as a guide has been approved. You can now access your account and start contributing.</p>
                     <p style="text-align: center; margin: 30px 0;">
                       <a href="${this.url}" style="
                         background-color: #4CAF50;
@@ -117,9 +117,9 @@ module.exports = class Email {
                         border-radius: 5px;
                         display: inline-block;
                         font-weight: bold;
-                      ">Verify Email</a>
+                      ">Access Your Dashboard</a>
                     </p>
-                    <p>If you did not request this, you can safely ignore this email.</p>
+                    <p>If you did not initiate this process, please disregard this email.</p>
                     <p>Best regards,<br>${process.env.FROM_NAME}</p>
                   </td>
                 </tr>
@@ -139,52 +139,41 @@ module.exports = class Email {
     `;
   }
 
-  generateGuideApprovalTemplate(userName, email, password) {
+  generateFeedbackResponseTemplate(responseMessage) {
     return `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px;">
-      <h2 style="color: #2f855a;">🎉 Congratulations, ${userName}!</h2>
-      <p>
-        We're excited to let you know that your application to become a guide on our platform has been <strong style="color: #2f855a;">approved</strong>!
-      </p>
-      <p>
-        You can now log in to your guide account using the credentials below:
-      </p>
-      <div style="background-color: #f0fdf4; border-left: 4px solid #38a169; padding: 10px 15px; margin: 15px 0;">
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Temporary Password:</strong> ${password}</p>
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2 style="color: #2f855a;">Hello ${this.name},</h2>
+  
+        <p>Thank you for getting in touch with us. We have reviewed your feedback and marked the issue as <strong style="color: green;">resolved</strong>.</p>
+  
+        <p><strong>Our Response:</strong></p>
+        <blockquote style="background-color: #f0fdf4; border-left: 4px solid #38a169; padding: 10px; margin: 10px 0;">
+          ${responseMessage}
+        </blockquote>
+  
+        <p>If you have any further concerns or questions, feel free to reply to this email or contact us through the platform.</p>
+  
+        <p style="margin-top: 30px;">Best regards,<br/><strong>${process.env.FROM_NAME}</strong></p>
       </div>
-      <p style="color: #e53e3e;"><strong>⚠️ Please log in and change your password immediately for security reasons.</strong></p>
-      <p>
-        Welcome aboard, and we look forward to seeing the amazing experiences you’ll create!
-      </p>
-      <p style="margin-top: 30px;">
-        Best regards,<br/>
-        – The Team
-      </p>
-    </div>
-  `;
+    `;
   }
 
-  generateFeedbackResponseTemplate({ name, responseMessage }) {
+  generateNotificationTemplate(messageBody) {
     return `
-    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-      <h2 style="color: #2f855a;">Hello ${name},</h2>
-
-          <p>Thank you for getting in touch with us. We have reviewed your feedback and marked the issue as <strong style="color: green;">resolved</strong>.</p>
-
-
-      <p>We have reviewed your feedback and marked the issue as <strong style="color: green;">resolved</strong>.</p>
-
-      <p><strong>Our Response:</strong></p>
-      <blockquote style="background-color: #f0fdf4; border-left: 4px solid #38a169; padding: 10px; margin: 10px 0;">
-        ${responseMessage}
-      </blockquote>
-
-      <p>If you have any further concerns or questions, feel free to reply to this email or contact us through the platform.</p>
-
-      <p style="margin-top: 30px;">Best regards,<br/><strong>Your Support Team</strong></p>
-    </div>
-  `;
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2 style="color: #2f855a;">Hello ${this.firstName},</h2>
+  
+        <p>We would like to inform you about the following update:</p>
+  
+        <blockquote style="background-color: #ebf8ff; border-left: 4px solid #3182ce; padding: 10px; margin: 10px 0;">
+          ${messageBody}
+        </blockquote>
+  
+        <p>If you have any questions or require further assistance, please feel free to reply to this email or contact our support team.</p>
+  
+        <p style="margin-top: 30px;">Best regards,<br/><strong>${process.env.FROM_NAME}</strong></p>
+      </div>
+    `;
   }
 
   async send(subject, html) {
@@ -210,23 +199,25 @@ module.exports = class Email {
     const html = this.generateVerificationTemplate();
     return await this.send("Please verify your email address", html);
   }
-  async sendGuideApprovalMail(userName, email, password) {
-    const html = this.generateGuideApprovalTemplate(userName, email, password);
-    return await this.send("Please login to join us", html);
-  }
-  async sendFeedbackResolution(userName, responseMessage) {
-    const html = this.generateFeedbackResponseTemplate(
-      userName,
-      responseMessage
-    );
-    return await this.send("Response to Your request", html);
-  }
-
   async sendPasswordReset() {
     const html = this.generatePasswordResetTemplate();
     return await this.send(
       "Your password reset token (valid for only 30 minutes)",
       html
     );
+  }
+
+  async sendGuideApprovalMail() {
+    const html = this.generateGuideApprovalTemplate();
+    return await this.send("Your Guide Application Has Been Approved", html);
+  }
+  async sendFeedbackResolution(responseMessage) {
+    const html = this.generateFeedbackResponseTemplate(responseMessage);
+    return await this.send("Your feedback has been addressed.", html);
+  }
+
+  async sendNotification(subject, message) {
+    const html = this.generateNotificationTemplate(message);
+    return await this.send(subject, html);
   }
 };

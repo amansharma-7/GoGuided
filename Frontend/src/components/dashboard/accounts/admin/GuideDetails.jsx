@@ -5,10 +5,6 @@ import { AiOutlineClose } from "react-icons/ai";
 const GuideDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isSuspending, setIsSuspending] = useState(false);
-  const [suspendReason, setSuspendReason] = useState("");
-  const [isSuspended, setIsSuspended] = useState(false);
-  const [suspendUntil, setSuspendUntil] = useState("");
   const [isMailing, setIsMailing] = useState(false);
   const [mailSubject, setMailSubject] = useState("");
   const [mailBody, setMailBody] = useState("");
@@ -19,7 +15,7 @@ const GuideDetails = () => {
     email: "john@example.com",
     phone: "+1234567890",
     numberOfTours: 5,
-    lastVisit: "2025-03-20",
+    lastLoggedIn: "2025-03-20",
     lastTour: "Cultural Exploration",
     role: "Guide",
     tourList: [
@@ -29,15 +25,13 @@ const GuideDetails = () => {
       { id: "104", name: "Beach Holiday" },
       { id: "105", name: "Cultural Exploration" },
     ],
-    status: isSuspended ? "Suspended" : "Active",
-  };
-
-  const handleSuspendUser = () => {
-    // Suspend user logic
+    status: "Available",
   };
 
   const handleSendMail = () => {
-    // Send mail logic
+    setIsMailing(false);
+    setMailSubject("");
+    setMailBody("");
   };
 
   return (
@@ -52,61 +46,43 @@ const GuideDetails = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 p-4 bg-white border border-green-300 rounded-md shadow">
-        <div>
-          <p>
-            <span className="font-semibold text-green-800">User ID:</span>{" "}
-            {user.id}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Name:</span>{" "}
-            {user.name}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Email:</span>{" "}
-            {user.email}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Phone:</span>{" "}
-            {user.phone}
-          </p>
+      <div className="grid grid-cols-2 gap-2 p-4 bg-white border border-green-300 rounded-md shadow">
+        <p>
+          <span className="font-semibold text-green-800">User ID:</span>{" "}
+          {user.id}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Name:</span>{" "}
+          {user.name}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Email:</span>{" "}
+          {user.email}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Phone:</span>{" "}
+          {user.phone}
+        </p>
 
-          <p>
-            <span className="font-semibold text-green-800">
-              Number of Tours:
-            </span>{" "}
-            {user.numberOfTours}
-          </p>
-        </div>
-        <div>
-          <p>
-            <span className="font-semibold text-green-800">Role:</span>{" "}
-            {user.role}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Last Visit:</span>{" "}
-            {user.lastVisit}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Last Tour:</span>{" "}
-            {user.lastTour}
-          </p>
-          <p>
-            <span className="font-semibold text-green-800">Status:</span>{" "}
-            <span className="bg-purple-100 text-blue-700 border-blue-400 px-2 pb-1  border rounded-md">
-              {" "}
-              {user.status}
-            </span>
-          </p>
-          {isSuspended && (
-            <p>
-              <span className="font-semibold text-green-800">
-                Suspended Until:
-              </span>{" "}
-              {suspendUntil}
-            </p>
-          )}
-        </div>
+        <p>
+          <span className="font-semibold text-green-800">Number of Tours:</span>{" "}
+          {user.numberOfTours}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Last Logged in:</span>{" "}
+          {user.lastLoggedIn}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Last Tour:</span>{" "}
+          {user.lastTour}
+        </p>
+        <p>
+          <span className="font-semibold text-green-800">Status:</span>{" "}
+          <span className="bg-purple-100 text-blue-700 border-blue-400 px-2 pb-1  border rounded-md">
+            {" "}
+            {user.status}
+          </span>
+        </p>
       </div>
 
       <div className="p-4 bg-white border border-green-300 rounded-md shadow">
@@ -124,32 +100,13 @@ const GuideDetails = () => {
         <button
           onClick={() => {
             setIsMailing(true);
-            setIsSuspending(false);
           }}
-          className={`px-4 py-2 rounded-md  ${
-            isMailing
-              ? "bg-gray-400  cursor-not-allowed"
-              : "bg-green-500 text-white cursor-pointer hover:bg-green-600"
-          }`}
+          className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 ${
+            isMailing ? "hidden" : ""
+          } `}
         >
-          Send Mail
+          Write Email
         </button>
-        {!isSuspended && (
-          <button
-            onClick={() => {
-              setIsSuspending(true);
-              setIsMailing(false);
-              setIsAssigningTour(false);
-            }}
-            className={`px-4 py-2 rounded-md  ${
-              isSuspending
-                ? "bg-gray-400  cursor-not-allowed"
-                : "bg-red-500 text-white cursor-pointer hover:bg-red-600"
-            }`}
-          >
-            Suspend
-          </button>
-        )}
       </div>
 
       {isMailing && (
@@ -177,36 +134,14 @@ const GuideDetails = () => {
           />
           <button
             onClick={handleSendMail}
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+            className={`px-4 py-2 text-white rounded-md  ${
+              !mailSubject || !mailBody
+                ? "cursor-not-allowed bg-gray-500 "
+                : " bg-green-500 hover:bg-green-600"
+            } `}
+            disabled={!mailSubject || !mailBody}
           >
             Send Email
-          </button>
-        </div>
-      )}
-
-      {isSuspending && !isSuspended && (
-        <div className="relative p-4 bg-white border border-green-300 rounded-md shadow">
-          <button
-            onClick={() => setIsSuspending(false)}
-            className="absolute top-2 right-2 text-red-600 hover:text-red-800"
-          >
-            <AiOutlineClose size={20} />
-          </button>
-          <p className="text-red-700 font-semibold">
-            Provide a reason for suspension:
-          </p>
-          <textarea
-            value={suspendReason}
-            onChange={(e) => setSuspendReason(e.target.value)}
-            rows="3"
-            placeholder="Enter suspension reason..."
-            className="w-full p-2 border rounded-md"
-          />
-          <button
-            onClick={handleSuspendUser}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
-            Confirm Suspension
           </button>
         </div>
       )}

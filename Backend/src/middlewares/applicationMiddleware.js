@@ -4,16 +4,13 @@ const AppError = require("../../utils/appError");
 
 exports.validateJobApplication = [
   // Validate required fields
-  body("name").notEmpty().withMessage("Name is required"),
-  body("email").isEmail().withMessage("Invalid email format").normalizeEmail(),
-  body("phone").isMobilePhone().withMessage("Invalid phone number").optional(),
   body("experience")
     .isInt({ min: 0 })
     .withMessage("Experience must be a valid number")
     .optional(),
   body("resume").custom((value, { req }) => {
     if (!req.files || !req.files.resume) {
-      return next(new AppError("Resume is required"));
+      return Error("Resume is required");
     }
     return true;
   }),

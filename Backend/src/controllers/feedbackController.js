@@ -1,17 +1,15 @@
-const Feedback = require("../models/Feedback");
-const AppError = require("../utils/appError");
-const catchAsync = require("../utils/catchAsync");
+const Feedback = require("../models/feedbackModal");
+const AppError = require("../../utils/appError");
+const catchAsync = require("../../utils/catchAsync");
 
-exports.submitFeedback = catchAsync(async (req, res, next) => {
-  const { firstName, lastName, subject, message } = req.body;
+exports.submitFeedback = catchAsync(async (req, res) => {
+  const { firstName, lastName, email, subject, message } = req.body;
 
-  if (!firstName || !lastName || !subject || !message) {
-    return next(new AppError("All fields are required", 400));
-  }
+  const name = `${firstName.trim()} ${lastName.trim()}`;
 
-  const feedback = await Feedback.create({
-    firstName,
-    lastName,
+  await Feedback.create({
+    name,
+    email,
     subject,
     message,
   });
@@ -19,7 +17,6 @@ exports.submitFeedback = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message: "Feedback submitted successfully.",
-    data: feedback,
   });
 });
 
