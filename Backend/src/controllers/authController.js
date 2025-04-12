@@ -164,7 +164,10 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please verify your email to login.", 400));
   }
 
-  // 4. If everything ok, send token to client
+  // 4. If everything ok, update lastLoggedIn and send token to client
+  account.lastLoggedIn = new Date();
+  await account.save();
+
   createAndSendToken(account, req, res);
 });
 

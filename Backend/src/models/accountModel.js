@@ -26,11 +26,9 @@ const accountSchema = new mongoose.Schema(
     profilePicture: {
       public_id: {
         type: String,
-        required: true,
       },
       secure_url: {
         type: String,
-        required: true,
       },
     },
     role: {
@@ -50,6 +48,7 @@ const accountSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    lastLoggedIn: { type: Date },
   },
   {
     timestamps: true,
