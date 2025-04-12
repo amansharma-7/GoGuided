@@ -4,7 +4,8 @@ const cors = require("cors");
 const authRoutes = require("./src/routes/authRoutes");
 const tourRoutes = require("./src/routes/tourRoutes");
 const jobRoutes = require("./src/routes/jobRoutes");
-const accountRoutes = require("./src/routes/accountRoutes");
+const userSearchRoutes = require("./src/routes/userSearchRoutes");
+const applicationRoutes = require("./src/routes/applicationRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./src/controllers/errorController");
@@ -20,7 +21,8 @@ app.use(express.json()); // Parse JSON bodies
 app.use("/api/auth", authRoutes);
 app.use("/api/tours", tourRoutes);
 app.use("/api/job", jobRoutes);
-app.use("/api/accounts", accountRoutes);
+app.use("/api/accounts", userSearchRoutes);
+app.use("/api/application", applicationRoutes);
 
 // Handle unhandled routes
 // app.all("*", (req, res, next) => {

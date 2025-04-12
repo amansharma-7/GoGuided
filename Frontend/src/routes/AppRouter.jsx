@@ -59,6 +59,7 @@ import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
 import { Component } from "react";
 import JobApplicationForm from "../components/careers/JobApplicationForm";
 import UpdatePassword from "../components/auth/UpdatePassword";
+import BookTourForm from "../components/tours/tour/Booktour";
 
 const router = createBrowserRouter([
   {
@@ -81,7 +82,14 @@ const router = createBrowserRouter([
           },
           {
             path: ":id",
-            Component: Tour,
+
+            children: [
+              { index: true, Component: Tour },
+              {
+                path: "book-tour",
+                Component: BookTourForm,
+              },
+            ],
           },
         ],
       },

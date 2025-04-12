@@ -72,14 +72,14 @@ const JobApplicationForm = () => {
 
           <input
             type="url"
-            placeholder="LinkedIn Profile (optional)"
+            placeholder="LinkedIn Profile (url)"
             {...register("linkedin")}
             className="w-full border px-3 py-2 rounded"
           />
 
           <input
             type="url"
-            placeholder="Portfolio/Website (optional)"
+            placeholder="Portfolio (url)"
             {...register("portfolio")}
             className="w-full border px-3 py-2 rounded"
           />

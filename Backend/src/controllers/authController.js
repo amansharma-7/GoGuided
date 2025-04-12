@@ -3,7 +3,6 @@ const ms = require("ms");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/userModel");
-const Account = require("../models/accountModel");
 const Email = require("../../utils/email");
 const catchAsync = require("../../utils/catchAsync");
 const AppError = require("../../utils/appError");
@@ -53,29 +52,26 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const name = `${firstName.trim()} ${lastName.trim()}`;
 
-  const user = await User.create({ name });
-
-  const account = await Account.create({
+  const user = await User.create({
     name,
     email,
     phone,
     password,
     role,
-    user: user._id,
   });
 
   const { verificationToken, hashedToken } = generateVerificationToken();
 
-  account.emailVerificationToken = hashedToken;
-  account.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+  user.emailVerificationToken = hashedToken;
+  user.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
 
-  await account.save({ validateBeforeSave: false });
+  await user.save({ validateBeforeSave: false });
 
   const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
   // Send verification email
   const emailResponse = await new Email(
-    account,
+    user,
     verificationUrl
   ).sendVerification();
 
@@ -102,22 +98,22 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
   // Find user by token and check expiry
-  const account = await Account.findOne({
+  const user = await User.findOne({
     emailVerificationToken: hashedToken,
     emailVerificationTokenExpires: { $gt: Date.now() },
   });
 
-  if (!account) {
+  if (!user) {
     return next(new AppError("Token is invalid or has expired", 400));
   }
 
   // Mark user as verified
-  account.isEmailVerified = true;
-  account.emailVerificationToken = undefined;
-  account.emailVerificationTokenExpires = undefined;
-  await account.save({ validateBeforeSave: false });
+  user.isEmailVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationTokenExpires = undefined;
+  await user.save({ validateBeforeSave: false });
 
-  createAndSendToken(account, req, res);
+  createAndSendToken(user, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -129,29 +125,29 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 2. Check if account exists && password is correct
-  const account = await Account.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("password");
 
-  if (!account || !(await bcrypt.compare(password, account.password))) {
+  if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password.", 400));
   }
 
   // 3. Check if email is verified
-  if (!account.isEmailVerified) {
+  if (!user.isEmailVerified) {
     // If token expired or not generated, generate a new one and send email
     if (
-      !account.emailVerificationToken ||
-      account.emailVerificationTokenExpires < Date.now()
+      !user.emailVerificationToken ||
+      user.emailVerificationTokenExpires < Date.now()
     ) {
       const { verificationToken, hashedToken } =
-        generateVerificationToken(account);
+        generateVerificationToken(user);
 
-      account.emailVerificationToken = hashedToken;
-      account.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes expiry
+      user.emailVerificationToken = hashedToken;
+      user.emailVerificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes expiry
 
-      await account.save({ validateBeforeSave: false });
+      await user.save({ validateBeforeSave: false });
 
       const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-      await new Email(account, verificationUrl).sendVerification();
+      await new Email(user, verificationUrl).sendVerification();
 
       return next(
         new AppError(
@@ -165,17 +161,17 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 4. If everything ok, update lastLoggedIn and send token to client
-  account.lastLoggedIn = new Date();
-  await account.save();
+  user.lastLoggedIn = new Date();
+  await user.save();
 
-  createAndSendToken(account, req, res);
+  createAndSendToken(user, req, res);
 });
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
-  const account = await Account.findOne({ email });
-  if (!account) {
+  const user = await User.findOne({ email });
+  if (!user) {
     return next(
       new AppError(
         "If an account with that email exists, a password reset link has been sent.",
@@ -190,13 +186,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     .update(resetToken)
     .digest("hex");
 
-  account.resetPasswordToken = hashedToken;
-  account.resetPasswordTokenExpires = Date.now() + 30 * 60 * 1000; // 15 minutes
-  await account.save();
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+  await user.save();
 
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-  await new Email(account, resetUrl).sendPasswordReset();
+  await new Email(user, resetUrl).sendPasswordReset();
 
   return res.status(200).json({
     success: true,
@@ -205,52 +201,33 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  const { password, confirmPassword } = req.body;
+  const { password } = req.body;
   const token = req.query && req.query.token;
 
-  // Validate input presence
-  if (!password || !confirmPassword) {
-    return next(
-      new AppError("Both password and confirm password are required.", 400)
-    );
-  }
-
-  // Validate password match
-  if (password !== confirmPassword) {
-    return next(new AppError("Passwords do not match.", 400));
-  }
-
-  // Optional: Validate password strength (recommended)
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
-  if (!passwordRegex.test(password)) {
-    return next(
-      new AppError(
-        "Password must be at least 8 characters long and contain at least one letter and one number.",
-        400
-      )
-    );
+  if (!token) {
+    return next(new AppError("No token provided.", 400));
   }
 
   // Hash the token (since it's stored hashed in DB)
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
   // Find user by token and expiry
-  const account = await Account.findOne({
+  const user = await User.findOne({
     resetPasswordToken: hashedToken,
     resetPasswordTokenExpires: { $gt: Date.now() },
   });
 
-  if (!account) {
+  if (!user) {
     return next(new AppError("Invalid or expired token.", 400));
   }
 
-  account.password = password;
+  user.password = password;
 
   // Clear reset token fields
-  account.resetPasswordToken = undefined;
-  account.resetPasswordTokenExpires = undefined;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordTokenExpires = undefined;
 
-  await account.save();
+  await user.save();
 
   return res.status(200).json({
     success: true,
@@ -259,68 +236,31 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
 
-  // Validate input presence
-  if (!currentPassword || !newPassword || !confirmNewPassword) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "All fields (current, new, and confirm new password) are required.",
-    });
+  const user = await User.findById(req.user.id).select("password");
+
+  if (!user) {
+    return next(new AppError("User not found.", 404));
   }
 
-  // Validate new password and confirm new password match
-  if (newPassword !== confirmNewPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "New password and confirm password do not match.",
-    });
-  }
-
-  // Optional: Validate password strength (recommended)
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
-  if (!passwordRegex.test(newPassword)) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Password must be at least 8 characters long and contain at least one letter and one number.",
-    });
-  }
-
-  // Get the user from the request (you should already have this from auth middleware)
-  const account = await Account.findById(req.user.id).select("+password");
-
-  if (!account) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found.",
-    });
-  }
-
-  // Check if current password is correct
-  const isMatch = await bcrypt.compare(currentPassword, account.password);
-
+  const isMatch = await user.correctPassword(currentPassword, user.password);
   if (!isMatch) {
-    return res.status(400).json({
-      success: false,
-      message: "Current password is incorrect.",
-    });
+    return next(new AppError("Current password is incorrect.", 400));
   }
 
-  // Check if new password is different from current password
-  const isSamePassword = await bcrypt.compare(newPassword, account.password);
-
+  const isSamePassword = await use.correctPassword(newPassword, user.password);
   if (isSamePassword) {
-    return res.status(400).json({
-      success: false,
-      message: "New password must be different from the current password.",
-    });
+    return next(
+      new AppError(
+        "New password must be different from the current password.",
+        400
+      )
+    );
   }
 
-  account.password = newPassword;
-
-  await account.save();
+  user.password = newPassword;
+  await user.save();
 
   return res.status(200).json({
     success: true,
@@ -328,54 +268,62 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
-  if (!req.file) {
-    return next(new AppError("No file uploaded.", 400));
-  }
-
+exports.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
-  // Step 1: Check if user exists BEFORE uploading
-  const user = await Account.findById(userId);
-
+  // Step 1: Check if user exists BEFORE processing
+  const user = await User.findById(userId);
   if (!user) {
     return next(new AppError("User not found.", 404));
   }
 
-  if (user.profilePicturePublicId) {
-    await cloudinary.uploader.destroy(user.profilePicturePublicId);
+  let isModified = false;
+
+  // Step 2: Handle profile picture upload (if any)
+  if (req.file) {
+    if (user.profilePicturePublicId) {
+      await cloudinary.uploader.destroy(user.profilePicturePublicId);
+    }
+
+    const result = await uploadProfilePicture(req.file.buffer, userId);
+
+    user.profilePicture = {
+      public_id: result.public_id,
+      secure_url: result.secure_url,
+    };
+
+    isModified = true;
   }
 
-  // Step 2: Upload new image with optional fixed public_id
-  const result = await uploadProfilePicture(req.file.buffer, userId);
+  // Step 3: Handle name update (if any)
+  if (req.body.name && req.body.name !== user.name) {
+    user.name = req.body.name;
+    isModified = true;
+  }
 
-  // Step 3: Save new info to user
-  user.profilePicture = {
-    public_id: result.public_id,
-    secure_url: result.secure_url,
-  };
-  await user.save();
+  // Step 4: Save user only if there were changes
+  if (isModified) {
+    await user.save();
+  }
 
   res.status(200).json({
     status: "success",
-    message: "Profile picture uploaded successfully.",
+    message: "Profile updated successfully.",
     profilePicture: user.profilePicture,
+    name: user.name,
   });
 });
 
 exports.deleteAccount = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
-  const account = await Account.findById(userId);
+  const user = await User.findById(userId);
 
-  if (!account) {
+  if (!user) {
     return next(new AppError("User not found.", 404));
   }
 
-  await Promise.all([
-    User.findByIdAndDelete(account.user),
-    Account.findByIdAndDelete(account._id),
-  ]);
+  await User.findByIdAndDelete(user._id);
 
   res.status(200).json({
     status: "success",

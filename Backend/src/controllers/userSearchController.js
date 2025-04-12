@@ -1,5 +1,5 @@
 const catchAsync = require("../../utils/catchAsync");
-const Account = require("../models/accountModel");
+const Account = require("../models/userModel");
 const AppError = require("../../utils/appError");
 const { VALID_ROLES, RECORDS_PER_PAGE } = require("../../utils/constants");
 

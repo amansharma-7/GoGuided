@@ -50,6 +50,28 @@ const uploadGalleryImage = async (fileBuffer, slug) => {
   return processAndUpload(fileBuffer, folderPath, 1200, null, 90);
 };
 
+//upload resume
+const uploadResume = async (fileBuffer, fileName) => {
+  try {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "raw", // Use "raw" for non-image files like PDF, DOCX
+          folder: "resumes",
+          public_id: fileName.split(".")[0], // Optional: name without extension
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      stream.end(fileBuffer);
+    });
+  } catch (error) {
+    console.error("Resume upload failed:", error);
+    throw new Error("Failed to upload resume to Cloudinary");
+  }
+};
 // Upload profile picture
 const uploadProfilePicture = async (fileBuffer, userId) => {
   const folderPath = `user-profiles/${userId}`;
@@ -60,5 +82,6 @@ const uploadProfilePicture = async (fileBuffer, userId) => {
 module.exports = {
   uploadThumbnail,
   uploadGalleryImage,
+  uploadResume,
   uploadProfilePicture,
 };
