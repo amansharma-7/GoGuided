@@ -1,4 +1,6 @@
+import useSafeNavigate from "../../../utils/useSafeNavigate";
 function CallToAction({}) {
+  const navigate = useSafeNavigate();
   return (
     <div className="flex flex-col justify-between w-[60%] p-8 rounded-lg shadow-sm h-full min-h-[400px]">
       {/* Top Images */}
@@ -32,7 +34,10 @@ function CallToAction({}) {
 
       {/* Bottom Button */}
       <div className="flex justify-center">
-        <button className="bg-green-600 text-white text-sm font-semibold py-3 px-8 rounded-full shadow-md hover:bg-green-700 transition-all duration-300 cursor-pointer">
+        <button
+          className="bg-green-600 text-white text-sm font-semibold py-3 px-8 rounded-full shadow-md hover:bg-green-700 transition-all duration-300 cursor-pointer"
+          onClick={() => navigate("book-tour")}
+        >
           Book Tour Now!
         </button>
       </div>
