@@ -7,11 +7,19 @@ const { uploadResume } = require("../../utils/cloudinary");
 const Email = require("../../utils/email");
 
 exports.submitJobApplication = catchAsync(async (req, res, next) => {
-  const { name, email, phone, linkedin, portfolio, experience } = req.body;
+  const { linkedin, portfolio, experience } = req.body;
   const { jobId } = req.query;
+  const { id } = req.user;
+
+  const user = await User.findById(id);
+
+  if (!user) return next(new AppError("User not found.", 404));
 
   // Check if the user has already applied for this job
-  const existingApplication = await JobApplication.findOne({ jobId, email });
+  const existingApplication = await JobApplication.findOne({
+    jobId,
+    email: user.email,
+  });
   if (existingApplication) {
     return next(new AppError("You have already applied to this job.", 400));
   }
@@ -23,9 +31,9 @@ exports.submitJobApplication = catchAsync(async (req, res, next) => {
 
   const newApplication = await JobApplication.create({
     jobId,
-    name,
-    email,
-    phone,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
     linkedin,
     portfolio,
     experience,
@@ -56,6 +64,7 @@ exports.approveApplication = catchAsync(async (req, res, next) => {
   if (application.status === "Approved") {
     return next(new AppError("Application already approved", 400));
   }
+  console.log(application);
 
   const user = await User.findOne({ email: application.email });
   console.log(application.email, user);
@@ -72,7 +81,6 @@ exports.approveApplication = catchAsync(async (req, res, next) => {
   application.status = "Approved";
   await application.save();
 
-  //email send
   const loginUrl = `${process.env.FRONTEND_URL}/login`;
   const emailResponse = await new Email(user, loginUrl).sendGuideApprovalMail();
 

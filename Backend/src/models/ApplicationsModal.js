@@ -33,17 +33,14 @@ const jobApplicationSchema = new mongoose.Schema({
     min: [0, "Experience cannot be negative"],
   },
   resume: {
-    type: {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      secure_url: {
-        type: String,
-        required: true,
-      },
+    public_id: {
+      type: String,
+      required: true,
     },
-    required: true,
+    secure_url: {
+      type: String,
+      required: true,
+    },
   },
   status: {
     type: String,

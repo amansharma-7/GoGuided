@@ -1,10 +1,14 @@
-// models/Feedback.js
 const mongoose = require("mongoose");
 
 const feedbackSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  name: { type: String, required: true },
   subject: { type: String, required: true },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    lowercase: true,
+    trim: true,
+  },
   message: { type: String, required: true },
   status: {
     type: String,

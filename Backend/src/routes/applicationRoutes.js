@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/multer");
+const authMiddleware = require("../middlewares/authMiddleware");
 const applicationMiddleware = require("../middlewares/applicationMiddleware");
 const applicationController = require("../controllers/applicationController");
 
 router.post(
   "/submit-application",
+  authMiddleware.isLoggedIn,
   upload.fields([{ name: "resume", maxCount: 1 }]),
   applicationMiddleware.validateJobApplication,
   applicationController.submitJobApplication

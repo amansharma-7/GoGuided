@@ -316,11 +316,16 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
 
 exports.deleteAccount = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
+  const { password } = req.body;
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("+password");
 
   if (!user) {
     return next(new AppError("User not found.", 404));
+  }
+
+  if (!(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect password.", 400));
   }
 
   await User.findByIdAndDelete(user._id);
