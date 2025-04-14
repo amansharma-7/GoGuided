@@ -18,7 +18,7 @@ exports.submitJobApplication = catchAsync(async (req, res, next) => {
 
   const result = await uploadResume(
     req.files.resume[0].buffer,
-    resumeFile.originalname
+    req.files.resume[0].originalname
   );
 
   const newApplication = await JobApplication.create({
@@ -58,6 +58,7 @@ exports.approveApplication = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findOne({ email: application.email });
+  console.log(application.email, user);
 
   if (!user) {
     return next(new AppError("User not found", 404));
