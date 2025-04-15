@@ -238,7 +238,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user.id).select("password");
+  const user = await User.findById(req.user.id).select("+password");
 
   if (!user) {
     return next(new AppError("User not found.", 404));
@@ -249,7 +249,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     return next(new AppError("Current password is incorrect.", 400));
   }
 
-  const isSamePassword = await use.correctPassword(newPassword, user.password);
+  const isSamePassword = await user.correctPassword(newPassword, user.password);
   if (isSamePassword) {
     return next(
       new AppError(

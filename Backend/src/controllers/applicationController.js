@@ -67,6 +67,7 @@ exports.approveApplication = catchAsync(async (req, res, next) => {
   console.log(application);
 
   const user = await User.findOne({ email: application.email });
+  console.log(application.email, user);
 
   if (!user) {
     return next(new AppError("User not found", 404));

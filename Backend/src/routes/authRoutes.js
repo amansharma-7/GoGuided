@@ -16,13 +16,13 @@ router.patch(
 );
 router.patch(
   "/update-password",
-  // authMiddleware.isLoggedIn,
+  authMiddleware.isLoggedIn,
   authMiddleware.validateUpdatePassword,
   authController.updatePassword
 );
 router.patch(
   "/update-profile",
-  // authMiddleware.isLoggedIn,
+  authMiddleware.isLoggedIn,
   upload.single("profilePicture"),
   authMiddleware.validateProfileUpdate,
   authController.updateProfile

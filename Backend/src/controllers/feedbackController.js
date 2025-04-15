@@ -1,6 +1,7 @@
 const Feedback = require("../models/feedbackModal");
 const AppError = require("../../utils/appError");
 const catchAsync = require("../../utils/catchAsync");
+const Email = require("../../utils/email");
 
 exports.submitFeedback = catchAsync(async (req, res) => {
   const { firstName, lastName, email, subject, message } = req.body;
@@ -21,14 +22,14 @@ exports.submitFeedback = catchAsync(async (req, res) => {
 });
 
 exports.resolveFeedback = catchAsync(async (req, res, next) => {
-  const { id } = req.query;
+  const { feedbackId } = req.query;
   const { responseMessage } = req.body;
 
   if (!responseMessage) {
     return next(new AppError("Response message is required", 400));
   }
 
-  const feedback = await Feedback.findById(id);
+  const feedback = await Feedback.findById(feedbackId);
 
   if (!feedback) {
     return next(new AppError("Feedback not found", 404));
