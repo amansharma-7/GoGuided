@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 import { useState } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import PaymentPage from "../../common/PaymentPage";
 
 // Example tourData (you can fetch this from API too)
 const tourData = {
@@ -39,7 +40,10 @@ const BookTourForm = () => {
     members.length * tourData.basePrice +
     (insurance ? members.length * tourData.insuranceFee : 0);
 
-  const handleSubmit = (e) => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("sudhir");
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
@@ -150,6 +154,7 @@ const BookTourForm = () => {
         >
           Confirm Booking
         </button>
+        <PaymentPage />
       </form>
     </div>
   );
