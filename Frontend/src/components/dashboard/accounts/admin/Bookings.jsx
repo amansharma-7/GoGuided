@@ -93,8 +93,6 @@ function Bookings() {
     selectedFilters: {},
   });
 
-  // console.log(filterState.searchQuery, filterState.selectedFilters);
-
   const [bookings, setBookings] = useState(bookingsData);
 
   // useEffect(() => {

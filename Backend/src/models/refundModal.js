@@ -1,40 +1,44 @@
 const mongoose = require("mongoose");
 
-const refundSchema = new mongoose.Schema({
-  booking: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Booking",
-    required: true,
+const refundSchema = new mongoose.Schema(
+  {
+    bookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
+      required: true,
+      unique: true,
+    },
+    customerName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    customerEmail: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+    tourName: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    refundDate: {
+      type: Date,
+      default: Date.now,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-    min: [0, "Refund amount cannot be negative"],
-  },
-  reason: {
-    type: String,
-    trim: true,
-    maxlength: 500,
-  },
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected", "processed"],
-    default: "pending",
-  },
-  processedAt: {
-    type: Date,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-const Refund = mongoose.model("Refund", refundSchema);
-
-module.exports = Refund;
+  {
+    timestamps: true,
+  }
+);

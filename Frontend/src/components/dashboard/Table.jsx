@@ -1,7 +1,6 @@
 import { useState } from "react";
 import useSafeNavigate from "../../utils/useSafeNavigate";
 import { useLocation } from "react-router";
-import StarRatings from "react-star-ratings";
 import RatingStars from "../common/RatingStars";
 
 function getStatusStyle(status) {
@@ -13,7 +12,7 @@ function getStatusStyle(status) {
     case "ongoing":
       return "bg-yellow-100 text-yellow-700 border-yellow-400 px-2 py-1 rounded";
     case "failed":
-    case "rejected": // 🔹 Added styling for rejected
+    case "rejected":
       return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
     case "refunded":
     case "upcoming":
@@ -22,7 +21,7 @@ function getStatusStyle(status) {
       return "bg-gray-100 text-gray-700 border-gray-400 px-2 py-1 rounded";
     case "assigned":
       return "bg-purple-100 text-purple-700 border-purple-400 px-2 py-1 rounded";
-    case "approved": // 🔹 Added styling for approved
+    case "approved":
       return "bg-green-200 text-green-800 border-green-500 px-2 py-1 rounded font-semibold";
     default:
       return "bg-red-100 text-red-700 border-red-400 px-2 py-1 rounded";
@@ -51,7 +50,7 @@ export default function BookingsTable({ headers, data, itemsPerPage = 5 }) {
   return (
     <div className="w-full pb-4">
       {/* Scrollable Table Wrapper */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto scrollbar-none">
         <div className="min-w-max space-y-1">
           {/* Header */}
           <div
@@ -75,14 +74,15 @@ export default function BookingsTable({ headers, data, itemsPerPage = 5 }) {
               <div
                 key={idx}
                 onClick={
-                  pathname === "/admin/payments"
+                  pathname === "/admin/payments" ||
+                  pathname === "/admin/refunds"
                     ? () => {}
                     : () => navigate(item.id)
                 }
                 className="grid py-1 bg-white shadow rounded-md hover:bg-green-100 cursor-pointer transition px-3"
                 style={{
                   gridTemplateColumns: headers
-                    .map((header) => header.width)
+                    .map((header) => `minmax(${header.width}, 1fr)`)
                     .join(" "),
                 }}
               >

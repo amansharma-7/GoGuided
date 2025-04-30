@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
-import Toast from "../../common/Toast";
+import { toast } from "react-toastify";
 
 function Settings() {
   const user = {
@@ -22,16 +22,6 @@ function Settings() {
     confirmPassword: false,
   });
   const [passwordError, setPasswordError] = useState("");
-  const [toast, setToast] = useState(null);
-
-  // Function to show toast
-  const showToast = (message, type) => {
-    setToast({ message, type });
-
-    setTimeout(() => {
-      setToast(null);
-    }, 5000);
-  };
 
   // Handle Password Change
   const handlePasswordChange = (e) => {
@@ -58,7 +48,7 @@ function Settings() {
       reader.onloadend = () => {
         setProfileImage(reader.result);
         setIsUploading(false);
-        showToast("Profile picture updated successfully!", "success");
+        toast.success("Profile picture updated successfully!");
       };
       reader.readAsDataURL(file);
     }
@@ -68,18 +58,15 @@ function Settings() {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
-      showToast("Error: Passwords do not match!", "error");
+      toast.error("Error: Passwords do not match!");
       setPasswordError("Passwords do not match");
       return;
     }
-    showToast("Password updated successfully!", "success");
+    toast.success("Password updated successfully!");
   };
 
   return (
     <div className="px-32 py-8 space-y-6 h-full overflow-y-auto scrollbar-none">
-      {/* Toast Message */}
-      {toast && <Toast message={toast.message} type={toast.type} />}
-
       {/* Account Settings Section */}
       <div className="p-8 flex flex-col space-y-6 shadow-sm bg-white rounded-lg">
         <h3 className="text-3xl font-semibold uppercase text-green-700">

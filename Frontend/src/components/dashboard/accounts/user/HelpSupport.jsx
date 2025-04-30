@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiPhone } from "react-icons/fi";
-import Toast from "../../../common/Toast";
+import { toast } from "react-toastify";
 
 const predefinedQA = [
   {
@@ -129,12 +129,10 @@ function HelpSupport() {
           {callRequested ? "Cancel Call Request" : "Request a Call"}
         </button>
 
-        {callRequested && (
-          <Toast
-            message="Your call request has been sent. Our team will contact you soon."
-            type="success"
-          />
-        )}
+        {callRequested &&
+          toast.success(
+            "Your call request has been sent. Our team will contact you soon."
+          )}
       </div>
     </div>
   );

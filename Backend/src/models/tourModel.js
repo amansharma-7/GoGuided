@@ -100,13 +100,13 @@ tourSchema.virtual("slotsLeft").get(function () {
   return this.participants - this.bookings.length;
 });
 
-tourSchema.virtual("averageRating").get(async function () {
-  if (this.reviews.length === 0) return 0; // No reviews, return 0
+tourSchema.statics.calculateAverageRating = async function (tourId) {
+  const tour = await this.findById(tourId).populate("reviews");
+  if (!tour || !tour.reviews || tour.reviews.length === 0) return 0;
 
-  const reviews = await Review.find({ _id: { $in: this.reviews } });
-  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
-  return totalRating / reviews.length;
-});
+  const total = tour.reviews.reduce((acc, review) => acc + review.rating, 0);
+  return total / tour.reviews.length;
+};
 
 // Ensure virtuals are serialised
 tourSchema.set("toObject", { virtuals: true });
