@@ -38,7 +38,7 @@ exports.resolveFeedback = catchAsync(async (req, res, next) => {
   feedback.status = "resolved";
   await feedback.save();
 
-  const emailResponse = await new Email(feedback).sendFeedbackResolution(
+  const emailResponse = await new Email(feedback, "").sendFeedbackResolution(
     responseMessage
   );
 
@@ -49,6 +49,5 @@ exports.resolveFeedback = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Feedback resolved and user notified via email.",
-    data: feedback,
   });
 });

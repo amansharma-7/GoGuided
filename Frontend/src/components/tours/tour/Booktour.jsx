@@ -1,12 +1,20 @@
 import { useParams } from "react-router";
 import { useState } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { initiateRazorpayPayment } from "../../../utils/razorpay";
 
 // Example tourData (you can fetch this from API too)
 const tourData = {
   basePrice: 200,
   availableSlots: 5,
   insuranceFee: 20,
+};
+
+const user = {
+  name: "Sudhir Sharma",
+  email: "Sudhirtemp123@gmail.com",
+  phone: 9796971234,
 };
 
 const BookTourForm = () => {
@@ -22,11 +30,26 @@ const BookTourForm = () => {
   };
 
   const addMember = () => {
-    if (members.length < tourData.availableSlots) {
-      setMembers([...members, { name: "", age: "", gender: "" }]);
-    } else {
-      alert("No more slots available");
+    // Prevent adding if max slots reached
+    if (members.length >= tourData.availableSlots) {
+      toast.error("No more slots available.");
+      return;
     }
+
+    // Validate the last member if one exists
+    const lastMember = members[members.length - 1];
+    const isLastIncomplete =
+      lastMember &&
+      (!lastMember.name.trim() || !lastMember.age || !lastMember.gender);
+
+    if (isLastIncomplete) {
+      toast.warning(
+        "Please complete the last member's details before adding another."
+      );
+      return;
+    }
+
+    setMembers([...members, { name: "", age: "", gender: "" }]);
   };
 
   const removeMember = (index) => {
@@ -39,10 +62,26 @@ const BookTourForm = () => {
     members.length * tourData.basePrice +
     (insurance ? members.length * tourData.insuranceFee : 0);
 
-  const handleSubmit = (e) => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (members.length === 0) {
+      toast.warning("Please add at least one member");
+      return;
+    }
+
+    try {
+      const paymentSuccess = await initiateRazorpayPayment({
+        amount: totalCost,
+        currency: "INR",
+      });
+    } catch (error) {
+      toast.error("Something went wrong during booking.");
+    }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
+    <div className="max-w-3xl min-h-[70vh] mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-2xl font-bold text-green-700 mb-1">
@@ -145,10 +184,13 @@ const BookTourForm = () => {
         </div>
 
         <button
-          type="submit"
-          className="w-full py-3 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition cursor-pointer"
+          type="button"
+          onClick={handleSubmit}
+          disabled={totalCost === 0}
+          className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md 
+             hover:bg-green-700 hover:shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Confirm Booking
+          Pay & Book Tour
         </button>
       </form>
     </div>

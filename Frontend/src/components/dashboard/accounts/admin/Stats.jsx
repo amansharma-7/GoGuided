@@ -10,6 +10,7 @@ import Announcements from "../../../common/Announcements";
 
 import React from "react";
 import BookingChart from "./BookingChart";
+import { formatNumberIndian } from "../../../../utils/numberFormatter";
 
 function SummaryCard({ title, icon: Icon, value }) {
   return (
@@ -30,7 +31,7 @@ function StatCard({ title, value, route }) {
     <div className="text-green-900 bg-white p-6 rounded-xl shadow-lg flex justify-between items-center border border-green-300">
       <div>
         <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className="text-2xl font-semibold">{formatNumberIndian(value)}</p>
       </div>
       {route && (
         <button
@@ -71,9 +72,9 @@ function Stats() {
       </div>
 
       <div className="grid grid-cols-4 gap-4 ">
-        <StatCard title={"Bookings"} value={12} route={"bookings"} />
+        <StatCard title={"Bookings"} value={120000} route={"bookings"} />
         <StatCard title={"Tours"} value={12} route={"tours"} />
-        <StatCard title={"Reviews"} value={12} route={"reviews"} />
+        <StatCard title={"Reviews"} value={10000} route={"reviews"} />
         <StatCard title={"Users"} value={12} route={"users"} />
         <StatCard title={"Feedbacks"} value={12} route={"feedbacks"} />
         <StatCard title={"Payments"} value={12} route={"payments"} />

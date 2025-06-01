@@ -8,6 +8,9 @@ const userSearchRoutes = require("./src/routes/userSearchRoutes");
 const applicationRoutes = require("./src/routes/applicationRoutes");
 const feedbackRoutes = require("./src/routes/feedbackRoutes");
 const emailRoutes = require("./src/routes/emailRoutes");
+const dashboardRoutes = require("./src/routes/dashboard");
+const paymentRoutes = require("./src/routes/paymentRoutes");
+const bookingRoutes = require("./src/routes/bookingRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./src/controllers/errorController");
@@ -27,6 +30,9 @@ app.use("/api/accounts", userSearchRoutes);
 app.use("/api/application", applicationRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Handle unhandled routes
 // app.all("*", (req, res, next) => {
