@@ -1,8 +1,8 @@
 import { FaRegCalendarAlt, FaRegCheckCircle } from "react-icons/fa";
 import { FaRegClock, FaStar } from "react-icons/fa6";
 import Announcements from "../../../common/Announcements";
-import StatusToggle from "./Statustoggle";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
+import StatusToggle from "./StatusToggle";
 
 function SummaryCard({ title, icon: Icon, value, onClick }) {
   return (
