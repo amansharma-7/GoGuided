@@ -7,7 +7,7 @@ function Settings() {
   };
 
   return (
-    <div className="">
+    <div className="px-32 py-8">
       <div className="px-8 py-6 flex flex-col space-y-6 ">
         <h3 className="text-3xl font-semibold uppercase text-green-700">
           Your Account Settings

@@ -18,7 +18,7 @@ function WhyUs() {
         </div>
         <div className=" flex flex-col gap-3 items-center bg-white w-64 p-4 shadow-sm shadow-black/40 rounded-lg">
           <FaGraduationCap size={48} color="green" />
-          <p className="font-semibold"> Unforgettable Experiences</p>
+          <p className="font-semibold">Unforgettable Experiences</p>
           <p className="px-5 tracking-tighter">
             We create lasting memories with unique, personalized, and immersive
             experiences just for you.

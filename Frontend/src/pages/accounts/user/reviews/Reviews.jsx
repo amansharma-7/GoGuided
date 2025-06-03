@@ -88,7 +88,7 @@ const Reviews = () => {
   if (reviews.length === 0) return <NoReviews />;
 
   return (
-    <div className="flex flex-col space-y-6  overflow-y-auto">
+    <div className="px-4 py-12 flex flex-col space-y-6  overflow-hidden">
       <h3 className="text-3xl font-semibold uppercase text-green-700">
         Reviews
       </h3>
