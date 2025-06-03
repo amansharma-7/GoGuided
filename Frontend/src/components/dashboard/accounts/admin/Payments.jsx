@@ -13,8 +13,8 @@ const headers = [
 ];
 
 const paymentsData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
-  name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
+  _id: (i + 1).toString(),
+  userName: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
   email: [
     "john@example.com",
     "jane@example.com",
@@ -33,26 +33,72 @@ function Payments() {
     selectedFilters: [],
   });
 
-  const [payments, setPayments] = useState(paymentsData);
+  const [payments, setPayments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPayments, setTotalPayments] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchPayments(query) {
-      return paymentsData.filter(
-        (payment) =>
-          !query ||
-          payment.name.toLowerCase().includes(query.toLowerCase()) ||
-          payment.email.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchPayments = async () => {
+      try {
+        // Example: filters can be reused if you want
+        // const { searchQuery, selectedFilters, sortOrder } = filterState;
+        // const params = new URLSearchParams();
 
-    const filteredPayments = fetchPayments(filterState.searchQuery);
-    setPayments(filteredPayments);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        // if (searchQuery) params.append("search", searchQuery);
+        // if (selectedFilters) {
+        //   if (selectedFilters["Date Interval"]) {
+        //     const { startDate, endDate } = selectedFilters["Date Interval"];
+        //     if (startDate) params.append("startDate", startDate);
+        //     if (endDate) params.append("endDate", endDate);
+        //   }
+        // }
+        // if (sortOrder) params.append("sort", sortOrder);
 
-  const sortedPayments = [...payments].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.date) - new Date(b.date)
-      : new Date(b.date) - new Date(a.date);
+        // params.append("page", currentPage);
+        // params.append("limit", numberOfEntries);
+
+        // Fetch payments data
+        // const response = await getAllPayments(user.token, params.toString());
+        // const { data, totalPages: tp, total } = response;
+
+        setPayments(paymentsData); // Replace with actual fetched data
+        setTotalPages(tp || 1);
+        setTotalPayments(total || 0);
+        setLoading(false);
+      } catch (error) {
+        // Handle error if needed
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedPayments = payments.map((payment, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "date") {
+        row[key] = new Date(payment.date).toLocaleDateString();
+      } else if (key === "username") {
+        row[key] = payment.userName;
+      } else {
+        row[key] = payment[key] || "-";
+      }
+    });
+
+    row._id = payment._id;
+    return row;
   });
 
   return (
@@ -60,7 +106,7 @@ function Payments() {
       {/* Header Section */}
       <PaymentsHeader
         title="Payments"
-        totalCount={sortedPayments.length}
+        totalCount={transformedPayments.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -83,10 +129,10 @@ function Payments() {
           },
         ]}
       />
-      {sortedPayments.length > 0 ? (
+      {transformedPayments.length > 0 ? (
         <PaymentsTable
           headers={headers}
-          data={sortedPayments}
+          data={transformedPayments}
           itemsPerPage={9}
           navToBy={null}
         />

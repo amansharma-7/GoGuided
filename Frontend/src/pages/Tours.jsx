@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ToursHeader from "../components/common/DashboardHeader";
 import ToursGrid from "../components/tours/ToursGrid";
 import NoResult from "./NoResult";
-const tours = [
+const toursData = [
   {
     id: 1,
     name: "The Forest Hiker",
@@ -232,66 +232,6 @@ const filterOptions = [
   },
 ];
 
-function filterTours(tours, filterState) {
-  const { searchQuery, selectedFilters } = filterState;
-  // If no filters and no search query, return all tours
-  if (!searchQuery && Object.keys(selectedFilters).length === 0) {
-    return tours;
-  }
-
-  let filteredTours = tours.filter((tour) => {
-    return (
-      tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tour.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
-
-  if (selectedFilters["Tour Status"]) {
-    filteredTours = filteredTours.filter((tour) => {
-      const status = getTourStatus(tour);
-      return selectedFilters["Tour Status"] === status;
-    });
-  }
-
-  if (selectedFilters["Difficulty Level"]) {
-    filteredTours = filteredTours.filter(
-      (tour) =>
-        tour.difficulty.toLowerCase() ===
-        selectedFilters["Difficulty Level"].toLowerCase()
-    );
-  }
-
-  if (selectedFilters["Duration"]) {
-    filteredTours = filteredTours.filter((tour) => {
-      const startDate = new Date(tour.startDate);
-      const endDate = new Date(tour.completionDate);
-      const duration = (endDate - startDate) / (1000 * 60 * 60 * 24); // Calculate duration in days
-
-      if (selectedFilters["Duration"] === "1-7") {
-        return duration >= 1 && duration <= 7;
-      } else if (selectedFilters["Duration"] === "7-15") {
-        return duration >= 7 && duration <= 15;
-      } else if (selectedFilters["Duration"] === "15+") {
-        return duration > 15;
-      }
-      return true;
-    });
-  }
-  if (selectedFilters["Date Interval"]) {
-    const { startDate, endDate } = selectedFilters["Date Interval"];
-    // console.log("s and e", startDate, endDate);
-    filteredTours = filteredTours.filter((tour) => {
-      const tourStartDate = new Date(tour.startDate);
-      const tourEndDate = new Date(tour.completionDate);
-      return (
-        tourStartDate >= new Date(startDate) && tourEndDate <= new Date(endDate)
-      );
-    });
-  }
-
-  return filteredTours;
-}
-
 function getTourStatus(tour) {
   const startDate = new Date(tour.startDate);
   const endDate = new Date(tour.completionDate);
@@ -312,33 +252,67 @@ function Tours() {
     selectedFilters: [],
   });
 
-  console.log(filterState);
+  const [tours, setTours] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalTours, setTotalTours] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const filteredTours = filterTours(tours, filterState);
+  useEffect(() => {
+    const fetchTours = async () => {
+      setLoading(true);
+      try {
+        // const params = new URLSearchParams();
 
-  // Optionally, sort the tours based on `sortOrder`
-  const sortedTours = filteredTours.sort((a, b) => {
-    if (filterState.sortOrder === "asc") {
-      return new Date(a.startDate) - new Date(b.startDate);
-    } else {
-      return new Date(b.startDate) - new Date(a.startDate);
-    }
-  });
+        // const { searchQuery, selectedFilters, sortOrder } = filterState;
+
+        // if (searchQuery) {
+        //   params.append("search", searchQuery);
+        // }
+
+        // if (selectedFilters) {
+        //   if (selectedFilters["Date Interval"]) {
+        //     const { startDate, endDate } = selectedFilters["Date Interval"];
+        //     if (startDate) params.append("startDate", startDate);
+        //     if (endDate) params.append("endDate", endDate);
+        //   }
+        // }
+
+        // if (sortOrder) {
+        //   params.append("sort", sortOrder);
+        // }
+
+        // params.append("page", currentPage);
+        // params.append("limit", numberOfEntries);
+
+        // // Example API call, replace with your actual method
+        // const response = await getAllTours(params.toString());
+
+        // const { data } = response;
+
+        setTours(toursData);
+        // setTotalPages(response.totalPages);
+        // setTotalTours(response.total);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTours();
+  }, [currentPage, filterState]);
+
   return (
-    <div className="px-32">
+    <div className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">
       <div className="flex flex-col justify-center p-3 shadow-sm bg-white rounded-lg">
         <ToursHeader
           title="Tours"
-          totalCount={sortedTours.length}
+          totalCount={tours.length}
           filterState={filterState}
           setFilterState={setFilterState}
           filterOptions={filterOptions}
         />
-        {sortedTours.length > 0 ? (
-          <ToursGrid tours={sortedTours} />
-        ) : (
-          <NoResult />
-        )}
+        {tours.length > 0 ? <ToursGrid tours={tours} /> : <NoResult />}
       </div>
     </div>
   );

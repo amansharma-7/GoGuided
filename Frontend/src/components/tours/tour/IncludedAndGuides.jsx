@@ -2,8 +2,8 @@ import Avatar from "../../common/Avatar";
 
 function IncludedAndGuides({ included, guides }) {
   return (
-    <div className="flex flex-col justify-between gap-8 w-[40%]">
-      <div className=" p-6 rounded-lg shadow-sm">
+    <div className="flex flex-col justify-between gap-8 w-full md:w-[40%]">
+      <div className="p-6 rounded-lg shadow-sm">
         <h3 className="text-xl font-bold text-green-800 mb-3">
           What's Included
         </h3>
@@ -13,7 +13,7 @@ function IncludedAndGuides({ included, guides }) {
           ))}
         </ul>
       </div>
-      <div className=" p-6 rounded-lg shadow-sm">
+      <div className="p-6 rounded-lg shadow-sm">
         <h3 className="text-xl font-bold text-green-800 mb-3">Tour Guides</h3>
         <div className="space-y-4">
           {guides.map((guide, index) => (

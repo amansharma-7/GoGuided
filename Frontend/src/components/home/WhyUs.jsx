@@ -32,12 +32,12 @@ const benefits = [
 
 function WhyUs() {
   return (
-    <div className="space-y-6 w-full px-32 py-6">
-      <div className="text-center text-3xl font-bold text-green-800">
+    <div className="space-y-6 w-full px-4 ">
+      <div className="text-center text-2xl sm:text-3xl font-bold text-green-800">
         Why Choose Us!
       </div>
       <div className="w-full rounded-xl">
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-4  items-center justify-center">
           {benefits.map((benefit, index) => (
             <FeatureCard
               key={index}

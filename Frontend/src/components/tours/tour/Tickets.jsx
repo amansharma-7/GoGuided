@@ -26,7 +26,7 @@ function Tickets() {
   );
 
   return (
-    <div className="flex flex-col w-[30%] px-6 py-3 space-y-3 border border-green-100 shadow-sm rounded-lg">
+    <div className="flex flex-col w-full md:w-[30%] px-4 md:px-6 py-3 space-y-3 border border-green-100 shadow-sm rounded-lg">
       <div className="flex justify-between">
         <h3 className="font-semibold text-xl text-green-900">Tickets</h3>
         <span className="font-semibold text-green-950">

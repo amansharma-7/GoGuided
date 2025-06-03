@@ -81,8 +81,8 @@ const BookTourForm = () => {
   };
 
   return (
-    <div className="max-w-3xl min-h-[70vh] mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-      <div className="flex justify-between items-start mb-6">
+    <div className="max-w-3xl min-h-[70vh] mx-auto p-4 sm:p-6 bg-white rounded-xl shadow-md mt-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4 sm:gap-0">
         <div>
           <h2 className="text-2xl font-bold text-green-700 mb-1">
             Add Members
@@ -91,7 +91,7 @@ const BookTourForm = () => {
             {tourData.availableSlots - members.length} slots left
           </span>
         </div>
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           <p className="text-green-700 font-semibold">Price per Person:</p>
           <p className="text-xl font-bold text-green-600">
             {tourData.basePrice}
@@ -116,7 +116,10 @@ const BookTourForm = () => {
           </div>
 
           {members.map((member, index) => (
-            <div key={index} className="grid grid-cols-3 gap-4 mb-3 items-end">
+            <div
+              key={index}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3 items-end"
+            >
               <input
                 type="text"
                 placeholder="Name"
@@ -124,7 +127,7 @@ const BookTourForm = () => {
                 onChange={(e) =>
                   handleMemberChange(index, "name", e.target.value)
                 }
-                className="p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+                className="p-2 border rounded-md focus:ring-green-500 focus:border-green-500 w-full"
                 required
               />
               <input
@@ -134,10 +137,10 @@ const BookTourForm = () => {
                 onChange={(e) =>
                   handleMemberChange(index, "age", e.target.value)
                 }
-                className="p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+                className="p-2 border rounded-md focus:ring-green-500 focus:border-green-500 w-full"
                 required
               />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full">
                 <select
                   value={member.gender}
                   onChange={(e) =>
@@ -154,7 +157,8 @@ const BookTourForm = () => {
                 <button
                   type="button"
                   onClick={() => removeMember(index)}
-                  className="text-red-500 hover:text-red-700 cursor-pointer"
+                  className="text-red-500 hover:text-red-700 cursor-pointer p-2"
+                  aria-label="Remove member"
                 >
                   <FaTrash />
                 </button>
@@ -184,11 +188,10 @@ const BookTourForm = () => {
         </div>
 
         <button
-          type="button"
-          onClick={handleSubmit}
+          type="submit"
           disabled={totalCost === 0}
           className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md 
-             hover:bg-green-700 hover:shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+          hover:bg-green-700 hover:shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Pay & Book Tour
         </button>

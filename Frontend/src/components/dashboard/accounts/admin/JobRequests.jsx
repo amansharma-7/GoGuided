@@ -11,7 +11,7 @@ const headers = [
 ];
 
 const jobRequestsData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
+  _id: (i + 1).toString(),
   name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
   email: [
     "john@example.com",
@@ -29,26 +29,71 @@ function JobRequests() {
     sortOrder: "asc",
     selectedFilters: [],
   });
-  const [jobRequests, setJobRequests] = useState(jobRequestsData);
+
+  const [jobRequests, setJobRequests] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalJobRequests, setTotalJobRequests] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchJobRequests(query) {
-      return jobRequests.filter(
-        (request) =>
-          !query ||
-          request.name.toLowerCase().includes(query.toLowerCase()) ||
-          request.email.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchJobRequests = async () => {
+      try {
+        // Example: you can use filterState if needed
+        // const { searchQuery, selectedFilters, sortOrder } = filterState;
+        // const params = new URLSearchParams();
 
-    const filteredRequests = fetchJobRequests(filterState.searchQuery);
-    setJobRequests(filteredRequests);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        // if (searchQuery) params.append("search", searchQuery);
+        // if (selectedFilters) {
+        //   if (selectedFilters["Date Interval"]) {
+        //     const { startDate, endDate } = selectedFilters["Date Interval"];
+        //     if (startDate) params.append("startDate", startDate);
+        //     if (endDate) params.append("endDate", endDate);
+        //   }
+        // }
+        // if (sortOrder) params.append("sort", sortOrder);
 
-  const sortedRequests = [...jobRequests].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.date) - new Date(b.date)
-      : new Date(b.date) - new Date(a.date);
+        // params.append("page", currentPage);
+        // params.append("limit", numberOfEntries);
+
+        // Fetch job requests instead of guides or reviews
+        // const response = await getAllJobRequests(user.token, params.toString());
+        // const { data, totalPages: tp, total } = response;
+
+        setJobRequests(jobRequestsData); // Replace with actual fetched data
+        setTotalPages(tp || 1);
+        setTotalJobRequests(total || 0);
+        setLoading(false);
+      } catch (error) {
+        // Optional error handling
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobRequests();
+  }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedJobRequests = jobRequests.map((request, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "date") {
+        row[key] = new Date(request.date).toLocaleDateString();
+      } else {
+        row[key] = request[key] || "-";
+      }
+    });
+
+    row._id = request._id;
+    return row;
   });
 
   return (
@@ -56,7 +101,7 @@ function JobRequests() {
       {/* Job Requests Header */}
       <JobsHeader
         title="Job Requests"
-        totalCount={sortedRequests.length}
+        totalCount={transformedJobRequests.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -97,10 +142,10 @@ function JobRequests() {
           },
         ]}
       />
-      {sortedRequests.length > 0 ? (
+      {transformedJobRequests.length > 0 ? (
         <JobTable
           headers={headers}
-          data={sortedRequests}
+          data={transformedJobRequests}
           itemsPerPage={9}
           navToBy={"id"}
         />

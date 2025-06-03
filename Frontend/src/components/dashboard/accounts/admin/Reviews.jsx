@@ -1,11 +1,10 @@
 import ReviewsHeader from "../../../common/DashboardHeader";
 import ReviewsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
-import StarRatings from "react-star-ratings";
 import NoResult from "../../../../pages/NoResult";
 
 const reivewsData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
+  _id: (i + 1).toString(),
   name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
   email: [
     "john@example.com",
@@ -32,33 +31,79 @@ function Reviews() {
     selectedFilters: [],
   });
 
-  const [reviews, setReviews] = useState(reivewsData);
+  const [reviews, setReviews] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchReviews(query) {
-      return reivewsData.filter(
-        (review) =>
-          review &&
-          review.name &&
-          review.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchReviews = async () => {
+      try {
+        // Example: you might have filters, sortOrder etc from filterState
+        // const { searchQuery, selectedFilters, sortOrder } = filterState;
+        // const params = new URLSearchParams();
 
-    const filteredReviews = fetchReviews(filterState.searchQuery);
-    setReviews(filteredReviews);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        // if (searchQuery) params.append("search", searchQuery);
+        // if (selectedFilters) {
+        //   if (selectedFilters["Date Interval"]) {
+        //     const { startDate, endDate } = selectedFilters["Date Interval"];
+        //     if (startDate) params.append("startDate", startDate);
+        //     if (endDate) params.append("endDate", endDate);
+        //   }
+        // }
+        // if (sortOrder) params.append("sort", sortOrder);
 
-  const sortedReviews = [...reviews].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.startDate) - new Date(b.startDate)
-      : new Date(b.startDate) - new Date(a.startDate);
+        // params.append("page", currentPage);
+        // params.append("limit", numberOfEntries);
+
+        // Fetch reviews instead of users or bookings
+        // const response = await getAllReviews(user.token, params.toString());
+
+        // const { data, totalPages: tp, total } = response;
+
+        setReviews(reivewsData); // replace with actual fetched data
+        setTotalPages(tp || 1);
+        setTotalReviews(total || 0);
+        setLoading(false);
+      } catch (error) {
+        // handle error here (optional)
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedReviews = reviews.map((review, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "date") {
+        row[key] = new Date(review.date).toLocaleDateString();
+      } else {
+        // Here, access review[key], fallback to "-" if no value
+        row[key] = review[key] || "-";
+      }
+    });
+
+    row._id = review._id;
+    return row;
   });
 
   return (
     <div>
       <ReviewsHeader
         title="Reviews"
-        totalCount={sortedReviews.length}
+        totalCount={transformedReviews.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -89,8 +134,12 @@ function Reviews() {
           },
         ]}
       />
-      {sortedReviews.length > 0 ? (
-        <ReviewsTable headers={headers} data={sortedReviews} itemsPerPage={9} />
+      {transformedReviews.length > 0 ? (
+        <ReviewsTable
+          headers={headers}
+          data={transformedReviews}
+          itemsPerPage={9}
+        />
       ) : (
         <NoResult />
       )}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import DashboardHeader from "../common/DashboardHeader";
 import NoResult from "../../pages/NoResult";
+
 const jobListings = [
   {
     id: "job-1",
@@ -12,7 +13,7 @@ const jobListings = [
     salary: "Paid",
     posted: "2 days ago",
     applicants: 10,
-    lastDate: "2025-04-10", // Example last date
+    lastDate: "2025-04-10",
   },
   {
     id: "job-2",
@@ -23,7 +24,7 @@ const jobListings = [
     salary: "$80k - $100k",
     posted: "1 week ago",
     applicants: 25,
-    lastDate: "2025-04-08", // Example last date
+    lastDate: "2025-04-08",
   },
   {
     id: "job-3",
@@ -34,7 +35,7 @@ const jobListings = [
     salary: "$60k - $75k",
     posted: "5 days ago",
     applicants: 15,
-    lastDate: "2025-04-12", // Example last date
+    lastDate: "2025-04-12",
   },
 ];
 
@@ -70,7 +71,7 @@ function Careers() {
   });
 
   return (
-    <section className="px-32 py-6 flex flex-col gap-6 justify-center">
+    <section className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-6 flex flex-col gap-6 justify-center">
       <DashboardHeader
         title="Jobs"
         totalCount={sortedJobs.length}
@@ -87,7 +88,7 @@ function Careers() {
         ]}
       />
       {sortedJobs.length > 0 ? (
-        <div className="grid grid-cols-3 gap-6 p-6 rounded-md">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-6 rounded-md">
           {sortedJobs.map((job) => (
             <JobCard key={job.id} {...job} />
           ))}

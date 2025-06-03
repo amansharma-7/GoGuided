@@ -149,12 +149,12 @@ function Map() {
   ];
 
   return (
-    <div className="relative w-[70%] bg-white p-2 rounded-lg shadow-sm z-0">
+    <div className="relative w-full md:w-[70%] bg-white p-2 rounded-lg shadow-sm z-0 h-[300px] md:h-[500px]">
       <MapContainer
         center={[34.0837, 74.7973]}
         zoom={10}
         scrollWheelZoom={false}
-        className="h-full w-full"
+        className="h-full w-full rounded-md"
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -174,7 +174,7 @@ function Map() {
 
         {/* ✅ Dotted Polyline with Correct Arrow Direction */}
         {[...locations, locations[0]].slice(0, -1).map((loc, index) => {
-          const nextLoc = locations[index + 1] || locations[0]; // Loop back to first location
+          const nextLoc = locations[index + 1] || locations[0];
           const { midpoint, bearing } = calculateMidpointAndBearing(
             loc.position,
             nextLoc.position
@@ -182,17 +182,14 @@ function Map() {
 
           return (
             <div key={index}>
-              {/* ✅ Green Dotted Path */}
               <Polyline
                 positions={[loc.position, nextLoc.position]}
                 pathOptions={{
                   color: "#22c55e",
                   weight: 2,
                   dashArray: "5, 10",
-                }} // Green Dotted Line
+                }}
               />
-
-              {/* ✅ Arrow at Midpoint with Correct Rotation */}
               <Marker
                 position={midpoint}
                 icon={L.divIcon({

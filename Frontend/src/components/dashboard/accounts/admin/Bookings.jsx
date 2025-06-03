@@ -2,11 +2,10 @@ import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
 import NoResult from "../../../../pages/NoResult";
-import axios from "axios";
 
 const headers = [
   { label: "S No.", width: "10%" },
-  { label: "Tour Name", width: "20%" },
+  { label: "Tour", width: "20%" },
   { label: "Customer", width: "20%" },
   { label: "Email", width: "25%" },
   { label: "Date", width: "15%" },
@@ -49,7 +48,7 @@ const filterOptions = [
 ];
 
 const bookingsData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
+  _id: (i + 1).toString(),
   tour: ["Safari Adventure", "Mountain Hike", "Beach Holiday", "City Tour"][
     i % 4
   ],
@@ -64,28 +63,6 @@ const bookingsData = Array.from({ length: 50 }, (_, i) => ({
   status: ["completed", "ongoing", "canceled", "upcoming"][i % 4],
 }));
 
-const buildQueryParams = (state) => {
-  const params = {};
-
-  if (state.searchQuery) params.q = state.searchQuery;
-
-  const filters = state.selectedFilters;
-
-  for (const key in filters) {
-    if (key === "Date Interval") {
-      const { startDate, endDate } = filters[key];
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
-    } else {
-      // Replace spaces with camelCase or underscore if your backend doesn't support spaces
-      const normalizedKey = key.replace(/\s+/g, "");
-      params[normalizedKey] = filters[key];
-    }
-  }
-
-  return params;
-};
-
 function Bookings() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
@@ -93,60 +70,88 @@ function Bookings() {
     selectedFilters: {},
   });
 
-  const [bookings, setBookings] = useState(bookingsData);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const params = buildQueryParams(filterState);
-
-  //     try {
-  //       const response = axios.get("http://localhost:5000/api/bookings", {
-  //         params,
-  //       });
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.error("GET request failed:", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [filterState.searchQuery, filterState.selectedFilters]);
+  const [bookings, setBookings] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchBookings(query) {
-      return bookingsData.filter(
-        (booking) =>
-          !query ||
-          booking.tour.toLowerCase().includes(query.toLowerCase()) ||
-          booking.customer.toLowerCase().includes(query.toLowerCase()) ||
-          booking.email.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchBookings = async () => {
+      try {
+        //   const { searchQuery, selectedFilters, sortOrder } = filterState;
+        //   const params = new URLSearchParams();
 
-    const filteredBookings = fetchBookings(filterState.searchQuery);
-    setBookings(filteredBookings);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        //   if (searchQuery) {
+        //     params.append("search", searchQuery);
+        //   }
 
-  const sortedBookings = [...bookings].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.date) - new Date(b.date)
-      : new Date(b.date) - new Date(a.date);
+        //   if (selectedFilters) {
+        //     if (selectedFilters["Date Interval"]) {
+        //       const { startDate, endDate } = selectedFilters["Date Interval"];
+        //       if (startDate) params.append("startDate", startDate);
+        //       if (endDate) params.append("endDate", endDate);
+        //     }
+        //   }
+
+        //   if (sortOrder) {
+        //     params.append("sort", sortOrder);
+        //   }
+
+        //   params.append("page", currentPage);
+        //   params.append("limit", numberOfEntries);
+
+        //   // getting all users
+        //   const response = await getAllUsers(user.token, params.toString());
+
+        //   const { data } = response;
+
+        setBookings(bookingsData);
+        // setTotalPages(response.totalPages);
+        // setTotalUsers(response.total);
+        setLoading(false);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedBookings = bookings.map((user, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else {
+        row[key] = user[key] || "-";
+      }
+    });
+
+    row._id = user._id;
+    return row;
   });
 
   return (
     <div className="px-4 py-4">
       <BookingsHeader
         title="Bookings"
-        totalCount={sortedBookings.length}
+        totalCount={transformedBookings.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={filterOptions}
       />
 
-      {sortedBookings.length > 0 ? (
+      {transformedBookings.length > 0 ? (
         <BookingsTable
           headers={headers}
-          data={sortedBookings}
+          data={transformedBookings}
           itemsPerPage={9}
         />
       ) : (

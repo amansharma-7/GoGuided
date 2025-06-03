@@ -11,7 +11,7 @@ const headers = [
 ];
 
 const usersData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
+  _id: (i + 1).toString(),
   name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
   email: [
     "john@example.com",
@@ -31,25 +31,74 @@ function UsersList() {
   });
 
   const [users, setUsers] = useState(usersData);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
-  useEffect(() => {
-    function fetchUsers(query) {
-      return usersData.filter(
-        (user) =>
-          user &&
-          user.name &&
-          user.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const { searchQuery, selectedFilters, sortOrder } = filterState;
+  //       const params = new URLSearchParams();
 
-    const filteredUsers = fetchUsers(filterState.searchQuery);
-    setUsers(filteredUsers);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+  //       if (searchQuery) {
+  //         params.append("search", searchQuery);
+  //       }
 
-  const sortedUsers = [...users].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
+  //       if (selectedFilters) {
+  //         if (selectedFilters["Date Interval"]) {
+  //           const { startDate, endDate } = selectedFilters["Date Interval"];
+  //           if (startDate) params.append("startDate", startDate);
+  //           if (endDate) params.append("endDate", endDate);
+  //         }
+  //       }
+
+  //       if (sortOrder) {
+  //         params.append("sort", sortOrder);
+  //       }
+
+  //       params.append("page", currentPage);
+  //       params.append("role", "user");
+  //       params.append("limit", numberOfEntries);
+
+  //       // getting all users
+  //       const response = await getAllUsers(user.token, params.toString());
+
+  //       const { data } = response;
+
+  //       setUsers(data.users);
+  //       setTotalPages(response.totalPages);
+  //       setTotalUsers(response.total);
+  //       setLoading(false);
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedUsers = users.map((user, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "lastvisit") {
+        row[key] = new Date(user.lastVisit).toLocaleDateString();
+      } else {
+        row[key] = user[key] || "-";
+      }
+    });
+
+    row._id = user._id;
+    return row;
   });
 
   return (
@@ -57,7 +106,7 @@ function UsersList() {
       {/* Header Section */}
       <UsersHeader
         title="Users"
-        totalCount={sortedUsers.length}
+        totalCount={transformedUsers.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -71,8 +120,12 @@ function UsersList() {
           },
         ]}
       />
-      {sortedUsers.length > 0 ? (
-        <UsersTable headers={headers} data={sortedUsers} itemsPerPage={9} />
+      {transformedUsers.length > 0 ? (
+        <UsersTable
+          headers={headers}
+          data={transformedUsers}
+          itemsPerPage={9}
+        />
       ) : (
         <NoResult />
       )}

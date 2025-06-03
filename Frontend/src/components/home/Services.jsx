@@ -1,22 +1,24 @@
 function Services() {
   return (
-    <div className="py-6 px-32 flex flex-col items-center gap-6">
-      <h3 className="text-center text-3xl font-bold text-green-800">
+    <div className="py-10 px-4 sm:px-6 lg:px-32 flex flex-col items-center gap-10">
+      <h3 className="text-center text-2xl sm:text-3xl font-bold text-green-800">
         Our Services
       </h3>
 
-      <div className="flex items-center gap-20">
-        <div className="shadow-lg shadow-black/30 overflow-hidden rounded-lg">
+      <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-20 w-full">
+        {/* Image */}
+        <div className="shadow-lg shadow-black/30 overflow-hidden rounded-lg w-full max-w-sm">
           <img
             src="https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Our Services"
-            width={250}
-            height={250}
-            className="self-start object-cover"
+            className="w-full h-full object-cover"
           />
         </div>
-        <div className="flex flex-col bg-white gap-6 shadow-lg shadow-black/30 p-12 rounded-lg">
-          <div className="flex flex-col gap-2 items-start">
+
+        {/* Service Content */}
+        <div className="flex flex-col bg-white gap-8 shadow-lg shadow-black/30 p-6 sm:p-8 lg:p-12 rounded-lg w-full">
+          {/* Service 1 */}
+          <div className="flex flex-col gap-2 text-left">
             <h2 className="text-green-800 text-lg font-semibold">
               Guided Tours & Local Experience
             </h2>
@@ -26,7 +28,8 @@ function Services() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 items-end">
+          {/* Service 2 */}
+          <div className="flex flex-col gap-2 text-left lg:text-right">
             <h2 className="text-green-800 text-lg font-semibold">
               24/7 Customer Support
             </h2>
@@ -36,7 +39,8 @@ function Services() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 items-start">
+          {/* Service 3 */}
+          <div className="flex flex-col gap-2 text-left">
             <h2 className="text-green-800 text-lg font-semibold">
               Best Price Guarantee
             </h2>

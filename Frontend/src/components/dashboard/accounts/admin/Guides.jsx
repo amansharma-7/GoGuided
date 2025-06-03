@@ -15,7 +15,7 @@ const headers = [
 // const headers = ["S No.", "Name", "Email", "Number", "Role", "Status"];
 
 const GuidesData = Array.from({ length: 50 }, (_, i) => ({
-  id: (i + 1).toString(),
+  _id: (i + 1).toString(),
   name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
   email: [
     "john@example.com",
@@ -35,33 +35,76 @@ function Guides() {
     selectedFilters: [],
   });
 
-  const [guides, setGuides] = useState(GuidesData);
+  const [guides, setGuides] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalGuides, setTotalGuides] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchGuides(query) {
-      return GuidesData.filter(
-        (guide) =>
-          !query ||
-          guide.name.toLowerCase().includes(query.toLowerCase()) ||
-          guide.email.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchGuides = async () => {
+      try {
+        // Example: use filters if needed
+        // const { searchQuery, selectedFilters, sortOrder } = filterState;
+        // const params = new URLSearchParams();
 
-    const filteredGuides = fetchGuides(filterState.searchQuery);
-    setGuides(filteredGuides);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        // if (searchQuery) params.append("search", searchQuery);
+        // if (selectedFilters) {
+        //   if (selectedFilters["Date Interval"]) {
+        //     const { startDate, endDate } = selectedFilters["Date Interval"];
+        //     if (startDate) params.append("startDate", startDate);
+        //     if (endDate) params.append("endDate", endDate);
+        //   }
+        // }
+        // if (sortOrder) params.append("sort", sortOrder);
 
-  const sortedGuides = [...guides].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
+        // params.append("page", currentPage);
+        // params.append("limit", numberOfEntries);
+
+        // Fetch guides instead of reviews
+        // const response = await getAllGuides(user.token, params.toString());
+        // const { data, totalPages: tp, total } = response;
+
+        setGuides(GuidesData); // Replace with real data
+        setTotalPages(tp || 1);
+        setTotalGuides(total || 0);
+        setLoading(false);
+      } catch (error) {
+        // Optional: handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuides();
+  }, [currentPage, filterState]);
+
+  const getKeyFromLabel = (label) =>
+    label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+
+  const transformedGuides = guides.map((guide, idx) => {
+    const row = {};
+    headers.forEach((header, i) => {
+      const key = getKeyFromLabel(header.label);
+
+      if (key === "sno") {
+        row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else {
+        row[key] = guide[key] || "-";
+      }
+    });
+
+    row._id = guide._id;
+    return row;
   });
+
   return (
     <div className="p-4">
       {/* Header Section */}
       <UsersHeader
         title="Guides"
-        totalCount={sortedGuides.length}
+        totalCount={transformedGuides.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -87,10 +130,10 @@ function Guides() {
           },
         ]}
       />
-      {sortedGuides.length > 0 ? (
+      {transformedGuides.length > 0 ? (
         <GuidesTable
           headers={headers}
-          data={sortedGuides}
+          data={transformedGuides}
           itemsPerPage={9}
           navToBy={"id"}
         />

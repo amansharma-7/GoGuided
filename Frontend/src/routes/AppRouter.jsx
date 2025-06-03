@@ -60,6 +60,8 @@ import { Component } from "react";
 import JobApplicationForm from "../components/careers/JobApplicationForm";
 import UpdatePassword from "../components/auth/UpdatePassword";
 import BookTourForm from "../components/tours/tour/Booktour";
+import TermsAndConditions from "../pages/Terms";
+import PrivacyPolicy from "../pages/privacy";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +102,14 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         Component: Contact,
+      },
+      {
+        path: "/terms",
+        Component: TermsAndConditions,
+      },
+      {
+        path: "/privacy",
+        Component: PrivacyPolicy,
       },
 
       //user

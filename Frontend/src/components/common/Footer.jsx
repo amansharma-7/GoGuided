@@ -1,62 +1,67 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink } from "react-router-dom";
 import { AiFillInstagram } from "react-icons/ai";
-import { FaFacebook } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaYoutube } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaFacebook, FaYoutube } from "react-icons/fa";
+import { FaXTwitter, FaLocationDot } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { MdCall } from "react-icons/md";
 
 function Footer() {
   return (
-    <footer className="flex flex-col gap-10 px-32 py-4 pt-10 bg-green-50 text-green-950">
-      <div className="flex gap-32">
-        <div className="w-1/3 flex flex-col gap-2">
-          <h4 className="font-semibold text-5xl text-green-950">
+    <footer className="bg-green-50 text-green-950 px-4 sm:px-6 lg:px-32 py-10 flex flex-col gap-10">
+      <div className="flex flex-col lg:flex-row gap-10 justify-between">
+        {/* Logo and Description */}
+        <div className="lg:w-1/3 flex flex-col gap-3">
+          <h4 className="font-semibold text-3xl sm:text-4xl text-green-950">
             <Link to="/">GoGuided</Link>
           </h4>
-          <p className="text-gray-800">
+          <p className="text-gray-800 text-[15px] sm:text-[16px]">
             GoGuided offers exceptional travel experiences with handpicked tours
             and activities designed for every traveler. Explore new destinations
             and make memories that last forever.
           </p>
         </div>
-        <div className="flex item-center gap-28 w-2/3">
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-semibold text-green-900">
+
+        {/* Contact, Links, Social */}
+        <div className="flex flex-col sm:flex-row gap-10 lg:w-2/3 justify-between">
+          {/* Contact Info */}
+          <div className="flex flex-col gap-3 min-w-[150px]">
+            <h2 className="text-lg font-semibold text-green-900">
               Contact Information
             </h2>
-            <ul className="flex flex-col space-x-4 text-gray-800">
+            <ul className="flex flex-col gap-2 text-gray-800">
               <li className="flex gap-2 items-center">
                 <FaLocationDot className="text-green-900" />
-                <p className="text-[18px]">Location</p>
+                <span className="text-[16px]">123 Main Street, YourCity</span>
               </li>
               <li className="flex gap-2 items-center">
                 <MdCall className="text-green-900" />
-                <p className="text-[18px]">1234567890</p>
+                <span className="text-[16px]">1234567890</span>
               </li>
               <li className="flex gap-2 items-center">
                 <IoMdMail className="text-green-900" />
-                <p className="text-[18px]">temp@gmail.com</p>
+                <span className="text-[16px]">temp@gmail.com</span>
               </li>
             </ul>
           </div>
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-semibold text-green-900">
+
+          {/* Quick Links */}
+          <div className="flex flex-col gap-3 min-w-[150px]">
+            <h2 className="text-lg font-semibold text-green-900">
               Quick Links
             </h2>
-            <ul className="flex flex-col space-x-4 text-green-900">
-              <li>
+            <ul className="flex flex-col gap-1 text-green-900">
+              {/* Visible on Desktop Only */}
+              <li className="hidden lg:block">
                 <NavLink to="/tours" className="hover:text-green-700">
                   Tours
                 </NavLink>
               </li>
-              <li>
+              <li className="hidden lg:block">
                 <NavLink to="/about" className="hover:text-green-700">
                   About Us
                 </NavLink>
               </li>
-              <li>
+              <li className="hidden lg:block">
                 <NavLink to="/contact" className="hover:text-green-700">
                   Contact Us
                 </NavLink>
@@ -66,43 +71,74 @@ function Footer() {
                   Join Us
                 </NavLink>
               </li>
+
+              {/* Always Visible: Terms & Policy */}
+              <li>
+                <NavLink to="/terms" className="hover:text-green-700">
+                  Terms & Conditions
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/privacy" className="hover:text-green-700">
+                  Privacy Policy
+                </NavLink>
+              </li>
             </ul>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-semibold text-green-900">
+          {/* Social Icons */}
+          <div className="flex flex-col gap-3 min-w-[150px]">
+            <h2 className="text-lg font-semibold text-green-900">
               Stay in touch
             </h2>
-            <div className="flex gap-3">
-              <Link to="https://www.facebook.com/" target="_blank">
+            <div className="flex gap-4">
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaFacebook
-                  size={32}
+                  size={28}
                   className="text-green-900 hover:text-green-700"
                 />
-              </Link>
-              <Link to="https://www.x.com/" target="_blank">
+              </a>
+              <a
+                href="https://www.x.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaXTwitter
-                  size={32}
+                  size={28}
                   className="text-green-900 hover:text-green-700"
                 />
-              </Link>
-              <Link to="https://www.youtube.com/" target="_blank">
+              </a>
+              <a
+                href="https://www.youtube.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaYoutube
-                  size={32}
+                  size={28}
                   className="text-green-900 hover:text-green-700"
                 />
-              </Link>
-              <Link to="https://www.instagram.com/" target="_blank">
+              </a>
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <AiFillInstagram
-                  size={32}
+                  size={28}
                   className="text-green-900 hover:text-green-700"
                 />
-              </Link>
+              </a>
             </div>
           </div>
         </div>
       </div>
-      <p className="mx-auto py-2 text-xl font-semibold text-green-900">
+
+      {/* Copyright */}
+      <p className="text-center text-[16px] font-medium text-green-900">
         &copy; 2025 GoGuided. All rights reserved.
       </p>
     </footer>

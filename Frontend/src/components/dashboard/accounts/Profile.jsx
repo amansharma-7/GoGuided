@@ -11,7 +11,7 @@ const user = {
 
 function Profile() {
   return (
-    <div className="flex items-center gap-x-4 p-6 text-green-100 relative">
+    <div className="flex items-center gap-4 p-6 text-green-100 relative">
       <div className="relative inline-block cursor-pointer">
         {user ? (
           <img
@@ -21,19 +21,20 @@ function Profile() {
                 : `https://api.dicebear.com/5.x/initials/svg?seed=${user.firstName}%20${user.lastName}&backgroundColor=f5f5f5&textColor=2e7d32`
             }
             alt={user.name}
-            className="w-20 h-20 object-cover object-center rounded-full transition-transform duration-300 ease-in-out hover:scale-125"
+            className="w-20 h-20 sm:w-20 sm:h-20 w-16 h-16 object-cover object-center rounded-full transition-transform duration-300 ease-in-out hover:scale-110"
           />
         ) : (
-          <FaCircleUser className="w-20 h-20 text-white transition-transform duration-300 ease-in-out hover:scale-125" />
+          <FaCircleUser className="w-16 h-16 sm:w-20 sm:h-20 text-white transition-transform duration-300 ease-in-out hover:scale-110" />
         )}
       </div>
 
       {/* User Info */}
-      <div className="flex flex-col relative">
-        <span className="font-medium text-lg">{user.name}</span>
-        <span className="text-sm">{user.email}</span>
+      <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+        <span className="font-medium text-base sm:text-lg">{user.name}</span>
+        <span className="text-sm sm:text-base">{user.email}</span>
       </div>
-      <div className="absolute -bottom-5 w-[80%] left-[10%] border-b-2 border-gray-400"></div>
+
+      <div className="absolute -bottom-5 left-[10%] w-[80%] border-b-2 border-gray-400" />
     </div>
   );
 }

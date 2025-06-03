@@ -9,9 +9,11 @@ const achievementData = [
 
 function Achievements() {
   return (
-    <div className="px-32 py-6 flex flex-col gap-6 items-center">
-      <h3 className="text-3xl font-bold text-green-900">Our Achievements</h3>
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-6 w-full">
+    <div className="px-6 md:px-32 py-6 flex flex-col gap-6 items-center">
+      <h3 className="text-3xl font-bold text-green-900 text-center">
+        Our Achievements
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-7xl">
         {achievementData.map((item, index) => (
           <div
             key={index}

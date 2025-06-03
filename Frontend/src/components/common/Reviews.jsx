@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import Avatar from "./Avatar";
 
@@ -71,14 +71,14 @@ function Reviews() {
   };
 
   return (
-    <div className="w-full py-6 rounded-xl overflow-x-auto scrollbar-none">
-      <div className="flex gap-4 items-center">
+    <div className="w-full py-6 rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-6 lg:px-0">
+      <div className="flex gap-4 items-stretch">
         {allReviews.slice(0, visibleReviews).map((review) => (
           <div
             key={review.id}
-            className="min-w-[310px] h-[240px] p-6 border border-green-500 rounded-2xl bg-white shadow-md shadow-black/50 transition-transform duration-200 ease-in-out hover:scale-105 overflow-hidden relative flex flex-col gap-2"
+            className="min-w-[280px] sm:min-w-[300px] md:min-w-[320px] lg:min-w-[310px] h-auto p-4 sm:p-5 lg:p-6 border border-green-500 rounded-2xl bg-white shadow-md shadow-black/50 transition-transform duration-200 ease-in-out hover:scale-105 flex flex-col gap-2"
           >
-            <div className="flex items-center gap-1 mb-1">
+            <div className="flex items-center gap-2 mb-1">
               {review?.image ? (
                 <Avatar size={48} imageURL={review.image} />
               ) : (
@@ -91,14 +91,14 @@ function Reviews() {
                   fullName={review.name}
                 />
               )}
-              <h3 className="text-xl font-semibold text-green-800">
+              <h3 className="text-base sm:text-lg font-semibold text-green-800">
                 {review.name}
               </h3>
             </div>
-            <div className="text-sm text-green-700 mb-2 italic relative pl-6 before:content-['“'] before:text-2xl before:text-green-600 before:absolute before:left-0 overflow-y-auto max-h-20 pr-2 whitespace-normal scrollbar-none">
+            <div className="text-sm text-green-700 italic relative pl-6 before:content-['“'] before:text-2xl before:text-green-600 before:absolute before:left-0 overflow-y-auto max-h-20 pr-2 whitespace-normal scrollbar-none">
               {review.comment}
             </div>
-            <p className="text-sm text-green-600 font-semibold flex items-center gap-0.5 mt-auto">
+            <p className="text-sm text-green-600 font-semibold flex items-center gap-1 mt-auto">
               {Array.from({ length: 5 }, (_, i) =>
                 i < Math.floor(review.rating) ? (
                   <FaStar key={i} className="text-yellow-500" />
@@ -112,11 +112,12 @@ function Reviews() {
             </p>
           </div>
         ))}
+
         {visibleReviews < allReviews.length && (
-          <div className="min-w-[320px] h-[240px] flex items-center justify-center bg-green-300 rounded-2xl shadow-md transition-transform duration-200 ease-in-out hover:scale-105">
+          <div className="min-w-[280px] sm:min-w-[300px] md:min-w-[320px] h-auto flex items-center justify-center bg-green-300 rounded-2xl shadow-md transition-transform duration-200 ease-in-out hover:scale-105">
             <button
               onClick={loadMoreReviews}
-              className="p-4 py-2 bg-green-700 rounded-xl text-white font-medium shadow-2xl transition-transform duration-200 hover:scale-105 cursor-pointer"
+              className="p-3 sm:p-4 py-2 bg-green-700 rounded-xl text-white font-medium shadow-2xl transition-transform duration-200 hover:scale-105 cursor-pointer"
             >
               Load More Reviews
             </button>
