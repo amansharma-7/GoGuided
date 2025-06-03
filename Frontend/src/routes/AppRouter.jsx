@@ -53,7 +53,7 @@ import AllAdmins from "../components/dashboard/accounts/admin/AllAdmins";
 import AddNewAdmin from "../components/dashboard/accounts/admin/AddNewAdmin";
 
 // guide
-import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
+import GuideDashboard from "../components/dashboard/accounts/guide/DashBoard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
 import { Component } from "react";
