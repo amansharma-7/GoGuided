@@ -1,72 +1,81 @@
 import useSafeNavigate from "../../utils/useSafeNavigate";
+import { formatDate } from "../../utils/utils";
+import { IoLocationOutline } from "react-icons/io5";
+import { CiCalendar, CiFlag1 } from "react-icons/ci";
+import { HiArrowTrendingUp } from "react-icons/hi2";
+import RatingStars from "../common/RatingStars";
 
-import { MdLocationOn } from "react-icons/md";
-import { CiCalendar } from "react-icons/ci";
-import { BiTachometer } from "react-icons/bi";
-import { BsSunFill } from "react-icons/bs";
-import { CiFlag1 } from "react-icons/ci";
-import { IoPersonOutline } from "react-icons/io5";
+function TourCard({ tour }) {
+  const navigate = useSafeNavigate();
 
-function TourCard({ id }) {
-  const safeNavigate = useSafeNavigate();
+  // Split title words once
+  const titleParts = tour.title.split(" ");
 
   return (
-    <div className="grid grid-rows-[0.75fr_1.25fr] overflow-hidden shadow-md shadow-black/15">
-      <div>
+    <div
+      className="grid grid-rows-[0.75fr_1fr] overflow-hidden shadow-sm shadow-black/15
+                    h-[350px] sm:h-[400px] md:h-[450px] rounded-md
+                    bg-white"
+    >
+      {/* Image section */}
+      <div className="relative overflow-hidden rounded-t-md h-[140px] sm:h-48 md:h-56">
         <img
-          className="object-cover object-center h-60 w-full rounded-t-md"
-          src="https://images.unsplash.com/photo-1529419412599-7bb870e11810?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt=""
+          className="object-cover object-center w-full h-full"
+          src={tour.imageUrl}
+          alt={tour.title}
         />
-      </div>
-      <div className="bg-white rounded-b-md">
-        <div className="flex flex-col gap-y-1 px-6 py-3">
-          <h3 className="uppercase font-light text-2xl text-green-950">
-            The Forest Hiker
-          </h3>
-          <p className="font-extralight">
-            Breathtaking hike through the Canadian Banff National Park
+        {/* Background overlay shape */}
+        <div className="bg-white h-20 w-[120%] absolute -bottom-14 -rotate-9 text-black text-center z-10"></div>
+
+        {/* Title block */}
+        <div className="flex flex-col items-end  absolute bottom-8 right-0 z-20">
+          <p className="bg-green-600/70 shadow-sm px-2 py-1 sm:px-3 sm:py-2 text-xl sm:text-2xl text-white font-semibold">
+            {titleParts[0]?.toUpperCase()} {titleParts[1]?.toUpperCase()}
           </p>
+          {titleParts[2] && (
+            <p className="bg-green-600/80 shadow-md px-2 py-1 sm:px-3 sm:py-2 text-xl sm:text-2xl text-white font-semibold absolute top-8 ">
+              {titleParts[2].toUpperCase()}
+            </p>
+          )}
         </div>
-        <div className=" grid grid-cols-2 gap-y-2 px-6 py-3">
+      </div>
+
+      {/* Content section */}
+      <div className="bg-white rounded-b-md flex flex-col justify-between p-3 sm:p-4">
+        {/* Description */}
+        <p className="font-extralight text-sm sm:text-base line-clamp-3">
+          {tour.description}
+        </p>
+
+        {/* Tour details grid */}
+        <div className="grid grid-cols-2 gap-y-2 mt-3 text-sm sm:text-base text-gray-700">
           <div className="flex gap-x-2 items-center">
-            <MdLocationOn size={18} color="green" />
-            <span>Jammu, India</span>
+            <IoLocationOutline size={18} color="green" />
+            <span>{tour.location}</span>
           </div>
           <div className="flex gap-x-2 items-center">
             <CiCalendar size={18} color="green" />
-            <span>April 2025</span>
+            <span>{formatDate(tour.startDate)}</span>
           </div>
           <div className="flex gap-x-2 items-center">
-            <BiTachometer size={18} color="green" />
-            <span>Easy</span>
-          </div>
-          <div className="flex gap-x-2 items-center">
-            <BsSunFill size={18} color="green" />
-            <span>7 days</span>
+            <HiArrowTrendingUp size={18} color="green" />
+            <span>{tour.difficulty}</span>
           </div>
           <div className="flex gap-x-2 items-center">
             <CiFlag1 size={18} color="green" />
-            <span>4 Stop</span>
-          </div>
-          <div className="flex gap-x-2 items-center">
-            <IoPersonOutline size={18} color="green" />
-            <span>10 People</span>
+            <span>{tour.stops} Stops</span>
           </div>
         </div>
-        <div className="grid grid-cols-2 px-6 py-4">
-          <div className="flex flex-col font-extralight">
-            <span>
-              <strong className="text-lg font-semibold">&#8377;10,000</strong>{" "}
-              per person
-            </span>
-            <span className="">
-              <strong className="text-lg font-semibold">4.5</strong> rating (5)
-            </span>
+
+        {/* Rating and Button */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-green-600 font-semibold flex items-center gap-1 text-base sm:text-lg">
+            <RatingStars Review_Count={tour.rating} />
           </div>
+
           <button
-            className="m-auto px-10 py-3 bg-green-500 rounded-xl text-white text-lg"
-            onClick={() => safeNavigate(id)}
+            className="px-4 sm:px-6 py-2 bg-green-500 rounded-xl cursor-pointer hover:bg-green-600 text-white text-sm sm:text-lg transition"
+            onClick={() => navigate(tour.slug)}
           >
             Details
           </button>
