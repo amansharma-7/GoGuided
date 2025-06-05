@@ -66,18 +66,18 @@ function Settings() {
   };
 
   return (
-    <div className="px-32 py-8 space-y-6 h-full overflow-y-auto scrollbar-none">
+    <div className="px-4 sm:px-6 lg:px-32 py-8 space-y-6 h-full overflow-y-auto scrollbar-none">
       {/* Account Settings Section */}
-      <div className="p-8 flex flex-col space-y-6 shadow-sm bg-white rounded-lg">
-        <h3 className="text-3xl font-semibold uppercase text-green-700">
+      <div className="p-4 sm:p-6 flex flex-col space-y-6 shadow-sm bg-white rounded-lg">
+        <h3 className="text-2xl sm:text-3xl font-semibold uppercase text-green-700">
           Your Account Settings
         </h3>
-        <form className="grid grid-cols-1 gap-4 pt-5">
+        <form className="grid grid-cols-1 gap-4 pt-4">
           {/* Name */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="name"
-              className="text-lg font-medium text-green-900"
+              className="text-base sm:text-lg font-medium text-green-900"
             >
               Name
             </label>
@@ -94,7 +94,7 @@ function Settings() {
           <div className="flex flex-col gap-2">
             <label
               htmlFor="email"
-              className="text-lg font-medium text-green-900"
+              className="text-base sm:text-lg font-medium text-green-900"
             >
               Email Address
             </label>
@@ -108,7 +108,7 @@ function Settings() {
           </div>
 
           {/* Profile Picture Upload */}
-          <div className="flex items-center gap-x-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-x-6">
             <label className="relative cursor-pointer">
               <img
                 src={profileImage}
@@ -123,27 +123,27 @@ function Settings() {
               />
               <FaCamera className="absolute bottom-0 right-0 bg-white rounded-full p-1 text-green-700 w-6 h-6 shadow-md" />
             </label>
-            {isUploading ? (
+            {isUploading && (
               <span className="text-green-600">Uploading...</span>
-            ) : null}
+            )}
           </div>
         </form>
       </div>
 
       {/* Password Change Section */}
-      <div className="p-8 flex flex-col space-y-6 shadow-sm rounded-lg bg-white">
-        <h3 className="text-3xl font-semibold uppercase text-green-700">
+      <div className="p-4 sm:p-6 flex flex-col space-y-6 shadow-sm rounded-lg bg-white">
+        <h3 className="text-2xl sm:text-3xl font-semibold uppercase text-green-700">
           Change Password
         </h3>
         <form
-          className="grid grid-cols-1 gap-4 pt-5"
+          className="grid grid-cols-1 gap-4 pt-4"
           onSubmit={handlePasswordSubmit}
         >
           {/* Current Password */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="currentPassword"
-              className="text-lg font-medium text-green-900"
+              className="text-base sm:text-lg font-medium text-green-900"
             >
               Current password
             </label>
@@ -157,11 +157,11 @@ function Settings() {
             />
           </div>
 
-          {/* New Password with Eye Toggle */}
+          {/* New Password */}
           <div className="flex flex-col gap-2 relative">
             <label
               htmlFor="newPassword"
-              className="text-lg font-medium text-green-900"
+              className="text-base sm:text-lg font-medium text-green-900"
             >
               New password
             </label>
@@ -184,11 +184,11 @@ function Settings() {
             </div>
           </div>
 
-          {/* Confirm Password with Eye Toggle */}
+          {/* Confirm Password */}
           <div className="flex flex-col gap-2 relative">
             <label
               htmlFor="confirmPassword"
-              className="text-lg font-medium text-green-900"
+              className="text-base sm:text-lg font-medium text-green-900"
             >
               Confirm password
             </label>
@@ -214,11 +214,11 @@ function Settings() {
             )}
           </div>
 
-          {/* Update Password Button */}
+          {/* Submit Button */}
           <button
-            className="p-4 mt-4 text-lg uppercase text-white bg-green-600 rounded-md 
-             hover:bg-green-700 hover:shadow-sm 
-             disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="p-3 sm:p-4 mt-4 text-base sm:text-lg uppercase text-white bg-green-600 rounded-md 
+            hover:bg-green-700 hover:shadow-sm 
+            disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={
               !formData.currentPassword.length ||
               !formData.newPassword.length ||

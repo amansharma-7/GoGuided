@@ -60,14 +60,16 @@ function HelpSupport() {
   };
 
   return (
-    <div className="flex justify-center p-6 h-full ">
-      <div className="w-full max-w-2xl p-4 py-8 bg-white shadow-md rounded-lg h-full overflow-y-auto scrollbar-none">
-        <div className="mb-2">
-          <h2 className="text-xl font-bold text-green-900">Help & Support</h2>
+    <div className="flex justify-center px-4 py-6 sm:px-6 h-full">
+      <div className="w-full max-w-2xl p-4 sm:py-8 bg-white shadow-md rounded-lg h-full overflow-y-auto scrollbar-none">
+        <div className="mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-green-900">
+            Help & Support
+          </h2>
         </div>
 
         <button
-          className="mb-2 bg-green-700 text-white py-2 px-4 rounded-md hover:bg-green-800 cursor-pointer"
+          className="mb-4 bg-green-700 text-white py-2 px-4 rounded-md hover:bg-green-800 w-full sm:w-auto"
           onClick={() => setShowQuestions(!showQuestions)}
         >
           {showQuestions ? "Hide Common Questions" : "Show Common Questions"}
@@ -82,7 +84,7 @@ function HelpSupport() {
               {predefinedQA.map((qa, index) => (
                 <button
                   key={index}
-                  className="w-full text-green-900 bg-white hover:bg-green-200 py-2 px-3 rounded-md text-left shadow-sm cursor-pointer"
+                  className="w-full text-green-900 bg-white hover:bg-green-200 py-2 px-3 rounded-md text-left shadow-sm"
                   onClick={() => handleQuestionClick(qa)}
                 >
                   {qa.question}
@@ -92,7 +94,7 @@ function HelpSupport() {
           </div>
         )}
 
-        <div className="p-4 h-40 overflow-y-auto bg-white rounded shadow-md scrollbar-hide">
+        <div className="p-3 sm:p-4 h-40 overflow-y-auto bg-white rounded shadow-md scrollbar-hide">
           {chat.map((msg, index) => (
             <p
               key={index}
@@ -106,7 +108,7 @@ function HelpSupport() {
           ))}
         </div>
 
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-col sm:flex-row gap-2">
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -114,7 +116,7 @@ function HelpSupport() {
             className="flex-grow border border-green-600 p-2 rounded-md focus:outline-none"
           />
           <button
-            className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 cursor-pointer"
+            className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800"
             onClick={handleSendMessage}
           >
             Send
@@ -122,10 +124,10 @@ function HelpSupport() {
         </div>
 
         <button
-          className="mt-4 w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2 rounded-md hover:bg-green-800 cursor-pointer"
+          className="mt-4 w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2 rounded-md hover:bg-green-800"
           onClick={handleRequestCall}
         >
-          <FiPhone size={16} />{" "}
+          <FiPhone size={16} />
           {callRequested ? "Cancel Call Request" : "Request a Call"}
         </button>
 

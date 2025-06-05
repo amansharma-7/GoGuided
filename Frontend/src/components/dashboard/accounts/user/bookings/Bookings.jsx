@@ -55,7 +55,7 @@ export default function Bookings() {
     selectedFilters: [],
   });
 
-  const [bookings, setBookings] = useState(bookingsData);
+  const [bookings, setBookings] = useState([]);
 
   const navigate = useNavigate(); // For navigation
   const [expandedBooking, setExpandedBooking] = useState(null);
@@ -85,37 +85,65 @@ export default function Bookings() {
     navigate(`announcements/${tourId}`); // Navigate to the announcements page
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
+
   useEffect(() => {
-    function fetchBookings(query) {
-      return bookingsData.filter(
-        (booking) =>
-          !query || booking.tourName.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchBookings = async () => {
+      try {
+        //   const { searchQuery, selectedFilters, sortOrder } = filterState;
+        //   const params = new URLSearchParams();
 
-    const filteredBookings = fetchBookings(filterState.searchQuery);
-    setBookings(filteredBookings);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        //   if (searchQuery) {
+        //     params.append("search", searchQuery);
+        //   }
 
-  const sortedBookings = [...bookings].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.startDate) - new Date(b.startDate)
-      : new Date(b.startDate) - new Date(a.startDate);
-  });
+        //   if (selectedFilters) {
+        //     if (selectedFilters["Date Interval"]) {
+        //       const { startDate, endDate } = selectedFilters["Date Interval"];
+        //       if (startDate) params.append("startDate", startDate);
+        //       if (endDate) params.append("endDate", endDate);
+        //     }
+        //   }
 
-  if (
-    !sortedBookings.length &&
-    !filterState.searchQuery &&
-    !filterState.selectedFilters.length
-  ) {
+        //   if (sortOrder) {
+        //     params.append("sort", sortOrder);
+        //   }
+
+        //   params.append("page", currentPage);
+        //   params.append("limit", numberOfEntries);
+
+        //   // getting all users
+        //   const response = await getAllUsers(user.token, params.toString());
+
+        //   const { data } = response;
+
+        setBookings(bookingsData); // Replace with actual API call
+        // setTotalPages(response.totalPages);
+        // setTotalUsers(response.total);
+        setLoading(false);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [currentPage, filterState]);
+
+  if (!bookings.length) {
     return <NoBooking />;
   }
 
   return (
-    <div className="p-4 pb-20 grid grid-cols-1 gap-2 bg-green-50 overflow-y-auto h-full scrollbar-none">
+    <div className="p-4 sm:px-6 md:px-10 pb-24 grid grid-cols-1 gap-4 bg-green-50 overflow-y-auto h-full scrollbar-none">
+      {/* Bookings Header */}
       <BookingsHeader
         title="Your Bookings"
-        totalCount={sortedBookings.length}
+        totalCount={bookings.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -146,15 +174,16 @@ export default function Bookings() {
         ]}
       />
 
-      {sortedBookings.length > 0 ? (
+      {bookings.length > 0 ? (
         <>
-          {sortedBookings.map((booking) => (
+          {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
+              className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-500"
             >
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold text-green-800 mb-2">
+              {/* Booking Header */}
+              <div className="flex justify-between items-center flex-wrap gap-y-2">
+                <h2 className="text-xl sm:text-2xl font-semibold text-green-800">
                   {booking.tourName}
                 </h2>
                 <button
@@ -168,14 +197,18 @@ export default function Bookings() {
                   )}
                 </button>
               </div>
-              <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm">
+
+              {/* Booking Status */}
+              <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm text-sm sm:text-base">
                 <p className="text-green-800">
                   <strong>Status:</strong>{" "}
                   {getStatus(booking.startDate, booking.endDate)}
                 </p>
               </div>
+
+              {/* Accordion Expanded Details */}
               {expandedBooking === booking.id && (
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-md shadow-sm text-sm sm:text-base">
                   <p className="text-green-800 font-medium">
                     Start Date:{" "}
                     <span className="font-normal text-green-700">
@@ -188,27 +221,29 @@ export default function Bookings() {
                       {booking.endDate}
                     </span>
                   </p>
-                  <p className="text-green-800 font-medium">
+                  <p className="text-green-800 font-medium sm:col-span-2">
                     Tour Guides:{" "}
                     <span className="font-normal text-green-700">
-                      {booking.tourGuide[0]}, {booking.tourGuide[1]}
+                      {booking.tourGuide.join(", ")}
                     </span>
                   </p>
                 </div>
               )}
-              <div className="flex gap-4 mt-4">
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 w-full items-center">
                 <button
                   onClick={() => viewAnnouncements(booking.tourId)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                 >
                   <FaBullhorn size={16} /> View Announcements
                 </button>
+
                 {getStatus(booking.startDate, booking.endDate) ===
                   "Upcoming" && (
                   <button
                     onClick={() => handleCancel(booking.id)}
-                    className={`flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer
-              }`}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                   >
                     <FaTrash size={16} /> Cancel Booking
                   </button>
@@ -221,6 +256,7 @@ export default function Bookings() {
         <NoResult />
       )}
 
+      {/* Cancel Confirmation Modal */}
       {deleteConfirm.show && (
         <ConfirmationModal
           text={"Are you sure you want to cancel this booking?"}
