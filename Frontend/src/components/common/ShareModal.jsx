@@ -20,8 +20,8 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg  w-96 p-6 relative">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         {/* Close Button */}
         <button
           onClick={() => setIsModalOpen(false)}
@@ -41,11 +41,12 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
             type="text"
             readOnly
             value={shareUrl}
-            className="flex-grow p-1 outline-none text-green-950"
+            className="flex-grow p-1 outline-none text-green-950 truncate"
           />
           <button
             onClick={handleCopy}
             className="ml-2 text-green-600 hover:text-green-800"
+            aria-label="Copy link"
           >
             <FaCopy size={20} />
           </button>
@@ -53,7 +54,7 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
         {copied && <p className="text-green-500 mt-2">Link copied!</p>}
 
         {/* Social Media Buttons */}
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="flex flex-wrap justify-center gap-4 mt-4">
           <a
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
               shareUrl
@@ -61,6 +62,7 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:text-blue-800"
+            aria-label="Share on Facebook"
           >
             <FaFacebook size={30} />
           </a>
@@ -71,6 +73,7 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-600"
+            aria-label="Share on Twitter"
           >
             <FaTwitter size={30} />
           </a>
@@ -81,6 +84,7 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-green-500 hover:text-green-700"
+            aria-label="Share on WhatsApp"
           >
             <FaWhatsapp size={30} />
           </a>
@@ -91,6 +95,7 @@ function ShareModal({ isOpen, setIsModalOpen, shareUrl }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-700 hover:text-blue-900"
+            aria-label="Share on LinkedIn"
           >
             <FaLinkedin size={30} />
           </a>
