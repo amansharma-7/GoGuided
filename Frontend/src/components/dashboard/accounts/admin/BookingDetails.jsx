@@ -52,21 +52,21 @@ const BookingDetails = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 h-full border border-green-400 rounded-r-md bg-green-50 shadow-md">
+    <div className="p-4 sm:p-6 space-y-6 h-full border border-green-400 rounded-r-md bg-green-50 shadow-md">
       {/* Header with Back Button */}
+
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-green-800">Booking Details</h2>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-green-500 cursor-pointer text-white rounded-md hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 "
         >
           Go Back
         </button>
       </div>
-
       {/* Two-Column Layout for Booking Info */}
-      <div className="grid grid-cols-2 gap-4 p-4 bg-white border border-green-300 rounded-md shadow">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white border border-green-300 rounded-md shadow">
+        <div className="space-y-1">
           <p>
             <span className="font-semibold text-green-800">Booking ID:</span>{" "}
             {booking.id}
@@ -88,7 +88,7 @@ const BookingDetails = () => {
             {booking.contact}
           </p>
         </div>
-        <div>
+        <div className="space-y-1">
           <p>
             <span className="font-semibold text-green-800">Price:</span>{" "}
             {booking.price}
@@ -185,7 +185,7 @@ const BookingDetails = () => {
             {!isCanceling ? (
               <button
                 onClick={() => setIsCanceling(true)}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 w-full sm:w-auto"
               >
                 Cancel Booking
               </button>
@@ -203,7 +203,7 @@ const BookingDetails = () => {
                 />
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 w-full sm:w-auto"
                 >
                   Confirm Cancellation
                 </button>

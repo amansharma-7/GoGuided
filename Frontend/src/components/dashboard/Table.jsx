@@ -39,6 +39,9 @@ export default function Table({
     // Check if current route is NOT refunds or payments
     if (
       location.pathname !== "/admin/refunds" &&
+      location.pathname !== "/admin/payments" &&
+      location.pathname !== "/admin/payments" &&
+      location.pathname !== "/admin/payments" &&
       location.pathname !== "/admin/payments"
     ) {
       navigate(id); // or whatever your target path is
@@ -112,7 +115,7 @@ export default function Table({
         {data.map((item, idx) => (
           <div
             key={idx}
-            onClick={() => navigate(item._id)}
+            onClick={() => handleClick(item._id)}
             className="bg-primary-light text-text-heading shadow rounded-md p-4 hover:bg-primary-dark transition cursor-pointer"
           >
             {headers.map((header, i) => {

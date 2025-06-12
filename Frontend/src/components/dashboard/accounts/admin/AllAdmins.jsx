@@ -107,7 +107,8 @@ function AllAdmins() {
   const handleFireAdmin = async (adminId) => {};
 
   return (
-    <div className="p-6 flex flex-col gap-4 h-full overscroll-y-scroll scrollbar-hide">
+    <div className="p-6 flex flex-col gap-4 h-full overflow-y-auto scrollbar-hide">
+      {/* Header Section */}
       <AdminsHeader
         title="All Admins"
         totalCount={sortedAdmins.length}
@@ -115,8 +116,10 @@ function AllAdmins() {
         setFilterState={setFilterState}
         filterOptions={filterOptions}
       />
+
+      {/* Add Admin CTA */}
       <div
-        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl -my-2 cursor-pointer hover:bg-green-100 transition-all"
+        className="flex items-center justify-between p-4 bg-white border border-green-500 rounded-xl hover:bg-green-100 cursor-pointer transition-all"
         onClick={() => navigate("add-admin")}
       >
         <div className="flex items-center gap-2">
@@ -126,16 +129,19 @@ function AllAdmins() {
           </span>
         </div>
       </div>
+
+      {/* Admins List */}
       {admins.length === 0 ? (
-        <p className="text-green-700">No admins found.</p>
+        <p className="text-green-700 text-center mt-10">No admins found.</p>
       ) : (
         sortedAdmins.map((admin) => (
           <div
             key={admin._id}
-            className="bg-white rounded-2xl mb-4 shadow-lg p-6 border-t-2 border-green-500"
+            className="bg-white rounded-2xl shadow-md p-6 border-t-4 border-green-500 transition"
           >
+            {/* Admin Name & Toggle */}
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-green-800 mb-2 flex items-center gap-2">
+              <h2 className="text-2xl font-semibold text-green-800 flex items-center gap-2">
                 <FaUserShield className="text-green-600" />
                 {admin.name}
               </h2>
@@ -145,7 +151,7 @@ function AllAdmins() {
                     expandedAdmin === admin._id ? null : admin._id
                   )
                 }
-                className="text-green-800 hover:text-green-600 transition cursor-pointer"
+                className="text-green-800 hover:text-green-600 transition"
               >
                 {expandedAdmin === admin._id ? (
                   <FaChevronUp size={20} />
@@ -154,18 +160,23 @@ function AllAdmins() {
                 )}
               </button>
             </div>
-            <div className="flex justify-between text-green-800  p-3 rounded-md mb-4 shadow-sm">
-              <p className="text-green-700 mb-2">
-                <FaEnvelope className="inline mr-2" />
-                {admin.email}
+
+            {/* Email & Status */}
+            <div className="flex flex-col md:flex-row justify-between text-green-800 mt-4 p-3 bg-green-50 border border-green-200 rounded-md shadow-sm">
+              <p className="flex items-center gap-2">
+                <FaEnvelope /> {admin.email}
               </p>
               <p>
-                <strong>Status:</strong> {admin.status}
+                <strong>Status:</strong>{" "}
+                <span className="px-2 py-1 bg-purple-100 text-blue-700 border border-blue-400 rounded-md">
+                  {admin.status}
+                </span>
               </p>
             </div>
 
+            {/* Expandable Info */}
             {expandedAdmin === admin._id && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm bg-green-50 text-green-800">
+              <div className="grid grid-cols-2 gap-4 p-4 mt-3 bg-green-50 border border-green-200 rounded-lg text-green-800 shadow-sm">
                 <p>
                   <strong>Phone:</strong> {admin.phone || "Not Provided"}
                 </p>
@@ -179,11 +190,16 @@ function AllAdmins() {
               </div>
             )}
 
+            {/* Fire Button */}
             <div className="mt-4">
               <button
                 onClick={() => handleFireAdmin(admin._id)}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+                }`}
               >
                 <FaUserSlash />
                 {loading ? "Processing..." : "Fire Admin"}

@@ -56,32 +56,58 @@ function Tours() {
   });
 
   const [tours, setTours] = useState(toursData);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalTours, setTotalTours] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const numberOfEntries = 10;
 
-  useEffect(() => {
-    function fetchTours(query) {
-      return toursData.filter(
-        (tour) =>
-          tour &&
-          tour.name &&
-          tour.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+  // useEffect(() => {
+  //   const fetchTours = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const { searchQuery, selectedFilters, sortOrder } = filterState;
+  //       const params = new URLSearchParams();
 
-    const filteredTours = fetchTours(filterState.searchQuery);
-    setTours(filteredTours);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+  //       if (searchQuery) {
+  //         params.append("search", searchQuery);
+  //       }
 
-  const sortedTours = [...tours].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? new Date(a.startDate) - new Date(b.startDate)
-      : new Date(b.startDate) - new Date(a.startDate);
-  });
+  //       if (selectedFilters && selectedFilters["Date Interval"]) {
+  //         const { startDate, endDate } = selectedFilters["Date Interval"];
+  //         if (startDate) params.append("startDate", startDate);
+  //         if (endDate) params.append("endDate", endDate);
+  //       }
+
+  //       if (sortOrder) {
+  //         params.append("sort", sortOrder);
+  //       }
+
+  //       params.append("page", currentPage);
+  //       params.append("limit", numberOfEntries);
+
+  //       // Fetching all tours
+  //       const response = await getAllTours(user.token, params.toString());
+
+  //       const { data } = response;
+
+  //       setTours(data.tours); // assuming response structure has `tours`
+  //       setTotalPages(response.totalPages);
+  //       setTotalTours(response.total);
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchTours();
+  // }, [currentPage, filterState]);
 
   return (
-    <div className="p-4 h-full ">
+    <div className="p-4 ">
       <DashboardHeader
         title="Tours"
-        totalCount={sortedTours.length}
+        totalCount={tours.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -104,11 +130,7 @@ function Tours() {
           },
         ]}
       />
-      {sortedTours.length > 0 ? (
-        <ToursList tours={sortedTours} />
-      ) : (
-        <NoResult />
-      )}
+      {tours.length > 0 ? <ToursList tours={tours} /> : <NoResult />}
     </div>
   );
 }
