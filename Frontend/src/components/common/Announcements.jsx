@@ -2,6 +2,7 @@ import { MdAddCircleOutline, MdCampaign } from "react-icons/md";
 import { AiOutlineEye } from "react-icons/ai";
 import ViewAnnouncementPost from "./ViewAnnouncementPost";
 import { useState } from "react";
+import { useUser } from "./UserContext";
 
 const announcementsData = [
   {
@@ -28,6 +29,7 @@ const announcementsData = [
 ];
 
 function Announcement() {
+  const { user } = useUser();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -36,13 +38,43 @@ function Announcement() {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
 
   // Sample tour list (Replace with actual tour data)
-  const tours = [
-    "All",
+
+  const tourOptions = [
     "Europe Tour",
     "Asia Tour",
     "USA Tour",
     "Australia Tour",
   ];
+
+  const roleHierarchy = ["user", "guide", "admin", "owner"];
+
+  const rolePluralMap = {
+    user: "Users",
+    guide: "Guides",
+    admin: "Admins",
+  };
+
+  function getAnnouncementOptions(currentRole) {
+    const currentIndex = roleHierarchy.indexOf(currentRole.toLowerCase());
+
+    if (currentIndex === -1) return [];
+
+    // Get lower roles and map to plural names
+    const lowerRoles = roleHierarchy
+      .slice(0, currentIndex)
+      .map((role) => rolePluralMap[role]);
+
+    // Build final options
+    const options = [...lowerRoles, ...tourOptions];
+
+    if (currentRole.toLowerCase() === "owner") {
+      options.unshift("All");
+    }
+
+    return options;
+  }
+
+  const options = getAnnouncementOptions(user.role);
 
   const handlePost = () => {
     if (!title.trim() || !message.trim()) {
@@ -94,7 +126,7 @@ function Announcement() {
               onChange={(e) => setSelectedTour(e.target.value)}
               className="w-full p-2 border border-green-300 rounded outline-none cursor-pointer"
             >
-              {tours.map((tour, index) => (
+              {options.map((tour, index) => (
                 <option key={index} value={tour}>
                   {tour}
                 </option>

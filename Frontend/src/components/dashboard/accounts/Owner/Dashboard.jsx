@@ -1,13 +1,14 @@
 import { useUser } from "../../../common/UserContext";
 import Layout from "../AccountLayout";
-import UserLinks from "./UserLinks";
+import OwnerLinks from "./OwnerLinks";
 
 function DashBoard() {
   const { user } = useUser();
-  if (user?.role === "user") {
+
+  if (user?.role === "owner") {
     return (
       <Layout>
-        <UserLinks />
+        <OwnerLinks />
       </Layout>
     );
   }
@@ -24,4 +25,5 @@ function DashBoard() {
     </div>
   );
 }
+
 export default DashBoard;

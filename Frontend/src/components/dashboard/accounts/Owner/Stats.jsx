@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa6";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import Announcements from "../../../common/Announcements";
-import BookingChart from "./BookingChart";
+import BookingChart from "../admin/BookingChart";
 import { formatNumberIndian } from "../../../../utils/numberFormatter";
 
 function SummaryCard({ title, icon: Icon, value }) {
@@ -46,10 +46,32 @@ function StatCard({ title, value, route }) {
 function Stats() {
   return (
     <div className="p-4 flex flex-col space-y-4 h-full overflow-y-scroll scrollbar-none">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Revenue and Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Total Revenue */}
+        <SummaryCard
+          title={"Revenue"}
+          icon={FaIndianRupeeSign}
+          value={`₹5,00,000`}
+        />
+
+        {/* Completed */}
+        <SummaryCard title={"Completed"} icon={FaRegCheckCircle} value={24} />
+
+        {/* Ongoing */}
+        <SummaryCard title={"Ongoing"} icon={FaRegClock} value={12} />
+
+        {/* Rating */}
+        <SummaryCard title={"Rating"} icon={FaStar} value={4.8} />
+      </div>
+
+      {/* Charts and Announcements */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <BookingChart />
         <Announcements />
       </div>
+
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <StatCard title={"Bookings"} value={120000} route={"bookings"} />
         <StatCard title={"Tours"} value={12} route={"tours"} />
@@ -62,7 +84,6 @@ function Stats() {
         <StatCard title={"Refunds"} value={12} route={"refunds"} />
         <StatCard title={"Admins"} value={12} route={"manage-admins"} />
       </div>
-      {/* Charts and Announcements */}
     </div>
   );
 }
