@@ -74,6 +74,11 @@ const BookTourForm = () => {
       const paymentSuccess = await initiateRazorpayPayment({
         amount: totalCost,
         currency: "INR",
+        tour: {
+          _id: "abcd123",
+          name: "Kedarnath Trek",
+          price: 5999,
+        },
       });
     } catch (error) {
       toast.error("Something went wrong during booking.");
