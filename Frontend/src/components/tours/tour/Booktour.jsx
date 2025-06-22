@@ -4,7 +4,6 @@ import { FaPlus, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { initiateRazorpayPayment } from "../../../utils/razorpay";
 
-// Example tourData (you can fetch this from API too)
 const tourData = {
   basePrice: 200,
   availableSlots: 5,
