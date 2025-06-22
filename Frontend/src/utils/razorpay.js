@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 function loadScript(src) {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -21,19 +23,15 @@ export async function initiateRazorpayPayment({
   if (!res) {
     return;
   }
-
   try {
-    const response = await fetch(
-      "http://localhost:5000/api/payment/create-order",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tour }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/api/payment/create-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ tour }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -68,9 +66,9 @@ export async function initiateRazorpayPayment({
   }
 }
 
-async function verifyPayment(bodyData, token, navigate) {
+async function verifyPayment(bodyData, token) {
   try {
-    const response = await fetch("http://localhost:5000/api/payment/verify", {
+    const response = await fetch(`${API_BASE_URL}/api/payment/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
