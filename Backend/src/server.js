@@ -46,7 +46,7 @@ const connectDB = async (retries = 5) => {
 };
 
 const startServer = () => {
-  server = app.listen(PORT, () => {
+  server = app.listen(PORT, "0.0.0.0", () => {
     logger.info(`🚀 Server running at ${SERVER_URL} [${env}]`);
   });
 };
