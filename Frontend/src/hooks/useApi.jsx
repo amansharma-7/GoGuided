@@ -4,12 +4,12 @@ const useApi = (apiFunc) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const request = async ({ identifier, data, params, query }) => {
+  const request = async ({ identifier, data, params }) => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await apiFunc({ identifier, data, params, query });
+      const res = await apiFunc({ identifier, data, params });
       setLoading(false);
       return res.data;
     } catch (err) {
