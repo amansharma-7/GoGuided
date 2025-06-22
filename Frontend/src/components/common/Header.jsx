@@ -19,6 +19,8 @@ function Header() {
         return safeNavigate("/admin");
       case "guide":
         return safeNavigate("/guide");
+      case "owner":
+        return safeNavigate("/owner");
       default:
         return safeNavigate("/user");
     }

@@ -6,7 +6,7 @@ import NoResult from "../../../../pages/NoResult";
 
 const AllData = ["completed", "ongoing", "upcoming"].flatMap((status) =>
   Array.from({ length: 10 }, (_, i) => ({
-    id: (i + 1).toString(),
+    _id: (i + 1).toString(),
     tourName: [
       "Safari Adventure",
       "Mountain Hike",

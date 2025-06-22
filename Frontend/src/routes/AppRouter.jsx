@@ -26,6 +26,10 @@ import TourAnnouncements from "../components/dashboard/accounts/user/bookings/An
 import HelpSupport from "../components/dashboard/accounts/user/HelpSupport";
 import Announcements from "../components/dashboard/accounts/user/Announcements";
 
+//owner
+import OwnerDashboard from "../components/dashboard/accounts/Owner/Dashboard";
+import OwnerStats from "../components/dashboard/accounts/Owner/Stats";
+
 // admin
 import AdminDashBoard from "../components/dashboard/accounts/admin/Dashboard";
 import Stats from "../components/dashboard/accounts/admin/Stats";
@@ -53,7 +57,7 @@ import AllAdmins from "../components/dashboard/accounts/admin/AllAdmins";
 import AddNewAdmin from "../components/dashboard/accounts/admin/AddNewAdmin";
 
 // guide
-import GuideDashboard from "../components/dashboard/accounts/guide/Dashboard";
+import GuideDashboard from "../components/dashboard/accounts/guide/DashBoard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
 import { Component } from "react";
@@ -132,6 +136,93 @@ const router = createBrowserRouter([
           },
           { path: "reviews", Component: UserReviews },
           { path: "support", Component: HelpSupport },
+        ],
+      },
+
+      //owner
+      {
+        path: "/owner",
+        Component: OwnerDashboard,
+        children: [
+          { index: true, Component: OwnerStats },
+          {
+            path: "bookings",
+            children: [
+              { index: true, Component: Bookings },
+              { path: ":id", Component: BookingDetails },
+            ],
+          },
+          {
+            path: "tours",
+            children: [
+              { index: true, Component: AllTours },
+              {
+                path: "bookings/:name",
+                Component: TourBookings,
+              },
+              {
+                path: "bookings/:name/:id",
+                Component: BookingDetails,
+              },
+              {
+                path: "edit/:name",
+                Component: EditTour,
+              },
+              {
+                path: "add",
+                Component: AddTour,
+              },
+            ],
+          },
+
+          {
+            path: "reviews",
+            children: [
+              { index: true, Component: Reviews },
+              { path: ":id", Component: ReviewDetails },
+            ],
+          },
+          {
+            path: "users",
+            children: [
+              { index: true, Component: AllUsers },
+              { path: ":id", Component: UserDetails },
+            ],
+          },
+
+          { path: "feedbacks", Component: FeedBacks },
+          { path: "payments", Component: AllPayments },
+          { path: "refunds", Component: Refunds },
+          {
+            path: "guides",
+            children: [
+              { index: true, Component: AllGuides },
+              { path: ":id", Component: GuideDetails },
+            ],
+          },
+          {
+            path: "jobs",
+            children: [
+              { index: true, Component: Jobs },
+              { path: "create-job", Component: CreateJob },
+              { path: "manage-jobs", Component: ManageJobs },
+              {
+                path: "requests",
+                children: [
+                  { index: true, Component: JobRequests },
+                  { path: ":id", Component: JobUserDetails },
+                ],
+              },
+            ],
+          },
+          { path: "settings", Component: Settings },
+          {
+            path: "manage-admins",
+            children: [
+              { index: true, Component: AllAdmins },
+              { path: "add-admin", Component: AddNewAdmin },
+            ],
+          },
         ],
       },
 

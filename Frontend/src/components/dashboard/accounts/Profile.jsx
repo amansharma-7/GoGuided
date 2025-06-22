@@ -11,7 +11,7 @@ const user = {
 
 function Profile() {
   return (
-    <div className="flex items-center gap-4 p-6 text-green-100 relative">
+    <div className="flex items-center gap-4 p-1 md:p-6 text-green-100 relative">
       <div className="relative inline-block cursor-pointer">
         {user ? (
           <img

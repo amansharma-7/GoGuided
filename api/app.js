@@ -1,6 +1,8 @@
 const express = require("express");
-const morgan = require("morgan");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
+
 const authRoutes = require("./src/routes/authRoutes");
 const tourRoutes = require("./src/routes/tourRoutes");
 const jobRoutes = require("./src/routes/jobRoutes");
@@ -18,9 +20,24 @@ const globalErrorHandler = require("./src/controllers/errorController");
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS
-app.use(morgan("dev")); // Logging
-app.use(express.json()); // Parse JSON bodies
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
+app.use(cookieParser());
+app.use(morgan("dev"));
+app.use(express.json());
+
+// Health Check Route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Backend is live and working",
+  });
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -35,11 +52,11 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/bookings", bookingRoutes);
 
 // Handle unhandled routes
-// app.all("*", (req, res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-// });
+app.use((req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
-// Global error handling middleware
+// Global error handler
 app.use(globalErrorHandler);
 
 module.exports = app;

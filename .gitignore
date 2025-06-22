@@ -1,2 +1,7 @@
-Frontend/.env
-node_modules/
+# dependencies
+*/node_modules/
+
+# env files
+*/.env
+*/.env.development
+*/.env.production

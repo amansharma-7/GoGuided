@@ -27,7 +27,7 @@ process.on("uncaughtException", (err) => {
     await connectDB();
     connectCloudinary();
 
-    server = app.listen(PORT, () => {
+    server = app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
   } catch (error) {

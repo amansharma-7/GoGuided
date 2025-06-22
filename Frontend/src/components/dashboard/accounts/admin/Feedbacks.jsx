@@ -153,7 +153,7 @@ function Feedbacks() {
   };
 
   return (
-    <div className="px-4 py-4 h-full overflow-y-auto scrollbar-hide">
+    <div className="px-4 py-4 h-full overflow-y-auto scrollbar-hide text-green-950">
       <FeedbackHeader
         title="Feedbacks"
         totalCount={sortedFeedbacks.length}
@@ -163,14 +163,10 @@ function Feedbacks() {
           {
             label: "Status",
             children: [
-              {
-                label: "Pending",
-                value: "pendingReview",
-              },
+              { label: "Pending", value: "pendingReview" },
               { label: "Resolved", value: "resolved" },
             ],
           },
-
           {
             label: "Date Interval",
             children: [
@@ -180,14 +176,16 @@ function Feedbacks() {
           },
         ]}
       />
+
       {sortedFeedbacks.length > 0 ? (
         <>
           {sortedFeedbacks.map((feedback) => (
             <div
               key={feedback.id}
-              className="bg-white rounded-2xl mb-2 shadow-lg p-6 border-t-2 border-green-500"
+              className="bg-white rounded-2xl mb-4 shadow-lg p-6 border-l-4 border-green-500"
             >
-              <div className="flex justify-between items-center">
+              {/* Header */}
+              <div className="flex justify-between items-start sm:items-center">
                 <h2 className="text-2xl font-semibold text-green-800 mb-2">
                   {feedback.name}
                 </h2>
@@ -197,7 +195,7 @@ function Feedbacks() {
                       expandedFeedback === feedback.id ? null : feedback.id
                     )
                   }
-                  className="text-green-800 hover:text-green-600 transition cursor-pointer"
+                  className="text-green-800 hover:text-green-600 transition"
                 >
                   {expandedFeedback === feedback.id ? (
                     <FaChevronUp size={20} />
@@ -207,25 +205,33 @@ function Feedbacks() {
                 </button>
               </div>
 
-              <div className="flex justify-between text-green-800  p-3 rounded-md mb-4 shadow-sm">
-                <p className="text-green-800  p-3 rounded-md mb-4 shadow-sm">
-                  {feedback.subject}
-                </p>
+              {/* Subject and Status */}
+              <div className="flex flex-col sm:flex-row justify-between text-green-800 bg-green-50 p-3 rounded-md mb-4 shadow-sm">
+                <p className="font-medium">{feedback.subject}</p>
                 <p>
-                  <strong>Status:</strong> {feedback.status}
+                  <strong>Status:</strong>{" "}
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-sm font-medium ${
+                      feedback.status === "Resolved"
+                        ? "bg-blue-100 text-blue-700 border border-blue-300"
+                        : "bg-yellow-100 text-yellow-800 border border-yellow-300"
+                    }`}
+                  >
+                    {feedback.status}
+                  </span>
                 </p>
               </div>
 
+              {/* Expanded Message */}
               {expandedFeedback === feedback.id && (
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-md shadow-sm">
-                  <p className="font-normal text-green-700">
-                    {feedback.message}
-                  </p>
+                <div className="p-4 rounded-md bg-green-50 text-green-700 shadow-sm mb-2">
+                  <p>{feedback.message}</p>
                 </div>
               )}
 
+              {/* Reply Box */}
               {replyingFeedback === feedback.id ? (
-                <div className="relative p-4 bg-white border border-green-300 rounded-md shadow space-y-4 mt-4">
+                <div className="relative mt-4 p-4 bg-white border border-green-300 rounded-md shadow space-y-4">
                   <button
                     onClick={() => setReplyingFeedback(null)}
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -233,7 +239,7 @@ function Feedbacks() {
                     <FaTimes size={18} className="text-green-500" />
                   </button>
                   <div className="space-y-2">
-                    <p className="text-green-700 font-semibold ">
+                    <p className="text-green-700 font-semibold">
                       Write your response:
                     </p>
                     <textarea
@@ -241,11 +247,16 @@ function Feedbacks() {
                       onChange={(e) => setReplyMessage(e.target.value)}
                       rows="3"
                       placeholder="Enter your reply here..."
-                      className="w-full p-2 border border-green-300 text-green-950 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full p-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                     <button
                       onClick={() => handleReply(feedback.id)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 cursor-pointer"
+                      className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition ${
+                        !replyMessage.trim()
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      disabled={!replyMessage.trim()}
                     >
                       Send Reply
                     </button>
@@ -256,13 +267,14 @@ function Feedbacks() {
                   <button
                     onClick={() => setReplyingFeedback(feedback.id)}
                     disabled={feedback.status === "Resolved"}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg  ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
                       feedback.status === "Resolved"
-                        ? " bg-gray-300 cursor-not-allowed"
-                        : "bg-green-500 text-white  hover:bg-green-600 cursor-pointer "
+                        ? "bg-gray-300 text-gray-700 cursor-not-allowed"
+                        : "bg-green-500 text-white hover:bg-green-600"
                     }`}
                   >
-                    <FaPen size={16} /> Write Response
+                    <FaPen size={16} />
+                    Write Response
                   </button>
                 </div>
               )}

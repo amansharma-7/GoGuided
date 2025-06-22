@@ -143,31 +143,34 @@ function Reviews() {
   };
 
   return (
-    <div className="p-4 flex flex-col bg-green-50 h-full">
+    <div className="p-4 sm:px-6 md:px-10 flex flex-col bg-green-50 h-full">
       <ReviewsHeader
         title="Reviews"
         totalCount={sortedReviewedTours.length + sortedUnreviewedTours.length}
         filterState={filterState}
         setFilterState={setFilterState}
       />
+
       <div className="flex flex-col gap-4 overflow-y-auto h-full scrollbar-none">
         {/* Reviewed Tours Section */}
         {sortedReviewedTours.length > 0 && (
-          <h2 className="text-2xl font-bold text-green-900 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-green-900 mb-2">
             Reviewed Tours
           </h2>
         )}
+
         {sortedReviewedTours.map((review) => (
           <div
             key={review.id}
-            className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-700"
+            className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-700"
           >
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-green-800">
+            <div className="flex justify-between items-center flex-wrap gap-y-2">
+              <h2 className="text-lg sm:text-xl font-semibold text-green-800">
                 {review.tourName}
               </h2>
               <p className="text-gray-500 text-sm">{review.date}</p>
             </div>
+
             <div className="flex items-center gap-2 my-2">
               {Array.from({ length: 5 }).map((_, index) =>
                 index < review.rating ? (
@@ -178,32 +181,33 @@ function Reviews() {
               )}
               <span className="text-gray-500 text-sm">{review.rating}/5</span>
             </div>
-            <p className="text-green-900 p-3 rounded-md mb-4 shadow-sm">
+
+            <p className="text-green-900 p-3 rounded-md mb-4 shadow-sm text-sm sm:text-base">
               {review.reviewText}
             </p>
-            <div className="flex gap-4 mt-4">
+
+            <div className="flex flex-wrap justify-center gap-3 mt-4">
               <button
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 transition"
                 onClick={() => handleOpenEditModal(review.id)}
               >
-                <FaEdit size={16} />
-                Edit
+                <FaEdit size={16} /> Edit
               </button>
+
               <button
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                 onClick={() =>
                   setDeleteConfirm({ show: true, reviewId: review.id })
                 }
               >
-                <FaTrash size={16} />
-                Delete
+                <FaTrash size={16} /> Delete
               </button>
+
               <button
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                 onClick={() => navigate(`/tours/${review.id}`)}
               >
-                <FaEye size={16} />
-                View Tour
+                <FaEye size={16} /> View Tour
               </button>
             </div>
           </div>
@@ -211,36 +215,43 @@ function Reviews() {
 
         {/* Unreviewed Tours Section */}
         {sortedUnreviewedTours.length > 0 && (
-          <h2 className="text-2xl font-bold text-green-700 mt-6 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-green-700 mt-6 mb-2">
             Tours Awaiting Your Feedback
           </h2>
         )}
+
         {sortedUnreviewedTours.map((tour) => (
           <div
             key={tour.id}
-            className="bg-white rounded-2xl shadow-lg p-6 border-t-2 border-green-500"
+            className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-500"
           >
-            <h2 className="text-xl font-semibold text-green-700">
+            <h2 className="text-lg sm:text-xl font-semibold text-green-700">
               {tour.tourName}
             </h2>
-            <p className="text-green-700 p-3 rounded-md mb-4 shadow-sm">
+
+            <p className="text-green-700 p-3 rounded-md mb-4 shadow-sm text-sm sm:text-base">
               You haven't reviewed this tour yet.
             </p>
-            <div className="flex gap-4 mt-4">
+
+            <div className="flex  gap-3 mt-4">
               <button
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
                 onClick={() => handleOpenAddModal(tour.id)}
               >
-                <FaPlus size={16} />
-                Add Review
+                <FaPlus size={16} /> Add Review
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
-                <FaEye size={16} />
-                View Tour
+
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                onClick={() => navigate(`/tours/${tour.id}`)}
+              >
+                <FaEye size={16} /> View Tour
               </button>
             </div>
           </div>
         ))}
+
+        {/* No Results */}
         {sortedReviewedTours.length <= 0 &&
           sortedUnreviewedTours.length <= 0 && <NoResult />}
       </div>
@@ -258,6 +269,7 @@ function Reviews() {
           }
         />
       )}
+
       {addReview.show && (
         <AddEditReviewModal
           initialReview={null}

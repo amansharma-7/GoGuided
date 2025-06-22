@@ -40,14 +40,14 @@ const announcementsData = {
     {
       id: 1,
       title: "Vehicle Safari Info",
-      date: "Day 2 Afternoon",
+      date: "june 2",
       message: "Vehicle safari scheduled for Day 2 afternoon.",
       postedBy: "Admin",
     },
     {
       id: 2,
       title: "Camera Recommendations",
-      date: "Email Sent",
+      date: "june 3",
       message: "Camera equipment recommendations shared via email.",
       postedBy: "Admin",
     },
@@ -76,12 +76,14 @@ export default function Announcements() {
   };
 
   return (
-    <div className="relative space-y-4 h-full overflow-y-auto scrollbar-none p-6 bg-green-50">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-green-800">Announcements</h1>
+    <div className="relative space-y-4 h-full overflow-y-auto scrollbar-none p-4 sm:p-6 bg-green-50">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-green-800">
+          Announcements
+        </h1>
         <button
           onClick={handleBackClick}
-          className="text-white hover:text-green-900 bg-green-700 px-3 p-2 rounded-md border border-green-400"
+          className="text-white hover:text-green-900 bg-green-700 px-4 py-2 rounded-md border border-green-400 w-full sm:w-auto"
         >
           Go Back
         </button>
@@ -91,12 +93,13 @@ export default function Announcements() {
         announcements.map((announcement) => (
           <div
             key={announcement.id}
-            className="p-4 border border-green-400 rounded-lg shadow-md bg-white"
+            className="p-3 sm:p-4 border border-green-400 rounded-lg shadow-md bg-white"
           >
-            <div className="flex justify-between items-center">
-              <div className="flex flex-col justify-center">
-                <h2 className="text-lg font-semibold text-green-800 flex items-center">
-                  <FaInfoCircle className="mr-2" /> {announcement.title}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <div className="flex flex-col">
+                <h2 className="text-base sm:text-lg font-semibold text-green-800 flex items-center">
+                  <FaInfoCircle className="mr-2 shrink-0" />
+                  <span className="break-words">{announcement.title}</span>
                 </h2>
                 <span className="text-sm text-green-600">
                   {announcement.date}
@@ -104,7 +107,7 @@ export default function Announcements() {
               </div>
               <button
                 onClick={() => handleViewAnnouncement(announcement)}
-                className="text-green-700 hover:text-green-900 flex items-center gap-1 cursor-pointer"
+                className="text-green-700 hover:text-green-900 flex items-center gap-1 self-end sm:self-center"
               >
                 <FaEye size={20} />
               </button>
@@ -112,12 +115,11 @@ export default function Announcements() {
           </div>
         ))
       ) : (
-        <p className="text-green-800">
+        <p className="text-green-800 text-center sm:text-left">
           No announcements available for this tour.
         </p>
       )}
 
-      {/* Modal or Popup to View Announcement Details */}
       {selectedAnnouncement && (
         <ViewAnnouncementPost
           isOpen={!!selectedAnnouncement}
@@ -134,18 +136,21 @@ function ViewAnnouncementPost({ isOpen, onClose, announcement }) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-black/50 bg-opacity-50 z-50">
-      {/* Modal Content */}
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-lg">
-        <h2 className="text-xl font-bold text-green-800 mb-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4 sm:px-0">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 className="text-lg sm:text-xl font-bold text-green-800 mb-3 sm:mb-4">
           {announcement.title}
         </h2>
-        <p className="text-green-700 mb-4">{announcement.message}</p>
-        <span className="text-sm text-green-600 mb-4">{announcement.date}</span>
-        <div className="flex justify-between items-center text-sm text-green-600">
+        <p className="text-green-700 text-sm sm:text-base mb-3 sm:mb-4">
+          {announcement.message}
+        </p>
+        <span className="text-xs sm:text-sm text-green-600 block mb-3 sm:mb-4">
+          {announcement.date}
+        </span>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm text-green-600 gap-2 sm:gap-0">
           <span className="font-bold">{announcement.postedBy}</span>
           <button
-            className="text-green-700 hover:text-green-900 rounded-lg bg-green-200 px-2 py-1 cursor-pointer"
+            className="text-green-700 hover:text-green-900 bg-green-200 px-3 py-1 rounded-md"
             onClick={onClose}
           >
             Close

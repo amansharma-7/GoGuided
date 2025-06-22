@@ -1,12 +1,12 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../common/UserContext"; // adjust path as needed
 import Avatar from "../Avatar";
 import { UserRound } from "lucide-react";
-// import NotificationBell from "../../dashboard/accounts/user/NotificationBell";
+import useSafeNavigate from "../../../utils/useSafeNavigate";
 
 function TopNav() {
   const { user } = useUser();
-  const navigate = useNavigate();
+  const navigate = useSafeNavigate();
 
   const handleProfileClick = () => {
     if (!user) return navigate("/login");
@@ -16,6 +16,8 @@ function TopNav() {
         return navigate("/admin");
       case "guide":
         return navigate("/guide");
+      case "owner":
+        return navigate("/owner");
       default:
         return navigate("/user");
     }

@@ -119,8 +119,8 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 ">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl h-3/4 flex flex-col relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 sm:p-0">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl h-[75vh] flex flex-col relative overflow-hidden">
         {/* Header */}
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold">Select Location</h2>
@@ -134,7 +134,7 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
         </div>
 
         {/* Map */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-[300px]">
           <MapContainer
             center={[20.5937, 78.9629]}
             zoom={5}
@@ -164,8 +164,8 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
 
       {/* Modal for Description Input */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg space-y-4 w-80">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg space-y-4 w-full max-w-xs sm:max-w-md">
             <h2 className="text-lg font-semibold">Add Location</h2>
             <p className="text-sm text-gray-600">{locationName}</p>
             <textarea
@@ -173,6 +173,7 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
               onChange={(e) => setTempDescription(e.target.value)}
               placeholder="Enter description"
               className="w-full px-3 py-2 border border-gray-300 rounded resize-none"
+              rows={4}
             />
             <div className="flex justify-end space-x-2">
               <button

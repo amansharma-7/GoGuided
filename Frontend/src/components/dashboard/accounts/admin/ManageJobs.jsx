@@ -72,25 +72,28 @@ const AdminJobManager = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 h-full overflow-y-scroll scrollbar-hide">
-      <div className="flex justify-between p-4 text-3xl ">
-        <h1 className=" font-bold text-green-800">Manage Jobs</h1>
+    <div className="max-w-4xl mx-auto p-4 h-full overflow-y-auto scrollbar-hide">
+      {/* Header */}
+
+      <div className="flex justify-between items-center py-2">
+        <h2 className="text-2xl font-bold text-green-800">Manage Jobs</h2>
         <button
-          type="button"
           onClick={() => navigate(-1)}
-          className="bg-green-500 text-xl text-white py-2 px-3 cursor-pointer rounded-md"
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 "
         >
           Go Back
         </button>
       </div>
 
+      {/* Job Listings */}
       {jobs.length > 0 ? (
         jobs.map((job) => (
           <div
             key={job._id}
-            className="bg-white rounded-2xl mb-4 shadow-lg p-6 border-t-4 border-green-500"
+            className="bg-white rounded-2xl mb-6 shadow-lg p-6 border-t-4 border-green-500"
           >
-            <div className="flex justify-between items-center">
+            {/* Job Header */}
+            <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-semibold text-green-800">
                 {job.title}
               </h2>
@@ -98,7 +101,7 @@ const AdminJobManager = () => {
                 onClick={() =>
                   setExpandedJobId(expandedJobId === job._id ? null : job._id)
                 }
-                className="text-green-800 hover:text-green-600 transition cursor-pointer"
+                className="text-green-800 hover:text-green-600 transition"
               >
                 {expandedJobId === job._id ? (
                   <FaChevronUp size={20} />
@@ -108,12 +111,12 @@ const AdminJobManager = () => {
               </button>
             </div>
 
-            <div className="mt-4 text-green-800">
-              <p className="mb-4">{job.description}</p>
-            </div>
+            {/* Description */}
+            <p className="text-green-800 mb-4">{job.description}</p>
 
+            {/* Expanded Job Details */}
             {expandedJobId === job._id && (
-              <div className="grid grid-cols-2 gap-4 mt-4 text-green-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-green-700 mt-2">
                 <p>
                   <strong>Location:</strong> {job.location}
                 </p>
@@ -136,16 +139,17 @@ const AdminJobManager = () => {
               </div>
             )}
 
-            <div className="flex gap-4 mt-4">
+            {/* Actions */}
+            <div className="flex flex-wrap gap-4 mt-6">
               <button
                 onClick={() => handleEdit(job)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer bg-green-500 text-white hover:bg-green-600"
+                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
               >
                 <FaPen size={16} /> Edit
               </button>
               <button
                 onClick={() => handleDelete(job._id)}
-                className="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-lg bg-red-500 text-white hover:bg-red-600"
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
               >
                 <FaTrash size={16} /> Delete
               </button>
@@ -153,7 +157,7 @@ const AdminJobManager = () => {
           </div>
         ))
       ) : (
-        <p className="text-gray-500">No jobs available.</p>
+        <p className="text-gray-500 text-center mt-10">No jobs available.</p>
       )}
     </div>
   );

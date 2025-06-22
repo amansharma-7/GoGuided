@@ -4,7 +4,6 @@ import { FaPlus, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { initiateRazorpayPayment } from "../../../utils/razorpay";
 
-// Example tourData (you can fetch this from API too)
 const tourData = {
   basePrice: 200,
   availableSlots: 5,
@@ -74,6 +73,11 @@ const BookTourForm = () => {
       const paymentSuccess = await initiateRazorpayPayment({
         amount: totalCost,
         currency: "INR",
+        tour: {
+          _id: "abcd123",
+          name: "Kedarnath Trek",
+          price: 5999,
+        },
       });
     } catch (error) {
       toast.error("Something went wrong during booking.");
