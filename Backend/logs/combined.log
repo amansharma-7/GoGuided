@@ -14,3 +14,9 @@
 [2025-06-22 15:49:51] info: 🌱 Loading environment from: .env.production
 [2025-06-22 15:50:00] info: ✅ MongoDB connected successfully
 [2025-06-22 15:50:00] info: 🚀 Server running at http://localhost:5000 [production]
+[2025-06-23 21:42:55] info: 🌱 Loading environment from: .env.production
+[2025-06-23 21:42:57] info: ✅ MongoDB connected successfully
+[2025-06-23 21:42:57] info: 🚀 Server running at http://localhost:5000 [production]
+[2025-06-23 21:45:14] info: 🌱 Loading environment from: .env.production
+[2025-06-23 21:45:15] info: ✅ MongoDB connected successfully
+[2025-06-23 21:45:15] info: 🚀 Server running at http://localhost:5000 [production]
