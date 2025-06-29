@@ -60,7 +60,6 @@ import AddNewAdmin from "../components/dashboard/accounts/admin/AddNewAdmin";
 import GuideDashboard from "../components/dashboard/accounts/guide/DashBoard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
-import { Component } from "react";
 import JobApplicationForm from "../components/careers/JobApplicationForm";
 import UpdatePassword from "../components/auth/UpdatePassword";
 import BookTourForm from "../components/tours/tour/Booktour";
