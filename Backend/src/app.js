@@ -1,3 +1,6 @@
+// =======================
+// Core Modules & Packages
+// =======================
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -5,28 +8,38 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
+// =======================
+// Custom Utilities & Error Handling
+// =======================
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 
+// =======================
+// Routes
+// =======================
+const authRoutes = require("./routes/authRoutes");
+
 const app = express();
 
-// ===== Middleware =====
+// =======================
+// Global Middleware
+// =======================
 
-// Trust proxy (for real IPs, HTTPS detection, secure cookies etc.)
+// Trust reverse proxy (e.g., for secure cookies behind Nginx, Heroku)
 app.set("trust proxy", 1);
 
-// Set security HTTP headers
+// Set security-related HTTP headers
 app.use(helmet());
 
-// Rate Limiting
+// Rate limiter (apply to all /api/* routes)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per window
+  max: 100, // limit each IP to 100 requests
   message: "Oops! Too many requests. Let’s slow down and try again shortly",
 });
-app.use("/api", limiter); // apply only to API routes
+app.use("/api", limiter);
 
-// Enable CORS for frontend
+// Enable CORS for frontend origin
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -37,7 +50,10 @@ app.use(
   })
 );
 
+// Parse cookies from incoming requests
 app.use(cookieParser());
+
+// Parse incoming JSON payloads
 app.use(express.json());
 
 // Log HTTP requests (only in development)
@@ -45,7 +61,9 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// ===== Health Check =====
+// =======================
+// Health Check Route
+// =======================
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     status: "success",
@@ -53,14 +71,21 @@ app.get("/api/v1/health", (req, res) => {
   });
 });
 
-// ===== Routes =====
+// =======================
+// Application Routes
+// =======================
+app.use("/api/v1/auth", authRoutes);
 
-// ===== Invalid Route Handler =====
+// =======================
+// Handle Unmatched Routes
+// =======================
 app.use((req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  return next(new AppError("The requested resource was not found", 404));
 });
 
-// ===== Global Error Handler =====
+// =======================
+// Global Error Handler
+// =======================
 app.use(globalErrorHandler);
 
 module.exports = app;
