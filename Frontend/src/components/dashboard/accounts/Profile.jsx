@@ -21,7 +21,7 @@ function Profile() {
                 : `https://api.dicebear.com/5.x/initials/svg?seed=${user.firstName}%20${user.lastName}&backgroundColor=f5f5f5&textColor=2e7d32`
             }
             alt={user.name}
-            className="w-20 h-20 sm:w-20 sm:h-20 w-16 h-16 object-cover object-center rounded-full transition-transform duration-300 ease-in-out hover:scale-110"
+            className=" h-20 sm:w-20 sm:h-20 w-16 object-cover  rounded-full transition-transform duration-300 ease-in-out hover:scale-110"
           />
         ) : (
           <FaCircleUser className="w-16 h-16 sm:w-20 sm:h-20 text-white transition-transform duration-300 ease-in-out hover:scale-110" />

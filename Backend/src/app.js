@@ -27,15 +27,17 @@ const limiter = rateLimit({
 app.use("/api", limiter); // apply only to API routes
 
 // Enable CORS for frontend
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    optionsSuccessStatus: 200,
-    maxAge: parseInt(process.env.CORS_MAX_AGE) || 86400, // default: 1 day
-  })
-);
+app.use(cors());
+
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND_URL,
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     optionsSuccessStatus: 200,
+//     maxAge: parseInt(process.env.CORS_MAX_AGE) || 86400, // default: 1 day
+//   })
+// );
 
 app.use(cookieParser());
 app.use(express.json());
