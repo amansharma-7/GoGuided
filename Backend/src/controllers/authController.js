@@ -176,6 +176,7 @@ const sendTokenAsCookie = (user, token, res) => {
     user: {
       name: `${user.firstName} ${user.lastName}`.trim(),
       email: user.email,
+      role: user.role,
     },
   });
 };
@@ -204,9 +205,16 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  // 4. Generate token
+  // 4. Check if email is verified
+  if (!user.isEmailVerified) {
+    return next(
+      new AppError("Email not verified. Please verify your email first.", 401)
+    );
+  }
+
+  // 5. Generate token
   const token = signToken(user._id);
 
-  // 5. Send token in cookie
+  // 6. Send token in cookie
   sendTokenAsCookie(user, token, res);
 });

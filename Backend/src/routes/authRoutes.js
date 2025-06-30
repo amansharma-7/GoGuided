@@ -21,14 +21,14 @@ router.post(
 );
 
 // Verify Email
-router.post(
+router.patch(
   "/verify-email",
   authValidator.verifyEmail,
   authController.verifyEmail
 );
 
 // Resend OTP
-router.post(
+router.patch(
   "/resend-otp",
   authValidator.resendOTPValidator,
   authController.resendOTP
