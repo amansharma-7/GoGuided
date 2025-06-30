@@ -34,4 +34,7 @@ router.post(
   authController.resendOTP
 );
 
+// Login
+router.post("/login", authValidator.loginValidator, authController.login);
+
 module.exports = router;

@@ -1,4 +1,5 @@
 // Core
+const jwt = require("jsonwebtoken");
 
 // Models
 const User = require("../models/userModel");
@@ -143,7 +144,69 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
   }
 
   res.status(200).json({
-    status: "success",
+    isSuccess: true,
     message: "OTP resent successfully",
   });
+});
+
+const signToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+const sendTokenAsCookie = (user, token, res) => {
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  };
+
+  res.cookie("token", token, cookieOptions);
+
+  // Remove sensitive data before sending response
+  user.password = undefined;
+
+  res.status(200).json({
+    isSuccess: true,
+    message: "Logged in successfully",
+    user: {
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+    },
+  });
+};
+
+// Login
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  // 1. Check if user exists
+  const user = await User.findOne({ email }).select("+password +isDeleted");
+
+  if (!user) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  // 2. Check if account is deleted
+  if (user.isDeleted) {
+    return next(
+      new AppError("Account is marked as deleted. Please contact support.", 403)
+    );
+  }
+
+  // 3. Validate password
+  const isValid = await user.isPasswordValid(password, user.password);
+  if (!isValid) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  // 4. Generate token
+  const token = signToken(user._id);
+
+  // 5. Send token in cookie
+  sendTokenAsCookie(user, token, res);
 });

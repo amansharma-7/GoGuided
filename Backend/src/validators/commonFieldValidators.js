@@ -43,6 +43,10 @@ exports.emailFieldValidator = body("email")
   .isLength({ max: 320 })
   .withMessage("Email must not exceed 320 characters");
 
+exports.passwordFieldValidator = body("password")
+  .notEmpty()
+  .withMessage("Password is required");
+
 const phoneRegex = /^[6-9]\d{9}$/;
 
 exports.phoneFieldValidator = body("phone")
