@@ -13,11 +13,11 @@ const authController = require("../controllers/authController");
 
 // Routes
 
-// Register new user
 router.post(
   "/register",
   authValidator.registerValidator,
   authController.register
 );
+router.post("/login", authValidator.loginValidator, authController.login);
 
 module.exports = router;

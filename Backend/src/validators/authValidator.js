@@ -41,3 +41,8 @@ exports.registerValidator = validate([
       return true;
     }),
 ]);
+
+exports.loginValidator = validate([
+  emailFieldValidator,
+  body("password").notEmpty().withMessage("Password is required"),
+]);

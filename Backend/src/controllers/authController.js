@@ -8,6 +8,8 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const { sendRegistrationOtpEmail } = require("../utils/email");
 const { generateOTP } = require("../utils/otp");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 // Controller: Register new user
 exports.register = catchAsync(async (req, res, next) => {
@@ -56,5 +58,45 @@ exports.register = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message: "OTP sent to email. Please verify to complete registration.",
+  });
+});
+
+const signToken = (userId) => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email }).select("+password +isDeleted");
+
+  if (!user) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  if (user.isDeleted) {
+    return next(
+      new AppError("Account is marked as deleted. Please contact support.", 403)
+    );
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  const token = signToken(user._id);
+
+  user.loginToken = token;
+  await user.save();
+
+  user.password = undefined;
+
+  res.status(200).json({
+    status: true,
+    message: "Logged in successfully",
+    token,
+    user,
   });
 });

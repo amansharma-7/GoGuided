@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
+    loginToken: {
+      type: String,
+      select: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
