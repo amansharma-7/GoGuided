@@ -174,7 +174,7 @@ const sendTokenAsCookie = (user, token, res) => {
     isSuccess: true,
     message: "Logged in successfully",
     user: {
-      name: `${user.firstName} ${user.lastName}`,
+      name: `${user.firstName} ${user.lastName}`.trim(),
       email: user.email,
     },
   });
