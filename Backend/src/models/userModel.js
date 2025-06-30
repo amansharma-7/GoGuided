@@ -10,8 +10,7 @@ const userSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
-      required: true,
-      trim: true,
+      default: "",
     },
     email: {
       type: String,
@@ -35,7 +34,7 @@ const userSchema = new mongoose.Schema(
       default: false,
       select: false,
     },
-    emailVerified: {
+    isEmailVerified: {
       type: Boolean,
       default: false,
     },

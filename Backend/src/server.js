@@ -48,6 +48,11 @@ const connectDB = async (retries = 5) => {
 const startServer = () => {
   server = app.listen(PORT, "0.0.0.0", () => {
     logger.info(`🚀 Server running at ${SERVER_URL} [${env}]`);
+
+    // one-time console confirmation in prod for terminal visibility
+    if (process.env.NODE_ENV === "production") {
+      console.log(`✔️  Server started on port ${PORT} [production]`);
+    }
   });
 };
 

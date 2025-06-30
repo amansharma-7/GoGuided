@@ -6,6 +6,7 @@ const {
   lastNameValidator,
   emailFieldValidator,
   phoneFieldValidator,
+  otpFieldValidator,
 } = require("./commonFieldValidators");
 
 exports.registerValidator = validate([
@@ -41,3 +42,7 @@ exports.registerValidator = validate([
       return true;
     }),
 ]);
+
+exports.verifyEmail = validate([emailFieldValidator, otpFieldValidator]);
+
+exports.resendOTPValidator = validate([emailFieldValidator]);

@@ -20,4 +20,18 @@ router.post(
   authController.register
 );
 
+// Verify Email
+router.post(
+  "/verify-email",
+  authValidator.verifyEmail,
+  authController.verifyEmail
+);
+
+// Resend OTP
+router.post(
+  "/resend-otp",
+  authValidator.resendOTPValidator,
+  authController.resendOTP
+);
+
 module.exports = router;
