@@ -37,4 +37,7 @@ router.patch(
 // Login
 router.post("/login", authValidator.loginValidator, authController.login);
 
+// Get current logged-in user's data
+router.get("/me", authMiddleware.protect, authController.getMe);
+
 module.exports = router;

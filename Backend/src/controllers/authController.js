@@ -218,3 +218,28 @@ exports.login = catchAsync(async (req, res, next) => {
   // 6. Send token in cookie
   sendTokenAsCookie(user, token, res);
 });
+
+// Get current logged-in user's data
+exports.getMe = catchAsync(async (req, res, next) => {
+  const { userId } = req.user;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return next(
+      new AppError(
+        "Unable to retrieve user information. Please log in again.",
+        404
+      )
+    );
+  }
+
+  res.status(200).json({
+    isSuccess: true,
+    user: {
+      name: `${user.firstName} ${user.lastName}`.trim(),
+      email: user.email,
+      role: user.role,
+    },
+  });
+});

@@ -13,7 +13,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError("You are not logged in", 401));
+    return next(
+      new AppError("You're not logged in. Please log in to continue.", 401)
+    );
   }
 
   // Verify token
@@ -22,7 +24,12 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Check if user still exists
   const currentUser = await User.findById(decoded.id).select("role");
   if (!currentUser) {
-    return next(new AppError("User no longer exists", 401));
+    return next(
+      new AppError(
+        "Unable to retrieve user information. Please log in again.",
+        404
+      )
+    );
   }
 
   // Attach user to request
