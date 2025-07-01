@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const logger = require("./utils/logger");
-const app = require("./app");
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
@@ -16,6 +15,8 @@ const envFile = `.env.${env}`;
 logger.info(`🌱 Loading environment from: ${envFile}`);
 
 dotenv.config({ path: envFile });
+
+const app = require("./app");
 
 // Config
 const PORT = process.env.PORT || 5000;
