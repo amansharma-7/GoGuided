@@ -3,36 +3,88 @@ const jwt = require("jsonwebtoken");
 
 // Models
 const User = require("../models/userModel");
+const OTP = require("../models/otpModel");
 
 // Utilities
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const { sendRegistrationOtpEmail } = require("../utils/email");
 const { generateOTP } = require("../utils/otp");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 
-// Controllers
+//send otp
+exports.sendOTP = catchAsync(async (req, res) => {
+  const { email } = req.body;
 
-//  Register new user
-exports.register = catchAsync(async (req, res, next) => {
-  const { firstName, lastName, email, phone, password } = req.body;
-
-  const existingUser = await User.findOne({ email }).select("+isDeleted");
-
-  if (existingUser) {
-    if (existingUser.isDeleted) {
-      return next(
-        new AppError(
-          "Account exists but is marked deleted. Please contact support.",
-          400
-        )
-      );
-    }
-    return next(new AppError("User already exists with this email.", 400));
+  // check if user already exists
+  const isExistingUser = await User.findOne({ email });
+  if (isExistingUser) {
+    return res.status(400).json({
+      success: false,
+      message: "User Already Exists",
+    });
   }
 
-  const newUser = await User.create({
+  const otp = generateOTP();
+  await OTP.create({ email, otp });
+
+  // send the OTP email
+  const { isEmailSent, message: emailErrorMessage } =
+    await sendRegistrationOtpEmail({
+      user: { email },
+      otp,
+    });
+
+  if (!isEmailSent) {
+    return next(new AppError(emailErrorMessage, 500));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "OTP Sent Successfully",
+  });
+});
+
+// Signup
+exports.signup = catchAsync(async (req, res) => {
+  const { firstName, lastName, email, password, phone, otp } = req.body;
+
+  // check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: "User Already Exists",
+    });
+  }
+
+  // find latest OTP
+  const recentOtp = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+  if (recentOtp.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "OTP not found",
+    });
+  }
+  if (otp !== recentOtp[0].otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid OTP",
+    });
+  }
+
+  const now = new Date();
+  const expirationTime = new Date(recentOtp.createdAt);
+  expirationTime.setMinutes(expirationTime.getMinutes() + 1);
+
+  if (now > expirationTime) {
+    await OTP.deleteOne({ _id: otpRecord._id });
+    return res.status(400).json({
+      success: false,
+      message: "Your OTP has expired. Please request a new one to continue.",
+    });
+  }
+
+  const user = await User.create({
     firstName,
     lastName,
     email,
@@ -40,75 +92,13 @@ exports.register = catchAsync(async (req, res, next) => {
     password,
   });
 
-  // Generate OTP
-  const otp = generateOTP();
-  newUser.emailVerificationOTP = otp;
-  newUser.emailVerificationOTPExpires =
-    Date.now() + process.env.OTP_EXPIRES_IN_MINUTES * 60 * 1000;
+  // Delete all OTPs for this email (cleanup)
+  await OTP.deleteMany({ email });
 
-  await newUser.save({ validateBeforeSave: false });
-
-  const { isEmailSent, message: emailErrorMessage } =
-    await sendRegistrationOtpEmail({
-      user: { email: newUser.email, firstName: newUser.firstName },
-      otp,
-    });
-
-  if (!isEmailSent) {
-    // Rollback if email fails
-    await User.findByIdAndDelete(newUser._id);
-
-    return next(new AppError(emailErrorMessage, 500));
-  }
-
-  res.status(201).json({
-    isSuccess: true,
-    message: "OTP sent to email. Please verify to complete registration.",
-  });
-});
-
-// Verify email
-exports.verifyEmail = catchAsync(async (req, res, next) => {
-  const { email, otp } = req.body;
-
-  // 1. Check if user exists
-  const user = await User.findOne({ email }).select(
-    "+emailVerificationOTP +emailVerificationOTPExpires"
-  );
-
-  if (!user) {
-    return next(new AppError("No account found with this email", 404));
-  }
-
-  // 2. Check if already verified
-  if (user.isEmailVerified) {
-    return next(new AppError("Email is already verified", 400));
-  }
-
-  // 3. Check OTP
-  if (
-    !user.emailVerificationOTP ||
-    user.emailVerificationOTP !== otp ||
-    user.emailVerificationOTPExpires < Date.now()
-  ) {
-    return next(
-      new AppError(
-        "The OTP you entered is invalid or has expired. Please request a new OTP to proceed.",
-        400
-      )
-    );
-  }
-
-  // 4. Mark as verified and clear OTP fields
-  user.isEmailVerified = true;
-  user.emailVerificationOTP = undefined;
-  user.emailVerificationOTPExpires = undefined;
-  await user.save({ validateBeforeSave: false });
-
-  // 5. Respond
   res.status(200).json({
-    isSuccess: true,
-    message: "Email has been successfully verified",
+    success: true,
+    message: "User Registered Successfully",
+    data: user,
   });
 });
 

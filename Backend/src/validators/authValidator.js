@@ -10,11 +10,12 @@ const {
   passwordFieldValidator,
 } = require("./commonFieldValidators");
 
-exports.registerValidator = validate([
+exports.signupValidator = validate([
   firstNameValidator,
   lastNameValidator,
   emailFieldValidator,
   phoneFieldValidator,
+  otpFieldValidator,
 
   body("password")
     .trim()
@@ -49,7 +50,7 @@ exports.loginValidator = validate([
   body("password").notEmpty().withMessage("Password is required"),
 ]);
 
-exports.verifyEmail = validate([emailFieldValidator, otpFieldValidator]);
+exports.sendOptValidator = validate([emailFieldValidator]);
 
 exports.resendOTPValidator = validate([emailFieldValidator]);
 
