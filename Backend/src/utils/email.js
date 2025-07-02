@@ -154,6 +154,55 @@ const sendRegistrationOtpEmail = async ({ user, otp }) => {
   }
 };
 
+const sendPasswordResetEmail = async ({ user, passwordResetUrl }) => {
+  if (!user || !user.email || !user.passwordResetToken || !passwordResetUrl) {
+    throw new Error("Missing user, password reset URL, or token");
+  }
+
+  const transporter = createTransport();
+
+  const html = buildEmailTemplate({
+    firstName: user.firstName,
+    title: "Forgot Your Password?",
+    message:
+      "We received a request to reset your password. Click the button below to reset it.",
+    buttonText: "Reset Password",
+    buttonLink: passwordResetUrl + user.passwordResetToken,
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
+      to: user.email,
+      subject: "Password Reset Request",
+      html,
+    });
+
+    return { isEmailSent: true };
+  } catch (err) {
+    const isDev = process.env.NODE_ENV === "development";
+
+    if (isDev) {
+      console.error("Password reset email failed:", err.stack || err);
+    } else {
+      logger.error("Password reset email failed", {
+        message: err.message,
+        code: err.code,
+        name: err.name,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return {
+      isEmailSent: false,
+      message: isDev
+        ? err.message || "Failed to send password reset email"
+        : "Failed to send email. Please try again later.",
+    };
+  }
+};
+
 module.exports = {
   sendRegistrationOtpEmail,
+  sendPasswordResetEmail,
 };

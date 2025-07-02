@@ -8,8 +8,15 @@ const OTP = require("../models/otpModel");
 // Utilities
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const { sendRegistrationOtpEmail } = require("../utils/email");
+const {
+  sendRegistrationOtpEmail,
+  sendPasswordResetEmail,
+} = require("../utils/email");
 const { generateOTP } = require("../utils/otp");
+const generateToken = require("../utils/generateToken");
+
+//constants
+const passwordResetUrl = process.env.FRONTEND_URL + "/reset-password/";
 
 //send otp
 exports.sendOTP = catchAsync(async (req, res) => {
@@ -73,11 +80,11 @@ exports.signup = catchAsync(async (req, res) => {
   }
 
   const now = new Date();
-  const expirationTime = new Date(recentOtp.createdAt);
-  expirationTime.setMinutes(expirationTime.getMinutes() + 1);
+  const expirationTime = new Date(recentOtp[0].createdAt);
+  expirationTime.setMinutes(expirationTime.getMinutes() + 10);
 
   if (now > expirationTime) {
-    await OTP.deleteOne({ _id: otpRecord._id });
+    await OTP.deleteOne({ _id: recentOtp[0]._id });
     return res.status(400).json({
       success: false,
       message: "Your OTP has expired. Please request a new one to continue.",
@@ -107,24 +114,36 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   // select all needed fields
-  const user = await User.findOne({ email }).select(
-    "emailVerificationOTP emailVerificationOTPExpires firstName email"
-  );
+  const user = await User.findOne({ email }).select("firstName email");
 
   if (!user) {
     return next(new AppError("No user found with this email", 404));
   }
 
-  // Generate new OTP
+  const existingOtp = await OTP.findOne({ email });
+
+  const now = Date.now();
+  const expiryMinutes = Number(process.env.OTP_EXPIRES_IN_MINUTES) || 10;
+
+  if (existingOtp) {
+    const otpCreatedTime = existingOtp.createdAt?.getTime?.() || 0;
+    const otpExpiresAt = otpCreatedTime + expiryMinutes * 60 * 1000;
+
+    if (now < otpExpiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: `An OTP has already been sent. Please wait before requesting another.`,
+      });
+    }
+
+    //  Delete expired OTP to keep collection clean
+    await OTP.deleteOne({ email });
+  }
+
   const otp = generateOTP();
-  user.emailVerificationOTP = otp;
-  user.emailVerificationOTPExpires =
-    Date.now() + Number(process.env.OTP_EXPIRES_IN_MINUTES) * 60 * 1000;
+  await OTP.create({ email, otp });
 
-  // Save user
-  await user.save();
-
-  // Send email
+  // send the OTP email
   const { isEmailSent, message: emailErrorMessage } =
     await sendRegistrationOtpEmail({
       user: { email: user.email, firstName: user.firstName },
@@ -233,5 +252,90 @@ exports.getMe = catchAsync(async (req, res, next) => {
       email: user.email,
       role: user.role,
     },
+  });
+});
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || user.isDeleted) {
+    return next(new AppError("No user found with this email address", 404));
+  }
+
+  const { token, tokenExpiresIn } = generateToken(30);
+
+  user.passwordResetToken = token;
+  user.passwordResetTokenExpires = tokenExpiresIn;
+  await user.save();
+
+  const { isEmailSent, message: emailErrorMessage } =
+    await sendPasswordResetEmail({
+      user: {
+        email,
+        firstName: user.firstName,
+        passwordResetToken: token,
+      },
+      passwordResetUrl,
+    });
+  if (!isEmailSent) {
+    return next(new AppError(emailErrorMessage, 500));
+  }
+  res.status(200).json({
+    status: "success",
+    message: "Password reset link sent to your email.",
+  });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const { token } = req.query;
+  const { password } = req.body;
+
+  const user = await User.findOne({ passwordResetToken: token });
+  if (!user || user.passwordResetTokenExpires < Date.now() || user.isDeleted) {
+    return next(
+      new AppError(
+        "The reset link is invalid or has expired. Please request a new one.",
+        400
+      )
+    );
+  }
+
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpires = undefined;
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Password updated successfully. You can now log in.",
+  });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  const { userId } = req.user;
+
+  const user = await User.findById(userId).select("+password");
+
+  if (!user || user.isDeleted) {
+    return next(new AppError("Account not found or deleted.", 404));
+  }
+
+  const correctPassword = await user.isPasswordValid(
+    currentPassword,
+    user.password
+  );
+
+  if (!correctPassword) {
+    return next(new AppError("Incorrect current password", 401));
+  }
+  user.password = newPassword;
+
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Password updated successfully.",
   });
 });
