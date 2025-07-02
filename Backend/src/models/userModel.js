@@ -29,16 +29,6 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
-    loginToken: {
-      type: String,
-      select: false,
-    },
-
-    role: {
-      type: String,
-      enum: ["user", "admin", "guide"],
-      default: "user",
-    },
     isDeleted: {
       type: Boolean,
       default: false,
