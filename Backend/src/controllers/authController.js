@@ -216,13 +216,6 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  // 4. Check if email is verified
-  if (!user.isEmailVerified) {
-    return next(
-      new AppError("Email not verified. Please verify your email first.", 401)
-    );
-  }
-
   // 5. Generate token
   const token = signToken(user._id);
 

@@ -34,10 +34,6 @@ const userSchema = new mongoose.Schema(
       default: false,
       select: false,
     },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
     passwordResetToken: String,
     passwordResetTokenExpires: Date,
   },
