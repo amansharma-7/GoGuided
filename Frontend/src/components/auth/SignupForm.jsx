@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast } from "react-hot-toast";
+import LoaderOverlay from "../common/LoaderOverlay";
+
+import useApi from "../../hooks/useApi";
+import { registerUser } from "../../services/authService";
 
 function SignupForm() {
+  // ------------------- State -------------------
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // ------------------- Form -------------------
   const {
     register,
     handleSubmit,
@@ -11,13 +21,28 @@ function SignupForm() {
     formState: { errors },
   } = useForm();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // ------------------- API -------------------
+  const { request, loading, error } = useApi(registerUser);
+  const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log("Signup Data:", data);
-    // Handle signup logic (e.g., API call)
+  // ------------------- Handlers -------------------
+  const onSubmit = async (formData) => {
+    try {
+      const response = await request({ data: formData });
+      toast.success(response.message);
+      navigate("/login");
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(message);
+    }
   };
+
+  // ------------------- Render -------------------
+
+  if (loading) return <LoaderOverlay />;
 
   return (
     <div className="flex items-center justify-center h-[85vh]">
@@ -25,6 +50,7 @@ function SignupForm() {
         <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Create an Account
         </h2>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-y-4"
@@ -39,7 +65,7 @@ function SignupForm() {
                 {...register("firstName", {
                   required: "First name is required",
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
               />
               {errors.firstName && (
                 <p className="text-red-400 text-xs">
@@ -47,13 +73,16 @@ function SignupForm() {
                 </p>
               )}
             </label>
+
             <label className="w-full">
               <p className="mb-1 text-lg text-green-950">Last Name</p>
               <input
                 type="text"
                 placeholder="Last Name"
-                {...register("lastName", { required: "Last name is required" })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+                {...register("lastName", {
+                  required: "Last name is required",
+                })}
+                className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
               />
               {errors.lastName && (
                 <p className="text-red-400 text-xs">
@@ -76,7 +105,7 @@ function SignupForm() {
                   message: "Invalid email format",
                 },
               })}
-              className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
             />
             {errors.email && (
               <p className="text-red-400 text-xs">{errors.email.message}</p>
@@ -85,35 +114,23 @@ function SignupForm() {
 
           {/* Contact Field */}
           <label className="w-full">
-            <p className="mb-1 text-lg text-green-950">Contact</p>
-            <div className="flex gap-x-4">
-              <select
-                {...register("countryCode", { required: "Code is required" })}
-                className="w-1/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
-              >
-                <option value="+1">+1 (US)</option>
-                <option value="+91">+91 (IN)</option>
-                <option value="+44">+44 (UK)</option>
-                <option value="+61">+61 (AU)</option>
-                <option value="+81">+81 (JP)</option>
-              </select>
-
-              <input
-                type="tel"
-                placeholder="Enter contact number"
-                {...register("contactNumber", {
-                  required: "Contact number is required",
-                  pattern: {
-                    value: /^[0-9]{7,15}$/,
-                    message: "Invalid contact number",
-                  },
-                })}
-                className="w-2/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
-              />
-            </div>
-            {(errors.countryCode || errors.contactNumber) && (
+            <p className="mb-1 text-lg text-green-950">Phone Number</p>
+            <input
+              type="tel"
+              placeholder="Enter 10-digit Indian phone number"
+              {...register("phone", {
+                required: "Phone number is required",
+                pattern: {
+                  value: /^[6-9]\d{9}$/,
+                  message:
+                    "Enter a valid 10-digit Indian phone number starting with 6-9",
+                },
+              })}
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+            />
+            {errors.phone && (
               <p className="text-red-400 text-xs mt-1">
-                {errors.countryCode?.message || errors.contactNumber?.message}
+                {errors.phone.message}
               </p>
             )}
           </label>
@@ -132,7 +149,7 @@ function SignupForm() {
                     message: "Password must be at least 6 characters",
                   },
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -161,7 +178,7 @@ function SignupForm() {
                   validate: (value) =>
                     value === watch("password") || "Passwords do not match",
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -184,9 +201,10 @@ function SignupForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-400 transition"
+            disabled={loading}
+            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-400 transition disabled:opacity-50"
           >
-            Create Account
+            {loading ? "Creating..." : "Create Account"}
           </button>
 
           {/* Login Link */}
@@ -196,6 +214,13 @@ function SignupForm() {
               Log In
             </Link>
           </p>
+
+          {/* Error Message */}
+          {error && (
+            <p className="text-center mt-2 text-red-500 text-sm font-medium">
+              {error.message || "Something went wrong. Please try again."}
+            </p>
+          )}
         </form>
       </div>
     </div>
