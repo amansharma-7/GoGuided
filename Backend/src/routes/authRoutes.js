@@ -20,4 +20,24 @@ router.post(
 );
 router.post("/login", authValidator.loginValidator, authController.login);
 
+// Verify Email
+router.patch(
+  "/verify-email",
+  authValidator.verifyEmail,
+  authController.verifyEmail
+);
+
+// Resend OTP
+router.patch(
+  "/resend-otp",
+  authValidator.resendOTPValidator,
+  authController.resendOTP
+);
+
+// Login
+router.post("/login", authValidator.loginValidator, authController.login);
+
+// Get current logged-in user's data
+router.get("/me", authMiddleware.protect, authController.getMe);
+
 module.exports = router;

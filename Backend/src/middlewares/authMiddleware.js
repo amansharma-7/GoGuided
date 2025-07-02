@@ -8,25 +8,32 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
   // Get token from cookies instead of Authorization header
-  if (req.cookies && req.cookies.jwt) {
-    token = req.cookies.jwt;
+  if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
   }
 
   if (!token) {
-    return next(new AppError("You are not logged in", 401));
+    return next(
+      new AppError("You're not logged in. Please log in to continue.", 401)
+    );
   }
 
   // Verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   // Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id).select("role");
   if (!currentUser) {
-    return next(new AppError("User no longer exists", 401));
+    return next(
+      new AppError(
+        "Unable to retrieve user information. Please log in again.",
+        404
+      )
+    );
   }
 
   // Attach user to request
-  req.user = currentUser;
+  req.user = { userId: currentUser._id, role: currentUser.role };
   next();
 });
 

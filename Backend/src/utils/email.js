@@ -1,5 +1,8 @@
+// Core
 const nodemailer = require("nodemailer");
-require("dotenv").config(); // Load environment variables from .env
+
+// Utilities
+const logger = require("./logger");
 
 // === Reusable Email Sender ===
 // -----------------------------
@@ -18,7 +21,6 @@ const buildEmailTemplate = ({
   const year = new Date().getFullYear();
   const expiryMinutes = process.env.OTP_EXPIRES_IN_MINUTES || 10;
   const appName = process.env.FROM_NAME || "App Platform";
-
   const greeting = firstName ? `Hi ${firstName},` : "";
 
   const otpBlock = otp
@@ -28,7 +30,7 @@ const buildEmailTemplate = ({
           ${otp}
         </span>
       </div>
-      <p>This OTP is valid for <strong>${expiryMinutes} minutes</strong>.</p>
+      <p style="text-align:center;">This OTP is valid for <strong>${expiryMinutes} minutes</strong>.</p>
     `
     : "";
 
@@ -36,7 +38,7 @@ const buildEmailTemplate = ({
     buttonText && buttonLink
       ? `
       <div style="text-align:center;margin:30px 0;">
-        <a href="${buttonLink}" style="background-color:#4CAF50;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;">
+        <a href="${buttonLink}" style="background-color:#4CAF50;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">
           ${buttonText}
         </a>
       </div>
@@ -48,30 +50,50 @@ const buildEmailTemplate = ({
     "If you didn’t initiate this request, you can safely ignore this email.";
 
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"/></head>
-    <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
-      <table width="100%" cellspacing="0" cellpadding="0">
-        <tr><td align="center" style="padding: 20px;">
-          <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;">
-            <tr><td style="padding: 30px;">
-              <h2 style="color:#333;">${title}</h2>
-              <p>${greeting}</p>
-              <p>${message}</p>
-              ${otpBlock}
-              ${buttonBlock}
-              <p>${finalFooterNote}</p>
-              <p style="margin-top: 30px;">Regards,<br><strong>${appName}</strong></p>
-            </td></tr>
-            <tr><td style="background:#f4f4f4;padding:20px;text-align:center;font-size:12px;color:#777;">
-              &copy; ${year} ${appName}
-            </td></tr>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+      @media only screen and (max-width: 600px) {
+        .email-container {
+          width: 100% !important;
+          padding: 20px !important;
+        }
+        .email-content {
+          padding: 20px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+    <table width="100%" cellspacing="0" cellpadding="0" bgcolor="#f4f4f4">
+      <tr>
+        <td align="center">
+          <table class="email-container" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:8px;margin:20px auto;">
+            <tr>
+              <td class="email-content" style="padding:30px;">
+                <h2 style="color:#333;font-size:24px;margin-bottom:10px;">${title}</h2>
+                <p style="margin:0 0 10px;">${greeting}</p>
+                <p style="margin:0 0 20px;">${message}</p>
+                ${otpBlock}
+                ${buttonBlock}
+                <p style="color:#555;font-size:14px;">${finalFooterNote}</p>
+                <p style="margin-top:30px;font-size:14px;">Regards,<br><strong>${appName}</strong></p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f4f4f4;padding:20px;text-align:center;font-size:12px;color:#777;border-top:1px solid #ddd;">
+                &copy; ${year} ${appName}
+              </td>
+            </tr>
           </table>
-        </td></tr>
-      </table>
-    </body>
-    </html>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
   `;
 };
 
@@ -93,19 +115,43 @@ const sendRegistrationOtpEmail = async ({ user, otp }) => {
   const transporter = createTransport();
 
   const html = buildEmailTemplate({
-    firstName: user.name?.split(" ")[0] || "there",
+    firstName: user?.firstName || "there",
     title: "Verify Your Email",
     message:
       "To verify your email and create your account, please use the OTP (One-Time Password) below:",
     otp,
   });
 
-  await transporter.sendMail({
-    from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
-    to: user.email,
-    subject: "Email Verification OTP",
-    html,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
+      to: user.email,
+      subject: "Email Verification OTP",
+      html,
+    });
+
+    return { isEmailSent: true };
+  } catch (err) {
+    const isDev = process.env.NODE_ENV === "development";
+
+    if (isDev) {
+      console.error("Email sending failed:", err.stack || err);
+    } else {
+      logger.error("Email sending failed", {
+        message: err.message,
+        code: err.code,
+        name: err.name,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return {
+      isEmailSent: false,
+      message: isDev
+        ? err.message || "Failed to send email"
+        : "Failed to send email. Please try again later.",
+    };
+  }
 };
 
 module.exports = {

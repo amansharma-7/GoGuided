@@ -3,24 +3,35 @@ const { body } = require("express-validator");
 // Regex for only alphabets (no spaces, no hyphens)
 const alphaOnlyRegex = /^[A-Za-z]+$/;
 
-// Capitalize first letter of string
+// Safe capitalize function
 const capitalize = (str) =>
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  typeof str === "string" && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    : str;
 
-// Common validator for name fields
-const nameFieldValidator = (field, displayName) =>
-  body(field)
-    .trim()
-    .notEmpty()
-    .withMessage(`${displayName} is required`)
-    .isLength({ min: 2 })
-    .withMessage(`${displayName} must be at least 2 characters long`)
-    .matches(alphaOnlyRegex)
-    .withMessage(`${displayName} must contain only letters (A–Z)`)
-    .customSanitizer((value) => capitalize(value));
+// First Name Validator (required)
+exports.firstNameValidator = body("firstName")
+  .trim()
+  .notEmpty()
+  .withMessage("First name is required")
+  .isLength({ min: 2 })
+  .withMessage("First name must be at least 2 characters long")
+  .matches(alphaOnlyRegex)
+  .withMessage("First name must contain only letters (A–Z)")
+  .customSanitizer((value) => capitalize(value));
 
-exports.firstNameValidator = nameFieldValidator("firstName", "First name");
-exports.lastNameValidator = nameFieldValidator("lastName", "Last name");
+// Last Name Validator (optional)
+exports.lastNameValidator = body("lastName")
+  .trim()
+  .optional({ checkFalsy: true })
+  .isLength({ min: 2 })
+  .withMessage("Last name must be at least 2 characters long")
+  .matches(alphaOnlyRegex)
+  .withMessage("Last name must contain only letters (A–Z)")
+  .customSanitizer((value) => {
+    if (!value) return "";
+    return capitalize(value);
+  });
 
 exports.emailFieldValidator = body("email")
   .trim()
@@ -32,6 +43,10 @@ exports.emailFieldValidator = body("email")
   .isLength({ max: 320 })
   .withMessage("Email must not exceed 320 characters");
 
+exports.passwordFieldValidator = body("password")
+  .notEmpty()
+  .withMessage("Password is required");
+
 const phoneRegex = /^[6-9]\d{9}$/;
 
 exports.phoneFieldValidator = body("phone")
@@ -40,3 +55,12 @@ exports.phoneFieldValidator = body("phone")
   .withMessage("Phone number is required")
   .matches(phoneRegex)
   .withMessage("Phone number must be a valid 10-digit Indian mobile number");
+
+exports.otpFieldValidator = body("otp")
+  .trim()
+  .notEmpty()
+  .withMessage("OTP is required.")
+  .isLength({ min: 6, max: 6 })
+  .withMessage("OTP must be exactly 6 digits.")
+  .isNumeric()
+  .withMessage("OTP must contain only numbers.");

@@ -10,8 +10,7 @@ const userSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
-      required: true,
-      trim: true,
+      default: "",
     },
     email: {
       type: String,
@@ -34,12 +33,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+
+    role: {
+      type: String,
+      enum: ["user", "admin", "guide"],
+      default: "user",
+    },
     isDeleted: {
       type: Boolean,
       default: false,
       select: false,
     },
-    emailVerified: {
+    isEmailVerified: {
       type: Boolean,
       default: false,
     },
@@ -59,11 +64,8 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.correctPassword = async function (
-  candidatePassword,
-  userPassword
-) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+userSchema.methods.isPasswordValid = async function (password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
 };
 
 const User = mongoose.model("User", userSchema);

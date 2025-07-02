@@ -6,6 +6,8 @@ const {
   lastNameValidator,
   emailFieldValidator,
   phoneFieldValidator,
+  otpFieldValidator,
+  passwordFieldValidator,
 } = require("./commonFieldValidators");
 
 exports.registerValidator = validate([
@@ -45,4 +47,13 @@ exports.registerValidator = validate([
 exports.loginValidator = validate([
   emailFieldValidator,
   body("password").notEmpty().withMessage("Password is required"),
+]);
+
+exports.verifyEmail = validate([emailFieldValidator, otpFieldValidator]);
+
+exports.resendOTPValidator = validate([emailFieldValidator]);
+
+exports.loginValidator = validate([
+  emailFieldValidator,
+  passwordFieldValidator,
 ]);
