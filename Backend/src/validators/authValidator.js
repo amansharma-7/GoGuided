@@ -10,14 +10,14 @@ const {
   passwordFieldValidator,
 } = require("./commonFieldValidators");
 
-exports.signupValidator = validate([
+exports.registerValidator = validate([
   firstNameValidator,
   lastNameValidator,
   emailFieldValidator,
   phoneFieldValidator,
-  otpFieldValidator,
 
   body("password")
+    .trim()
     .notEmpty()
     .withMessage("Password is required")
     .isLength({ min: 8 })
@@ -42,20 +42,20 @@ exports.signupValidator = validate([
       }
       return true;
     }),
+
+  otpFieldValidator,
 ]);
 
-exports.sendOptValidator = validate([emailFieldValidator]);
+exports.verifyEmail = validate([emailFieldValidator, otpFieldValidator]);
 
-exports.resendOTPValidator = validate([emailFieldValidator]);
+exports.sendOTPValidator = validate([emailFieldValidator]);
 
 exports.loginValidator = validate([
   emailFieldValidator,
   passwordFieldValidator,
 ]);
 
-exports.forgotPasswordValidator = validate([
-  body("email").isEmail().withMessage("Please provide a valid email address"),
-]);
+exports.forgotPasswordValidator = validate([emailFieldValidator]);
 
 exports.resetPasswordValidator = validate([
   body("password")

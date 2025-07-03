@@ -12,20 +12,19 @@ const authValidator = require("../validators/authValidator");
 const authController = require("../controllers/authController");
 
 // Routes
+
+// Register new user
 router.post(
-  "/send-otp",
-  authValidator.sendOptValidator,
-  authController.sendOTP
+  "/register",
+  authValidator.registerValidator,
+  authController.register
 );
 
-router.post("/signup", authValidator.signupValidator, authController.signup);
-router.post("/login", authValidator.loginValidator, authController.login);
-
-// Resend OTP
-router.patch(
-  "/resend-otp",
-  authValidator.resendOTPValidator,
-  authController.resendOTP
+// Send OTP
+router.post(
+  "/send-otp",
+  authValidator.sendOTPValidator,
+  authController.sendOTP
 );
 
 // Login

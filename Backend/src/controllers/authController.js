@@ -23,13 +23,18 @@ const passwordResetUrl = process.env.FRONTEND_URL + "/reset-password/";
 exports.register = catchAsync(async (req, res, next) => {
   const { firstName, lastName, email, phone, password, otp } = req.body;
 
-  // check if user already exists
-  const isExistingUser = await User.findOne({ email });
-  if (isExistingUser) {
-    return res.status(400).json({
-      success: false,
-      message: "User Already Exists",
-    });
+  const existingUser = await User.findOne({ email }).select("+isDeleted");
+
+  if (existingUser) {
+    if (existingUser.isDeleted) {
+      return next(
+        new AppError(
+          "Account exists but is marked deleted. Please contact support.",
+          400
+        )
+      );
+    }
+    return next(new AppError("User already exists with this email.", 400));
   }
 
   const purpose = "email_verification";
@@ -101,9 +106,8 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
 
   // 5. Respond
   res.status(200).json({
-    success: true,
-    message: "User Registered Successfully",
-    data: user,
+    isSuccess: true,
+    message: "Email has been successfully verified",
   });
 });
 
@@ -118,25 +122,7 @@ exports.sendOTP = catchAsync(async (req, res, next) => {
 
   let otpDoc = await OtpVerification.findOne({ email, purpose });
 
-  const existingOtp = await OTP.findOne({ email });
-
-  const expiryMinutes = Number(process.env.OTP_EXPIRES_IN_MINUTES) || 10;
-
-  if (existingOtp) {
-    const otpCreatedTime = existingOtp.createdAt?.getTime?.() || 0;
-    const otpExpiresAt = otpCreatedTime + expiryMinutes * 60 * 1000;
-
-    if (now < otpExpiresAt) {
-      return res.status(400).json({
-        success: false,
-        message: `An OTP has already been sent. Please wait before requesting another.`,
-      });
-    }
-
-    //  Delete expired OTP to keep collection clean
-    await OTP.deleteOne({ email });
-  }
-
+  // Generate new OTP
   const otp = generateOTP();
 
   if (otpDoc) {

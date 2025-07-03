@@ -3,10 +3,10 @@ const mongoose = require("mongoose");
 const logger = require("./utils/logger");
 
 // Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  logger.error(`💥 UNCAUGHT EXCEPTION: ${err.name} | ${err.message}`);
-  process.exit(1);
-});
+// process.on("uncaughtException", (err) => {
+//   logger.error(`💥 UNCAUGHT EXCEPTION: ${err.name} | ${err.message}`);
+//   process.exit(1);
+// });
 
 // Load env
 const env = process.env.NODE_ENV || "development";

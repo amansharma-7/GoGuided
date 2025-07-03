@@ -20,11 +20,12 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center h-[85vh] relative">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-green-50 z-10">
+    <div className="flex items-center justify-center h-[85vh] px-4 relative">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-lg shadow-lg bg-green-50 ">
         <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Log In
         </h2>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-y-4"
@@ -62,7 +63,7 @@ function LoginForm() {
                   message: "Password must be at least 6 characters",
                 },
               })}
-              className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
             />
             <span
               onClick={() => setShowPassword((prev) => !prev)}

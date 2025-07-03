@@ -86,8 +86,8 @@ function SignupForm() {
   // ------------------- Render -------------------
 
   return (
-    <div className="flex items-center justify-center h-[85vh]">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-green-50">
+    <div className="flex items-center justify-center h-auto py-2 max-h-screen px-4">
+      <div className="w-full max-w-md p-6  rounded-lg shadow-lg bg-green-50">
         <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Create an Account
         </h2>
@@ -97,7 +97,7 @@ function SignupForm() {
           className="flex flex-col gap-y-4"
         >
           {/* First & Last Name */}
-          <div className="flex gap-x-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <label className="w-full">
               <p className="mb-1 text-lg text-green-950">First Name</p>
               <input
@@ -177,7 +177,7 @@ function SignupForm() {
           </label>
 
           {/* Password Fields */}
-          <div className="flex gap-x-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <label className="relative w-full">
               <p className="mb-1 text-lg text-green-950">Create Password</p>
               <input
@@ -300,7 +300,7 @@ function SignupForm() {
           </button>
 
           {/* Login Link */}
-          <p className="mt-2 text-center text-green-950">
+          <p className=" text-center text-green-950">
             Already have an account?{" "}
             <Link to="/login" className="text-green-800 font-semibold">
               Log In
