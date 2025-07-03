@@ -2,6 +2,7 @@
 const jwt = require("jsonwebtoken");
 
 // Models
+const OtpVerification = require("../models/otpModel");
 const User = require("../models/userModel");
 
 // Utilities
@@ -14,7 +15,7 @@ const { generateOTP } = require("../utils/otp");
 
 //  Register new user
 exports.register = catchAsync(async (req, res, next) => {
-  const { firstName, lastName, email, phone, password } = req.body;
+  const { firstName, lastName, email, phone, password, otp } = req.body;
 
   const existingUser = await User.findOne({ email }).select("+isDeleted");
 
@@ -30,6 +31,19 @@ exports.register = catchAsync(async (req, res, next) => {
     return next(new AppError("User already exists with this email.", 400));
   }
 
+  const purpose = "email_verification";
+
+  // Validate OTP
+  const otpDoc = await OtpVerification.findOne({ email, purpose });
+
+  const now = Date.now();
+
+  if (!otpDoc || otpDoc.otp !== otp || otpDoc.otpExpiresAt < now) {
+    return next(
+      new AppError("The OTP is invalid or has expired. Please try again.", 400)
+    );
+  }
+
   const newUser = await User.create({
     firstName,
     lastName,
@@ -38,30 +52,11 @@ exports.register = catchAsync(async (req, res, next) => {
     password,
   });
 
-  // Generate OTP
-  const otp = generateOTP();
-  newUser.emailVerificationOTP = otp;
-  newUser.emailVerificationOTPExpires =
-    Date.now() + process.env.OTP_EXPIRES_IN_MINUTES * 60 * 1000;
-
   await newUser.save({ validateBeforeSave: false });
-
-  const { isEmailSent, message: emailErrorMessage } =
-    await sendRegistrationOtpEmail({
-      user: { email: newUser.email, firstName: newUser.firstName },
-      otp,
-    });
-
-  if (!isEmailSent) {
-    // Rollback if email fails
-    await User.findByIdAndDelete(newUser._id);
-
-    return next(new AppError(emailErrorMessage, 500));
-  }
 
   res.status(201).json({
     isSuccess: true,
-    message: "OTP sent to email. Please verify to complete registration.",
+    message: "Account registered successfully. You can now log in.",
   });
 });
 
@@ -110,34 +105,36 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   });
 });
 
-// resend OTP
-exports.resendOTP = catchAsync(async (req, res, next) => {
+// send OTP
+exports.sendOTP = catchAsync(async (req, res, next) => {
   const { email } = req.body;
+  const purpose = "email_verification";
+  const now = Date.now();
 
-  // select all needed fields
-  const user = await User.findOne({ email }).select(
-    "emailVerificationOTP emailVerificationOTPExpires firstName email"
-  );
+  const expiryTime =
+    now + Number(process.env.OTP_EXPIRES_IN_MINUTES || 5) * 60 * 1000;
 
-  if (!user) {
-    return next(new AppError("No user found with this email", 404));
-  }
+  let otpDoc = await OtpVerification.findOne({ email, purpose });
 
   // Generate new OTP
   const otp = generateOTP();
-  user.emailVerificationOTP = otp;
-  user.emailVerificationOTPExpires =
-    Date.now() + Number(process.env.OTP_EXPIRES_IN_MINUTES) * 60 * 1000;
 
-  // Save user
-  await user.save();
-
-  // Send email
-  const { isEmailSent, message: emailErrorMessage } =
-    await sendRegistrationOtpEmail({
-      user: { email: user.email, firstName: user.firstName },
+  if (otpDoc) {
+    otpDoc.otp = otp;
+    otpDoc.otpExpiresAt = expiryTime;
+  } else {
+    otpDoc = new OtpVerification({
+      email,
       otp,
+      otpExpiresAt: expiryTime,
+      purpose,
     });
+  }
+
+  await otpDoc.save();
+
+  const { isEmailSent, message: emailErrorMessage } =
+    await sendRegistrationOtpEmail({ user: { email }, otp });
 
   if (!isEmailSent) {
     return next(new AppError(emailErrorMessage, 500));
@@ -145,7 +142,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     isSuccess: true,
-    message: "OTP resent successfully",
+    message: "OTP has been sent to your email successfully.",
   });
 });
 
@@ -185,37 +182,30 @@ const sendTokenAsCookie = (user, token, res) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // 1. Check if user exists
+  // Check if user exists
   const user = await User.findOne({ email }).select("+password +isDeleted");
 
   if (!user) {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  // 2. Check if account is deleted
+  // Check if account is deleted
   if (user.isDeleted) {
     return next(
       new AppError("Account is marked as deleted. Please contact support.", 403)
     );
   }
 
-  // 3. Validate password
+  // Validate password
   const isValid = await user.isPasswordValid(password, user.password);
   if (!isValid) {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  // 4. Check if email is verified
-  if (!user.isEmailVerified) {
-    return next(
-      new AppError("Email not verified. Please verify your email first.", 401)
-    );
-  }
-
-  // 5. Generate token
+  // Generate token
   const token = signToken(user._id);
 
-  // 6. Send token in cookie
+  // Send token in cookie
   sendTokenAsCookie(user, token, res);
 });
 

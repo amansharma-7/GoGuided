@@ -20,18 +20,11 @@ router.post(
   authController.register
 );
 
-// Verify Email
-router.patch(
-  "/verify-email",
-  authValidator.verifyEmail,
-  authController.verifyEmail
-);
-
-// Resend OTP
-router.patch(
-  "/resend-otp",
-  authValidator.resendOTPValidator,
-  authController.resendOTP
+// Send OTP
+router.post(
+  "/send-otp",
+  authValidator.sendOTPValidator,
+  authController.sendOTP
 );
 
 // Login

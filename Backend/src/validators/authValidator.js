@@ -42,11 +42,13 @@ exports.registerValidator = validate([
       }
       return true;
     }),
+
+  otpFieldValidator,
 ]);
 
 exports.verifyEmail = validate([emailFieldValidator, otpFieldValidator]);
 
-exports.resendOTPValidator = validate([emailFieldValidator]);
+exports.sendOTPValidator = validate([emailFieldValidator]);
 
 exports.loginValidator = validate([
   emailFieldValidator,
