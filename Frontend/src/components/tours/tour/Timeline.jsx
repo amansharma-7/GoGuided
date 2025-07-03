@@ -10,40 +10,48 @@ const tourSchedule = [
   { day: "Day 7", task: "Return Home" },
 ];
 
-const Timeline = () => {
+function Timeline() {
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative flex flex-col items-center">
+    <div
+      className="bg-white py-2 rounded-lg shadow-sm 
+      w-full md:w-[30%] 
+      flex flex-col items-center
+      "
+    >
+      <div className="relative flex flex-col items-center w-full px-4 md:px-0">
         {/* Vertical Line */}
-        <div className=" absolute left-[5%] top-11 bottom-11 w-0.5 bg-green-600/50 border-l-2 border-dotted border-green-600"></div>
+        <div className=" absolute left-[11%] md:left-[12%] top-11 bottom-11 w-0.5 bg-green-600/50 border-l-2 border-dotted border-green-600"></div>
 
-        {/* Map through days dynamically */}
-        {tourSchedule.map((event, index) => (
-          <div
-            key={index}
-            className="flex items-center space-x-4 mt-6 relative"
-          >
-            {/* Timeline Dots */}
+        <div className="flex flex-col gap-3 w-full md:w-auto">
+          {tourSchedule.map((event, index) => (
             <div
-              className={`${
-                index === 0 || index === tourSchedule.length - 1
-                  ? "w-8 h-8 bg-green-600"
-                  : "w-4 h-4 bg-white border-2 border-green-600"
-              } rounded-full `}
-            ></div>
+              key={index}
+              className="flex items-center gap-4 relative w-full md:w-auto"
+            >
+              {/* Timeline Dots */}
+              <div
+                className={`${
+                  index === 0 || index === tourSchedule.length - 1
+                    ? "w-8 h-8 bg-green-600"
+                    : "w-4 h-4 bg-white border-2 mx-2 border-green-600"
+                } rounded-full flex-shrink-0`}
+              ></div>
 
-            {/* Content */}
-            <div className="bg-white shadow-md px-6 py-2 rounded-md flex items-center space-x-3 w-64">
-              <div>
-                <h3 className="font-bold text-gray-800">{event.day}</h3>
-                <p className="text-gray-600 text-sm">{event.task}</p>
+              {/* Content */}
+              <div className="bg-white shadow-md px-4 py-2 rounded-md flex flex-col justify-center w-full md:w-64">
+                <h3 className="font-bold text-green-950 text-base md:text-lg">
+                  {event.day}
+                </h3>
+                <p className="text-green-950 text-sm md:text-base">
+                  {event.task}
+                </p>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default Timeline;
