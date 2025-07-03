@@ -84,6 +84,8 @@ exports.resetPasswordValidator = validate([
       }
       return true;
     }),
+
+  otpFieldValidator,
 ]);
 
 exports.updatePasswordValidator = validate([
