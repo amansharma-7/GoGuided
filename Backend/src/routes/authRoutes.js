@@ -33,4 +33,23 @@ router.post("/login", authValidator.loginValidator, authController.login);
 // Get current logged-in user's data
 router.get("/me", authMiddleware.protect, authController.getMe);
 
+router.patch(
+  "/forgot-password",
+  authValidator.forgotPasswordValidator,
+  authController.forgotPassword
+);
+
+router.patch(
+  "/reset-password",
+  authValidator.resetPasswordValidator,
+  authController.resetPassword
+);
+
+router.patch(
+  "/update-password",
+  authMiddleware.protect,
+  authValidator.updatePasswordValidator,
+  authController.updatePassword
+);
+
 module.exports = router;

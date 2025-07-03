@@ -9,8 +9,12 @@ const capitalize = (str) =>
     ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
     : str;
 
+const formatFieldName = (field) => {
+  return field.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+};
+
 // First Name Validator (required)
-exports.firstNameValidator = body("firstName")
+exports.firstNameFieldValidator = body("firstName")
   .trim()
   .notEmpty()
   .withMessage("First name is required")
@@ -21,7 +25,7 @@ exports.firstNameValidator = body("firstName")
   .customSanitizer((value) => capitalize(value));
 
 // Last Name Validator (optional)
-exports.lastNameValidator = body("lastName")
+exports.lastNameFieldValidator = body("lastName")
   .trim()
   .optional({ checkFalsy: true })
   .isLength({ min: 2 })
@@ -43,10 +47,6 @@ exports.emailFieldValidator = body("email")
   .isLength({ max: 320 })
   .withMessage("Email must not exceed 320 characters");
 
-exports.passwordFieldValidator = body("password")
-  .notEmpty()
-  .withMessage("Password is required");
-
 const phoneRegex = /^[6-9]\d{9}$/;
 
 exports.phoneFieldValidator = body("phone")
@@ -55,6 +55,44 @@ exports.phoneFieldValidator = body("phone")
   .withMessage("Phone number is required")
   .matches(phoneRegex)
   .withMessage("Phone number must be a valid 10-digit Indian mobile number");
+
+exports.strongPasswordFieldValidator = (fieldName) =>
+  body(fieldName)
+    .trim()
+    .notEmpty()
+    .withMessage(`${formatFieldName(fieldName)} is required`)
+    .isLength({ min: 8 })
+    .withMessage(`${fieldName} must be at least 8 characters long`)
+    .matches(/[a-z]/)
+    .withMessage(`${fieldName} must contain at least one lowercase letter`)
+    .matches(/[A-Z]/)
+    .withMessage(`${fieldName} must contain at least one uppercase letter`)
+    .matches(/[0-9]/)
+    .withMessage(`${fieldName} must contain at least one number`)
+    .matches(/[@$!%*?&]/)
+    .withMessage(
+      `${fieldName} must contain at least one special character (@, $, !, %, *, ?, &)`
+    );
+
+exports.confirmPasswordValidator = (fieldName, matchFieldName) =>
+  body(fieldName)
+    .notEmpty()
+    .withMessage(`${formatFieldName(fieldName)} is required`)
+    .custom((value, { req }) => {
+      if (value !== req.body[matchFieldName]) {
+        throw new Error(
+          `${formatFieldName(fieldName)} and ${formatFieldName(
+            matchFieldName
+          )} do not match`
+        );
+      }
+      return true;
+    });
+
+exports.passwordFieldValidator = (fieldName) =>
+  body(fieldName)
+    .notEmpty()
+    .withMessage(`${formatFieldName(fieldName)} is required`);
 
 exports.otpFieldValidator = body("otp")
   .trim()
