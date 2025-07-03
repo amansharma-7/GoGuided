@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import LoaderOverlay from "../common/LoaderOverlay";
 
 import useApi from "../../hooks/useApi";
-import { registerUser } from "../../services/authService";
+import { sendOtp, registerUser } from "../../services/authService";
 
 function SignupForm() {
   // ------------------- State -------------------
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [hasRequestedOtp, setHasRequestedOtp] = useState(false);
 
   // ------------------- Form -------------------
   const {
@@ -22,27 +23,67 @@ function SignupForm() {
   } = useForm();
 
   // ------------------- API -------------------
-  const { request, loading, error } = useApi(registerUser);
+  const {
+    request: sendOtpRequest,
+    loading: otpLoading,
+    error: otpError,
+  } = useApi(sendOtp);
+
+  const {
+    request: registerRequest,
+    loading: registerLoading,
+    error: registerError,
+  } = useApi(registerUser);
+
   const navigate = useNavigate();
 
   // ------------------- Handlers -------------------
+
+  const handleOtpRequest = async () => {
+    try {
+      const email = watch("email");
+
+      if (!email) {
+        toast.error("Enter email before requesting OTP.");
+        return;
+      }
+
+      await sendOtpRequest({ data: { email } });
+
+      toast.success("OTP sent successfully.");
+
+      // First-time request
+      if (!hasRequestedOtp) setHasRequestedOtp(true);
+
+      // Start resend cooldown
+      setResendCooldown(30);
+    } catch (err) {
+      toast.error(otpError || "Failed to send OTP. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    if (resendCooldown === 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) clearInterval(interval);
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
   const onSubmit = async (formData) => {
     try {
-      const response = await request({ data: formData });
+      const response = await registerRequest({ data: formData });
       toast.success(response.message);
       navigate("/login");
     } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      toast.error(message);
+      toast.error(registerError);
     }
   };
 
   // ------------------- Render -------------------
-
-  if (loading) return <LoaderOverlay />;
 
   return (
     <div className="flex items-center justify-center h-[85vh]">
@@ -55,7 +96,7 @@ function SignupForm() {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-y-4"
         >
-          {/* First & Last Name Fields */}
+          {/* First & Last Name */}
           <div className="flex gap-x-4">
             <label className="w-full">
               <p className="mb-1 text-lg text-green-950">First Name</p>
@@ -92,7 +133,7 @@ function SignupForm() {
             </label>
           </div>
 
-          {/* Email Field */}
+          {/* Email */}
           <label className="w-full">
             <p className="mb-1 text-lg text-green-950">Email Address</p>
             <input
@@ -112,7 +153,7 @@ function SignupForm() {
             )}
           </label>
 
-          {/* Contact Field */}
+          {/* Phone */}
           <label className="w-full">
             <p className="mb-1 text-lg text-green-950">Phone Number</p>
             <input
@@ -198,13 +239,64 @@ function SignupForm() {
             </label>
           </div>
 
+          {/* OTP Field */}
+          <div className="w-full">
+            <p className="mb-1 text-lg text-green-950">OTP Code</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                placeholder="Enter the OTP code"
+                {...register("otp", {
+                  required: "OTP is required",
+                  minLength: {
+                    value: 4,
+                    message: "OTP must be at least 4 digits",
+                  },
+                })}
+                className="flex-1 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+              />
+              {!hasRequestedOtp && (
+                <button
+                  type="button"
+                  onClick={handleOtpRequest}
+                  className="sm:w-auto w-full rounded-md bg-green-500 text-white px-4 py-2 font-semibold cursor-pointer hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+                >
+                  {otpLoading ? "Sending" : "Get OTP"}
+                </button>
+              )}
+            </div>
+
+            {/* Resend OTP */}
+            {hasRequestedOtp && (
+              <p className="text-sm mt-1 text-green-900">
+                Didn’t receive it?{" "}
+                <button
+                  type="button"
+                  onClick={handleOtpRequest}
+                  disabled={otpLoading || resendCooldown > 0}
+                  className="text-green-700 font-medium underline hover:text-green-800 cursor-pointer disabled:text-green-400 disabled:cursor-not-allowed"
+                >
+                  {resendCooldown > 0
+                    ? `Resend in ${resendCooldown}s`
+                    : otpLoading
+                    ? "Sending..."
+                    : "Resend OTP"}
+                </button>
+              </p>
+            )}
+
+            {errors.otp && (
+              <p className="text-red-400 text-xs mt-1">{errors.otp.message}</p>
+            )}
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-400 transition disabled:opacity-50"
+            disabled={registerLoading}
+            className="mt-4 rounded-md bg-green-600 text-white py-2 font-semibold cursor-pointer hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating..." : "Create Account"}
+            {registerLoading ? "Creating..." : "Create Account"}
           </button>
 
           {/* Login Link */}
@@ -214,13 +306,6 @@ function SignupForm() {
               Log In
             </Link>
           </p>
-
-          {/* Error Message */}
-          {error && (
-            <p className="text-center mt-2 text-red-500 text-sm font-medium">
-              {error.message || "Something went wrong. Please try again."}
-            </p>
-          )}
         </form>
       </div>
     </div>
