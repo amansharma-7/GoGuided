@@ -194,7 +194,7 @@ const BookTourForm = () => {
         <button
           type="submit"
           disabled={totalCost === 0}
-          className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md 
+          className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md cursor-pointer
           hover:bg-green-700 hover:shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Pay & Book Tour

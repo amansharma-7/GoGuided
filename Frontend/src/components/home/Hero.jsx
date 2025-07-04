@@ -22,7 +22,7 @@ function Hero({
           <button
             onClick={() => navigate("/tours")}
             aria-label="Explore Tours"
-            className="px-5 py-3 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-green-700 hover:bg-green-600 text-white text-base sm:text-lg md:text-xl font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 animate-fadeIn delay-400"
+            className="px-5 py-3 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-green-700 hover:bg-green-600 text-white text-base sm:text-lg md:text-xl font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 animate-fadeIn delay-400 cursor-pointer"
           >
             Explore Tours
           </button>

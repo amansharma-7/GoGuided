@@ -55,7 +55,7 @@ function ForgotPasswordModal({ isOpen, onClose }) {
                 setEmail("");
                 onClose();
               }}
-              className="px-4 py-2 text-sm rounded-md bg-gray-300 hover:bg-gray-400 transition-colors"
+              className="px-4 py-2 text-sm rounded-md cursor-pointer bg-gray-300  hover:bg-gray-400 transition-colors"
             >
               Cancel
             </button>
@@ -63,7 +63,7 @@ function ForgotPasswordModal({ isOpen, onClose }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm rounded-md bg-green-500 hover:bg-green-600 text-black font-semibold transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm rounded-md bg-green-500 cursor-pointer hover:bg-green-600 text-black font-semibold transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
