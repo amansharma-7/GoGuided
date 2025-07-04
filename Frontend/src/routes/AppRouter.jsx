@@ -344,8 +344,8 @@ const router = createBrowserRouter([
         Component: SignupForm,
       },
       {
-        path: "/reset-password/:token",
-        Component: ResetPassword,
+        path: "/reset-password",
+        element: <ResetPassword />,
       },
       {
         path: "*",

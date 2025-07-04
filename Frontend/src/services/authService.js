@@ -11,6 +11,9 @@ export const registerUser = async ({ data }) => {
 export const forgotPassword = async ({ data }) => {
   return await api.patch("/auth/forgot-password", data);
 };
+export const resetPassword = async ({ params, data }) => {
+  return await api.patch("/auth/reset-password", data, { params });
+};
 
 export const loginUser = async ({ data }) => {
   return await api.post("/auth/login", data);

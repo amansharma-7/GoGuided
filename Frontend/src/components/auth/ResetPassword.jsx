@@ -1,8 +1,21 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import useApi from "../../hooks/useApi";
+import { resetPassword } from "../../services/authService";
+import { useLocation } from "react-router";
+import toast from "react-hot-toast";
 
 function UpdatePassword() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const token = queryParams.get("token");
+  const { request, loading, error } = useApi(resetPassword);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -10,18 +23,14 @@ function UpdatePassword() {
     formState: { errors },
   } = useForm();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const onSubmit = (data) => {
-    console.log("Password change request:", data);
-
-    // Simulate API call
-    setSuccessMessage("Your password has been successfully updated!");
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 3000);
+  const onSubmit = async (data) => {
+    try {
+      const response = await request({ data, params: { token } });
+      toast.success(response.message);
+      setSuccessMessage(response.message);
+    } catch (err) {
+      toast.error(error);
+    }
   };
 
   return (
@@ -32,7 +41,18 @@ function UpdatePassword() {
         </h2>
 
         {successMessage ? (
-          <p className="text-green-600 text-center mb-4">{successMessage}</p>
+          <div className="text-center mb-4">
+            <p className="text-green-800 text-sm font-medium mb-2">
+              ✅{" "}
+              {successMessage || "Your password has been successfully updated."}
+            </p>
+            <a
+              href="/login"
+              className="inline-block text-green-700 hover:underline text-sm font-semibold"
+            >
+              Go to Login
+            </a>
+          </div>
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -44,7 +64,7 @@ function UpdatePassword() {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter new password"
-                {...register("newPassword", {
+                {...register("password", {
                   required: "New password is required",
                   minLength: {
                     value: 6,
@@ -79,7 +99,7 @@ function UpdatePassword() {
                 {...register("confirmPassword", {
                   required: "Confirm your new password",
                   validate: (value) =>
-                    value === watch("newPassword") || "Passwords do not match",
+                    value === watch("password") || "Passwords do not match",
                 })}
                 className="w-full border border-black rounded-lg p-2 pr-10 focus:outline-none text-green-950"
               />
@@ -103,9 +123,10 @@ function UpdatePassword() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-green-500 cursor-pointer hover:bg-green-600 text-black font-semibold py-2 rounded-lg"
+              disabled={loading}
+              className="mt-4 rounded-md bg-green-600 text-white py-2 font-semibold cursor-pointer hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
             >
-              Update Password
+              {loading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
         )}
