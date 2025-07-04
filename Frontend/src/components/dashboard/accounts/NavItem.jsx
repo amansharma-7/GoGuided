@@ -1,13 +1,22 @@
 import { NavLink } from "react-router";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
+import useApi from "../../../hooks/useApi";
+import { logoutUser } from "../../../services/authService";
+import toast from "react-hot-toast";
 
 function NavItem({ to, children, onClick }) {
   const safeNavigate = useSafeNavigate();
+  const { request: logoutRequest, error: logoutError } = useApi(logoutUser);
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    // Add logout logic here (clear tokens, redirect, etc.)
-    safeNavigate("/login");
+  const handleLogout = async () => {
+    try {
+      const response = await logoutRequest({});
+
+      toast.success(response.message);
+      safeNavigate("/login");
+    } catch (error) {
+      toast.error(logoutError);
+    }
   };
 
   const style = `flex items-center px-2 md:px-8 py-2 md:py-3 md:text-xl uppercase  bg-green-700 text-green-100  space-x-3 transition-all duration-75 ease-in-out `;

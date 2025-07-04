@@ -48,17 +48,17 @@ function SignupForm() {
         return;
       }
 
-      await sendOtpRequest({ data: { email } });
+      const response = await sendOtpRequest({ data: { email } });
 
-      toast.success("OTP sent successfully.");
+      toast.success(response.message);
 
       // First-time request
       if (!hasRequestedOtp) setHasRequestedOtp(true);
 
       // Start resend cooldown
-      setResendCooldown(30);
+      setResendCooldown(60);
     } catch (err) {
-      toast.error(otpError || "Failed to send OTP. Please try again.");
+      toast.error(otpError);
     }
   };
 
