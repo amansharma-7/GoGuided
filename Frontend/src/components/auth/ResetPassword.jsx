@@ -25,10 +25,10 @@ function UpdatePassword() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-green-50">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+    <div className="flex items-center justify-center h-[85vh] bg-white ">
+      <div className="w-full max-w-md bg-green-50 p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-green-900 mb-6">
-          Update Password
+          Reset Password
         </h2>
 
         {successMessage ? (
