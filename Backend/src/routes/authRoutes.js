@@ -52,4 +52,6 @@ router.patch(
   authController.updatePassword
 );
 
+router.post("/logout", authController.logout);
+
 module.exports = router;

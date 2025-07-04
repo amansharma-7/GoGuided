@@ -239,6 +239,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
   });
 });
 
+// Handle forgot password request: generates reset token and emails it
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -278,6 +279,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+// Reset password using valid reset token
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const { token } = req.query;
   const { password } = req.body;
@@ -317,6 +319,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+// Update password from profile (requires current password)
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
   const { userId } = req.user;
@@ -356,5 +359,20 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   res.status(200).json({
     isSuccess: true,
     message: "Your password has been updated successfully.",
+  });
+});
+
+// Logout user by clearing the authentication cookie
+exports.logout = catchAsync(async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+
+  res.status(200).json({
+    isSuccess: true,
+    message: "Logged out successfully",
   });
 });
