@@ -4,11 +4,7 @@ const nodemailer = require("nodemailer");
 // Utilities
 const logger = require("./logger");
 
-// === Reusable Email Sender ===
-// -----------------------------
-// A single-file utility to send OTP-based verification emails using nodemailer
-// HTML structure and dynamic content are generated using a configurable template
-
+// === Email Template Builder ===
 const buildEmailTemplate = ({
   firstName,
   title,
@@ -97,6 +93,7 @@ const buildEmailTemplate = ({
   `;
 };
 
+// === Transport Creator ===
 const createTransport = () =>
   nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -107,33 +104,21 @@ const createTransport = () =>
     },
   });
 
-const sendRegistrationOtpEmail = async ({ user, otp }) => {
-  if (!user || !user.email || !otp) {
-    throw new Error("Missing user or OTP");
-  }
-
+// === General-purpose Email Sender ===
+const sendEmail = async ({ to, subject, html }) => {
   const transporter = createTransport();
-
-  const html = buildEmailTemplate({
-    firstName: user?.firstName || "there",
-    title: "Verify Your Email",
-    message:
-      "To verify your email and create your account, please use the OTP (One-Time Password) below:",
-    otp,
-  });
+  const isDev = process.env.NODE_ENV === "development";
 
   try {
     await transporter.sendMail({
       from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
-      to: user.email,
-      subject: "Email Verification OTP",
+      to,
+      subject,
       html,
     });
 
     return { isEmailSent: true };
   } catch (err) {
-    const isDev = process.env.NODE_ENV === "development";
-
     if (isDev) {
       console.error("Email sending failed:", err.stack || err);
     } else {
@@ -154,12 +139,29 @@ const sendRegistrationOtpEmail = async ({ user, otp }) => {
   }
 };
 
-const sendPasswordResetEmail = async ({ user, passwordResetUrl }) => {
-  if (!user || !user.email || !user.passwordResetToken || !passwordResetUrl) {
-    throw new Error("Missing user, password reset URL, or token");
-  }
+// === Specific Email APIs ===
 
-  const transporter = createTransport();
+const sendRegistrationOtpEmail = async ({ user, otp }) => {
+  if (!user?.email || !otp) throw new Error("Missing user or OTP");
+
+  const html = buildEmailTemplate({
+    firstName: user.firstName || "there",
+    title: "Verify Your Email",
+    message:
+      "To verify your email and create your account, please use the OTP below:",
+    otp,
+  });
+
+  return sendEmail({
+    to: user.email,
+    subject: "Email Verification OTP",
+    html,
+  });
+};
+
+const sendPasswordResetEmail = async ({ user, passwordResetUrl }) => {
+  if (!user?.email || !user.passwordResetToken || !passwordResetUrl)
+    throw new Error("Missing user, password reset URL, or token");
 
   const html = buildEmailTemplate({
     firstName: user.firstName,
@@ -167,39 +169,14 @@ const sendPasswordResetEmail = async ({ user, passwordResetUrl }) => {
     message:
       "We received a request to reset your password. Click the button below to reset it.",
     buttonText: "Reset Password",
-    buttonLink: passwordResetUrl + user.passwordResetToken,
+    buttonLink: passwordResetUrl,
   });
 
-  try {
-    await transporter.sendMail({
-      from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
-      to: user.email,
-      subject: "Password Reset Request",
-      html,
-    });
-
-    return { isEmailSent: true };
-  } catch (err) {
-    const isDev = process.env.NODE_ENV === "development";
-
-    if (isDev) {
-      console.error("Password reset email failed:", err.stack || err);
-    } else {
-      logger.error("Password reset email failed", {
-        message: err.message,
-        code: err.code,
-        name: err.name,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    return {
-      isEmailSent: false,
-      message: isDev
-        ? err.message || "Failed to send password reset email"
-        : "Failed to send email. Please try again later.",
-    };
-  }
+  return sendEmail({
+    to: user.email,
+    subject: "Password Reset Request",
+    html,
+  });
 };
 
 module.exports = {

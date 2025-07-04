@@ -29,13 +29,22 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
+    passwordResetToken: {
+      type: String,
+    },
+    passwordResetTokenExpiresAt: {
+      type: Date,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin", "guide"],
+      default: "user",
+    },
     isDeleted: {
       type: Boolean,
       default: false,
       select: false,
     },
-    passwordResetToken: String,
-    passwordResetTokenExpires: Date,
   },
   {
     timestamps: true,

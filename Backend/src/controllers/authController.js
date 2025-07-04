@@ -1,10 +1,10 @@
 // Core
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 // Models
 const OtpVerification = require("../models/otpModel");
 const User = require("../models/userModel");
-const OTP = require("../models/otpModel");
 
 // Utilities
 const catchAsync = require("../utils/catchAsync");
@@ -14,10 +14,9 @@ const {
   sendPasswordResetEmail,
 } = require("../utils/email");
 const { generateOTP } = require("../utils/otp");
-const generateToken = require("../utils/generateToken");
+const { generateToken } = require("../utils/generateToken");
 
-//constants
-const passwordResetUrl = process.env.FRONTEND_URL + "/reset-password/";
+// Controllers
 
 //  Register new user
 exports.register = catchAsync(async (req, res, next) => {
@@ -245,14 +244,20 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email });
 
   if (!user || user.isDeleted) {
-    return next(new AppError("No user found with this email address", 404));
+    return res.status(200).json({
+      isSuccess: true,
+      message:
+        "If a user with that email exists, a password reset link has been sent.",
+    });
   }
 
-  const { token, tokenExpiresIn } = generateToken(30);
+  const { token, hashedToken, tokenExpiresAt } = generateToken();
 
-  user.passwordResetToken = token;
-  user.passwordResetTokenExpires = tokenExpiresIn;
+  user.passwordResetToken = hashedToken;
+  user.passwordResetTokenExpiresAt = tokenExpiresAt;
   await user.save();
+
+  const passwordResetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
   const { isEmailSent, message: emailErrorMessage } =
     await sendPasswordResetEmail({
@@ -263,11 +268,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       },
       passwordResetUrl,
     });
+
   if (!isEmailSent) {
     return next(new AppError(emailErrorMessage, 500));
   }
   res.status(200).json({
-    status: "success",
+    isSuccess: true,
     message: "Password reset link sent to your email.",
   });
 });
@@ -276,8 +282,15 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   const { token } = req.query;
   const { password } = req.body;
 
-  const user = await User.findOne({ passwordResetToken: token });
-  if (!user || user.passwordResetTokenExpires < Date.now() || user.isDeleted) {
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetTokenExpiresAt: { $gt: Date.now() },
+    isDeleted: { $ne: true },
+  }).select("+password");
+
+  if (!user) {
     return next(
       new AppError(
         "The reset link is invalid or has expired. Please request a new one.",
@@ -286,13 +299,20 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     );
   }
 
+  const isSame = await user.isPasswordValid(password, user.password);
+  if (isSame) {
+    return next(
+      new AppError("New password cannot be the same as your old password.", 400)
+    );
+  }
+
   user.password = password;
   user.passwordResetToken = undefined;
-  user.passwordResetTokenExpires = undefined;
+  user.passwordResetTokenExpiresAt = undefined;
   await user.save();
 
   res.status(200).json({
-    status: "success",
+    isSuccess: true,
     message: "Password updated successfully. You can now log in.",
   });
 });
@@ -304,7 +324,9 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(userId).select("+password");
 
   if (!user || user.isDeleted) {
-    return next(new AppError("Account not found or deleted.", 404));
+    return next(
+      new AppError("User account not found or has been deactivated.", 404)
+    );
   }
 
   const correctPassword = await user.isPasswordValid(
@@ -313,14 +335,26 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   );
 
   if (!correctPassword) {
-    return next(new AppError("Incorrect current password", 401));
+    return next(
+      new AppError("The current password you entered is incorrect.", 401)
+    );
   }
+
+  if (currentPassword === newPassword) {
+    return next(
+      new AppError(
+        "New password cannot be the same as the current password.",
+        400
+      )
+    );
+  }
+
   user.password = newPassword;
 
   await user.save();
 
   res.status(200).json({
-    status: "success",
-    message: "Password updated successfully.",
+    isSuccess: true,
+    message: "Your password has been updated successfully.",
   });
 });

@@ -1,24 +1,46 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router";
-import ForgotPasswordModal from "./ForgotPassword"; // ✅ Import it
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+
+import useApi from "../../hooks/useApi";
+import { loginUser } from "../../services/authService";
+import ForgotPasswordModal from "./ForgotPassword";
 
 function LoginForm() {
+  // ------------------- State -------------------
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+
+  // ------------------- Form -------------------
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showForgotModal, setShowForgotModal] = useState(false);
+  const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log("Form submitted with data:", data);
-    // Authentication logic
+  // ------------------- API -------------------
+  const {
+    request: loginRequest,
+    loading: loginLoading,
+    error: loginError,
+  } = useApi(loginUser);
+
+  // ------------------- Handler -------------------
+  const onSubmit = async (formData) => {
+    try {
+      const response = await loginRequest({ data: formData });
+      toast.success(response.message);
+      navigate("/");
+    } catch (err) {
+      toast.error(loginError);
+    }
   };
 
+  // ------------------- UI -------------------
   return (
     <div className="flex items-center justify-center h-[85vh] px-4 relative">
       <div className="w-full max-w-md p-6 sm:p-8 rounded-lg shadow-lg bg-green-50 ">
@@ -51,7 +73,7 @@ function LoginForm() {
           </label>
 
           {/* Password Field */}
-          <label className="relative">
+          <label className="relative w-full">
             <p className="mb-1 text-lg text-green-950">Password</p>
             <input
               type={showPassword ? "text" : "password"}
@@ -75,9 +97,12 @@ function LoginForm() {
                 <AiOutlineEye fontSize={24} />
               )}
             </span>
+            {errors.password && (
+              <p className="text-red-400 text-xs">{errors.password.message}</p>
+            )}
             <p
-              className="mt-1 text-md text-green-900 hover:underline cursor-pointer"
               onClick={() => setShowForgotModal(true)}
+              className="mt-1 text-md text-green-900 hover:underline cursor-pointer"
             >
               Forgot Password?
             </p>
@@ -86,9 +111,10 @@ function LoginForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-600 transition"
+            disabled={loginLoading}
+            className="mt-4 rounded-md bg-green-600 text-white py-2 font-semibold cursor-pointer hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loginLoading ? "Logging in..." : "Log In"}
           </button>
 
           {/* Signup Link */}
