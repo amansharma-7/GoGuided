@@ -61,7 +61,7 @@ import GuideDashboard from "../components/dashboard/accounts/guide/DashBoard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
 import JobApplicationForm from "../components/careers/JobApplicationForm";
-import UpdatePassword from "../components/auth/UpdatePassword";
+import ResetPassword from "../components/auth/ResetPassword";
 import BookTourForm from "../components/tours/tour/Booktour";
 import TermsAndConditions from "../pages/Terms";
 import PrivacyPolicy from "../pages/privacy";
@@ -344,8 +344,8 @@ const router = createBrowserRouter([
         Component: SignupForm,
       },
       {
-        path: "/change-password/:id", // route with token from email
-        Component: UpdatePassword,
+        path: "/reset-password/:token",
+        Component: ResetPassword,
       },
       {
         path: "*",
