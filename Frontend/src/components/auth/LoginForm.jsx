@@ -7,11 +7,13 @@ import { toast } from "react-hot-toast";
 import useApi from "../../hooks/useApi";
 import { loginUser } from "../../services/authService";
 import ForgotPasswordModal from "./ForgotPassword";
+import { useUser } from "../../context/UserContext";
 
 function LoginForm() {
   // ------------------- State -------------------
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const { setUserContext } = useUser();
 
   // ------------------- Form -------------------
   const {
@@ -33,6 +35,7 @@ function LoginForm() {
   const onSubmit = async (formData) => {
     try {
       const response = await loginRequest({ data: formData });
+      setUserContext(response?.user);
       toast.success(response.message);
       navigate("/");
     } catch (err) {

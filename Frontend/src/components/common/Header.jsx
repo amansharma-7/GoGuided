@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaCircleUser } from "react-icons/fa6";
 import { Link, NavLink } from "react-router";
 import useSafeNavigate from "../../utils/useSafeNavigate";
-import { useUser } from "./UserContext";
+import { useUser } from "../../context/UserContext";
 import Avatar from "./Avatar";
 
 function Header() {
@@ -84,8 +84,8 @@ function Header() {
               />
             )
           ) : (
-            <div className="bg-primary text-nav-link p-2 rounded-full flex items-center justify-center shadow-sm shadow-nav-highlighted">
-              <UserRound className="text-white w-6 h-6" />
+            <div className="bg-primary text-nav-link rounded-full flex items-center justify-center shadow-sm shadow-nav-highlighted">
+              <FaCircleUser className="text-green-200 w-12 h-12" />
             </div>
           )}
         </button>

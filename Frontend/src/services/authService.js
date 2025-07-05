@@ -19,6 +19,10 @@ export const loginUser = async ({ data }) => {
   return await api.post("/auth/login", data);
 };
 
+export const getMe = async () => {
+  return await api.get("/auth/me");
+};
+
 export const logoutUser = async () => {
   return await api.post("/auth/logout");
 };

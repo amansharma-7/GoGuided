@@ -2,7 +2,7 @@ import { MdAddCircleOutline, MdCampaign } from "react-icons/md";
 import { AiOutlineEye } from "react-icons/ai";
 import ViewAnnouncementPost from "./ViewAnnouncementPost";
 import { useState } from "react";
-import { useUser } from "./UserContext";
+import { useUser } from "../../context/UserContext";
 
 const announcementsData = [
   {

@@ -1,30 +1,30 @@
-import { FaCircleUser } from "react-icons/fa6";
-
-const user = {
-  name: "Salman Khan",
-  firstName: "Salman",
-  lastName: "Khan",
-  email: "bishnoi@298.com",
-  photo:
-    "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&w=1985&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-};
+import { useUser } from "../../../context/UserContext";
+import { UserRound } from "lucide-react";
+import Avatar from "../../common/Avatar";
 
 function Profile() {
+  const { user } = useUser();
+
   return (
     <div className="flex items-center gap-4 p-1 md:p-6 text-green-100 relative">
       <div className="relative inline-block cursor-pointer">
         {user ? (
-          <img
-            src={
-              user?.photo
-                ? user.photo
-                : `https://api.dicebear.com/5.x/initials/svg?seed=${user.firstName}%20${user.lastName}&backgroundColor=f5f5f5&textColor=2e7d32`
-            }
-            alt={user.name}
-            className=" h-20 sm:w-20 sm:h-20 w-16 object-cover  rounded-full transition-transform duration-300 ease-in-out hover:scale-110"
-          />
+          user?.profilePicUrl ? (
+            <Avatar size={48} imageURL={user.profilePicUrl} />
+          ) : (
+            <Avatar
+              size={48}
+              bgColor="bg-white"
+              textColor="text-green-800"
+              textSize="text-xl"
+              fontWeight="font-semibold"
+              fullName={user.name}
+            />
+          )
         ) : (
-          <FaCircleUser className="w-16 h-16 sm:w-20 sm:h-20 text-white transition-transform duration-300 ease-in-out hover:scale-110" />
+          <div className="bg-green-600 text-white p-2 rounded-full flex items-center justify-center shadow-sm shadow-nav-highlighted">
+            <UserRound className="w-6 h-6" />
+          </div>
         )}
       </div>
 

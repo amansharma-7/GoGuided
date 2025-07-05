@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useUser } from "../../../context/UserContext";
+import Avatar from "../../common/Avatar";
 
 function Settings() {
-  const user = {
-    name: "Sudhir Sharma",
-    email: "sudhirsharma9018@gmail.com",
-    photo:
-      "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&w=1985&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D",
-  };
+  const { user } = useUser();
 
-  const [profileImage, setProfileImage] = useState(user.photo);
+  const [profileImage, setProfileImage] = useState(user?.profilePicUrl);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -110,11 +107,22 @@ function Settings() {
           {/* Profile Picture Upload */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-x-6">
             <label className="relative cursor-pointer">
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-20 h-20 object-cover object-center rounded-full"
-              />
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-20 h-20 object-cover object-center rounded-full"
+                />
+              ) : (
+                <Avatar
+                  size={48}
+                  bgColor="bg-white"
+                  textColor="text-green-800"
+                  textSize="text-xl"
+                  fontWeight="font-semibold"
+                  fullName={user.name}
+                />
+              )}
               <input
                 type="file"
                 accept="image/*"
