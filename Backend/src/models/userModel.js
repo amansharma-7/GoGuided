@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "guide"],
       default: "user",
     },
+    profilePic: {
+      url: { type: String, default: null },
+      publicId: { type: String, default: null },
+    },
     isDeleted: {
       type: Boolean,
       default: false,
