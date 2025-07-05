@@ -15,7 +15,6 @@ router.patch(
 router.patch(
   "/update-profile-pic",
   authMiddleware.protect,
-  authMiddleware.restrictTo("user", "admin", "owner"),
   accountValidator.profilePictureValidator(),
   accountController.updateProfilePicture
 );

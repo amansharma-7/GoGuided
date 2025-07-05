@@ -1,13 +1,16 @@
 const validate = require("./validate");
 const multer = require("multer");
+const fileUpload = require("../middlewares/fileUpload");
 
 const {
-  lastNameFieldValidator,
   firstNameFieldValidator,
+  lastNameFieldValidator,
+  splitNameToFirstAndLast,
 } = require("./commonFieldValidators");
 const AppError = require("../utils/appError");
 
 exports.updateNameValidator = validate([
+  splitNameToFirstAndLast,
   firstNameFieldValidator,
   lastNameFieldValidator,
 ]);
@@ -15,17 +18,8 @@ exports.updateNameValidator = validate([
 exports.profilePictureValidator = () => {
   const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-  const storage = multer.memoryStorage();
-
-  const upload = multer({
-    storage,
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    },
-  });
-
   return (req, res, next) => {
-    const uploader = upload.single("profilePic");
+    const uploader = fileUpload.single("profilePic");
 
     uploader(req, res, function (err) {
       if (err) {
@@ -35,12 +29,7 @@ exports.profilePictureValidator = () => {
           }
         }
 
-        return next(
-          new AppError(
-            err.message || "An error occurred during file upload",
-            400
-          )
-        );
+        return next(new AppError("An error occurred during file upload", 400));
       }
 
       if (!req.file) {

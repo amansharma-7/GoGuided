@@ -37,6 +37,21 @@ exports.lastNameFieldValidator = body("lastName")
     return capitalize(value);
   });
 
+exports.splitNameToFirstAndLast = body("name")
+  .trim()
+  .notEmpty()
+  .withMessage("Name is required")
+  .customSanitizer((value, { req }) => {
+    const cleaned = value.replace(/\s+/g, " ").trim();
+    const parts = cleaned.split(" ");
+
+    req.body.firstName = parts.length > 0 ? capitalize(parts[0]) : "";
+    req.body.lastName =
+      parts.length > 1 ? capitalize(parts[parts.length - 1]) : "";
+
+    return cleaned;
+  });
+
 exports.emailFieldValidator = body("email")
   .trim()
   .notEmpty()

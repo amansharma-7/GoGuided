@@ -179,6 +179,7 @@ const sendTokenAsCookie = (user, token, res) => {
       name: `${user.firstName} ${user.lastName}`.trim(),
       email: user.email,
       role: user.role,
+      profilePicUrl: user?.profilePic?.url,
     },
   });
 };
@@ -235,6 +236,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
       name: `${user.firstName} ${user.lastName}`.trim(),
       email: user.email,
       role: user.role,
+      profilePicUrl: user?.profilePic?.url,
     },
   });
 });
