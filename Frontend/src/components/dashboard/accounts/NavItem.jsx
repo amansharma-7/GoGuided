@@ -9,7 +9,7 @@ function NavItem({ to, children, onClick }) {
   const { setUserContext } = useUser();
 
   const safeNavigate = useSafeNavigate();
-  const { request: logoutRequest, error: logoutError } = useApi(logoutUser);
+  const { request: logoutRequest } = useApi(logoutUser);
 
   const handleLogout = async () => {
     try {
@@ -17,8 +17,10 @@ function NavItem({ to, children, onClick }) {
       toast.success(response.message);
       setUserContext(null);
       safeNavigate("/login");
-    } catch (error) {
-      toast.error(logoutError);
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 

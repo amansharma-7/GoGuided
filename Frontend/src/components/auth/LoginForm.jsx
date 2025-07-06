@@ -25,11 +25,7 @@ function LoginForm() {
   const navigate = useNavigate();
 
   // ------------------- API -------------------
-  const {
-    request: loginRequest,
-    loading: loginLoading,
-    error: loginError,
-  } = useApi(loginUser);
+  const { request: loginRequest, loading: loginLoading } = useApi(loginUser);
 
   // ------------------- Handler -------------------
   const onSubmit = async (formData) => {
@@ -39,7 +35,9 @@ function LoginForm() {
       toast.success(response.message);
       navigate("/");
     } catch (err) {
-      toast.error(loginError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 

@@ -23,17 +23,10 @@ function SignupForm() {
   } = useForm();
 
   // ------------------- API -------------------
-  const {
-    request: sendOtpRequest,
-    loading: otpLoading,
-    error: otpError,
-  } = useApi(sendOtp);
+  const { request: sendOtpRequest, loading: otpLoading } = useApi(sendOtp);
 
-  const {
-    request: registerRequest,
-    loading: registerLoading,
-    error: registerError,
-  } = useApi(registerUser);
+  const { request: registerRequest, loading: registerLoading } =
+    useApi(registerUser);
 
   const navigate = useNavigate();
 
@@ -58,7 +51,9 @@ function SignupForm() {
       // Start resend cooldown
       setResendCooldown(60);
     } catch (err) {
-      toast.error(otpError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 
@@ -79,7 +74,9 @@ function SignupForm() {
       toast.success(response.message);
       navigate("/login");
     } catch (err) {
-      toast.error(registerError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 

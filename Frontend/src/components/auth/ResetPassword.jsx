@@ -10,7 +10,7 @@ function UpdatePassword() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const token = queryParams.get("token");
-  const { request, loading, error } = useApi(resetPassword);
+  const { request, loading } = useApi(resetPassword);
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +29,9 @@ function UpdatePassword() {
       toast.success(response.message);
       navigate("/login");
     } catch (err) {
-      toast.error(error);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 

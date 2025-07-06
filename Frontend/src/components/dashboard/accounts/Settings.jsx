@@ -10,23 +10,14 @@ import { updatePassword } from "../../../services/authService";
 function Settings() {
   const { user, setUserContext } = useUser();
 
-  const {
-    loading: isNameUpdating,
-    request: updateNameRequest,
-    error: nameUpdateError,
-  } = useApi(updateName);
+  const { loading: isNameUpdating, request: updateNameRequest } =
+    useApi(updateName);
 
-  const {
-    loading: isProfilePicUpdating,
-    request: uploadProfilePic,
-    error: profilePicUploadError,
-  } = useApi(updateProfilePic);
+  const { loading: isProfilePicUpdating, request: uploadProfilePic } =
+    useApi(updateProfilePic);
 
-  const {
-    loading: isPasswordUpdating,
-    request: updatePasswordRequest,
-    error: passwordUpdateError,
-  } = useApi(updatePassword);
+  const { loading: isPasswordUpdating, request: updatePasswordRequest } =
+    useApi(updatePassword);
 
   const [profileImage, setProfileImage] = useState(user?.profilePicUrl);
 
@@ -80,7 +71,9 @@ function Settings() {
       setEditableName(response?.data?.user?.name);
       setIsNameEdited(false);
     } catch (err) {
-      toast.error(nameUpdateError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 
@@ -101,7 +94,9 @@ function Settings() {
       }));
       setProfileImage(response?.data?.user?.profilePicUrl);
     } catch (err) {
-      toast.error(profilePicUploadError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 
@@ -150,7 +145,9 @@ function Settings() {
         confirmNewPassword: "",
       });
     } catch (err) {
-      toast.error(passwordUpdateError);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 

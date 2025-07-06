@@ -6,7 +6,7 @@ import { forgotPassword } from "../../services/authService";
 function ForgotPasswordModal({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
 
-  const { request, loading, error } = useApi(forgotPassword);
+  const { request, loading } = useApi(forgotPassword);
 
   if (!isOpen) return null;
 
@@ -24,7 +24,9 @@ function ForgotPasswordModal({ isOpen, onClose }) {
       onClose();
       setEmail("");
     } catch (err) {
-      toast.error(error);
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
   };
 
