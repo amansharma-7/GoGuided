@@ -3,10 +3,10 @@ const mongoose = require("mongoose");
 const logger = require("./utils/logger");
 
 // Handle uncaught exceptions
-// process.on("uncaughtException", (err) => {
-//   logger.error(`💥 UNCAUGHT EXCEPTION: ${err.name} | ${err.message}`);
-//   process.exit(1);
-// });
+process.on("uncaughtException", (err) => {
+  logger.error(`💥 UNCAUGHT EXCEPTION: ${err.name} | ${err.message}`);
+  process.exit(1);
+});
 
 // Load env
 const env = process.env.NODE_ENV || "development";
@@ -68,16 +68,19 @@ process.on("SIGTERM", () => {
   shutdown(0);
 });
 
-const shutdown = (exitCode) => {
-  if (server) {
-    server.close(() => {
-      mongoose.connection.close(() => {
-        logger.info("📴 MongoDB connection closed");
-        process.exit(exitCode);
-      });
-    });
-  } else {
+const shutdown = async (exitCode) => {
+  try {
+    if (server) {
+      await new Promise((resolve) => server.close(resolve));
+    }
+
+    await mongoose.connection.close();
+    logger.info("📴 MongoDB connection closed");
+
     process.exit(exitCode);
+  } catch (err) {
+    logger.error(`❌ Error during shutdown: ${err.message}`);
+    process.exit(1);
   }
 };
 
