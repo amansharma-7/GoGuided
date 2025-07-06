@@ -3,16 +3,19 @@ import useSafeNavigate from "../../../utils/useSafeNavigate";
 import useApi from "../../../hooks/useApi";
 import { logoutUser } from "../../../services/authService";
 import toast from "react-hot-toast";
+import { useUser } from "../../../context/UserContext";
 
 function NavItem({ to, children, onClick }) {
+  const { setUserContext } = useUser();
+
   const safeNavigate = useSafeNavigate();
   const { request: logoutRequest, error: logoutError } = useApi(logoutUser);
 
   const handleLogout = async () => {
     try {
       const response = await logoutRequest({});
-
       toast.success(response.message);
+      setUserContext(null);
       safeNavigate("/login");
     } catch (error) {
       toast.error(logoutError);

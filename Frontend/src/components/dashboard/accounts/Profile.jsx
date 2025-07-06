@@ -10,13 +10,13 @@ function Profile() {
       <div className="relative inline-block cursor-pointer">
         {user ? (
           user?.profilePicUrl ? (
-            <Avatar size={48} imageURL={user.profilePicUrl} />
+            <Avatar size={80} imageURL={user.profilePicUrl} />
           ) : (
             <Avatar
-              size={48}
+              size={64}
               bgColor="bg-white"
               textColor="text-green-800"
-              textSize="text-xl"
+              textSize="text-2xl"
               fontWeight="font-semibold"
               fullName={user.name}
             />
