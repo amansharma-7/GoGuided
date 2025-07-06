@@ -16,7 +16,13 @@ function App() {
         const response = await request({});
         setUserContext(response?.user);
       } catch (err) {
-        setUserContext(null);
+        if (
+          err.response?.status === 401 ||
+          err.response?.status === 403 ||
+          err.response?.status === 404
+        ) {
+          setUserContext(null);
+        }
       }
     };
 
