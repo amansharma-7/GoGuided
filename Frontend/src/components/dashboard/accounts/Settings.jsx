@@ -179,7 +179,7 @@ function Settings() {
                 <button
                   type="button"
                   onClick={handleNameSubmit}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer"
                 >
                   {isNameUpdating ? "Saving..." : "Save"}
                 </button>
@@ -285,7 +285,7 @@ function Settings() {
               <button
                 type="button"
                 onClick={() => toggleVisibility("newPassword")}
-                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800"
+                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800 cursor-pointer"
               >
                 {showPassword.newPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
@@ -312,7 +312,7 @@ function Settings() {
               <button
                 type="button"
                 onClick={() => toggleVisibility("confirmNewPassword")}
-                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800"
+                className="absolute inset-y-0 right-3 flex items-center text-green-600 hover:text-green-800 cursor-pointer"
               >
                 {showPassword.confirmNewPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
@@ -322,7 +322,7 @@ function Settings() {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`p-3 sm:p-4 mt-4 text-base sm:text-lg uppercase font-semibold rounded-md transition-all duration-200
+            className={` p-3 sm:p-4 mt-4 text-base sm:text-lg uppercase font-semibold rounded-md transition-all duration-200
     ${
       isPasswordUpdating ||
       !passwordFields.currentPassword ||

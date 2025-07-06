@@ -4,9 +4,12 @@ import useApi from "../../../hooks/useApi";
 import { logoutUser } from "../../../services/authService";
 import toast from "react-hot-toast";
 import { useUser } from "../../../context/UserContext";
+import { useState } from "react";
+import ConfirmationModal from "../../common/ConfirmationModal";
 
 function NavItem({ to, children, onClick }) {
   const { setUserContext } = useUser();
+  const [modal, setModal] = useState(false);
 
   const safeNavigate = useSafeNavigate();
   const { request: logoutRequest } = useApi(logoutUser);
@@ -28,9 +31,23 @@ function NavItem({ to, children, onClick }) {
 
   if (to === "logout") {
     return (
-      <button onClick={handleLogout} className={`${style} hover:ml-1`}>
-        <div className="flex items-center space-x-3">{children}</div>
-      </button>
+      <>
+        <button
+          onClick={() => {
+            setModal(true);
+          }}
+          className={`${style} hover:ml-1 cursor-pointer`}
+        >
+          <div className="flex items-center space-x-3">{children}</div>
+        </button>
+        {modal && (
+          <ConfirmationModal
+            text="Are you sure you want to log out?"
+            onConfirm={handleLogout}
+            onCancel={() => setModal(false)}
+          />
+        )}
+      </>
     );
   }
 
