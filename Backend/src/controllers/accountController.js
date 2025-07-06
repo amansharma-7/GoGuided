@@ -60,7 +60,7 @@ exports.updateProfilePicture = catchAsync(async (req, res, next) => {
 
   // Resize and convert to WEBP format
   const processedBuffer = await sharp(req.file.buffer)
-    .resize(150, 150)
+    .resize(300, 300)
     .webp({ quality: 90 })
     .toBuffer();
 
