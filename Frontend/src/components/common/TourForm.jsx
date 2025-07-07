@@ -49,9 +49,10 @@ export default function AddTourForm() {
       participants: "",
       difficulty: "Medium",
       languages: "",
-      date: "",
+      startDate: "",
       overview: "",
-      price: "",
+      description: "",
+      pricePerPerson: "",
       highlights: [""],
       included: [""],
       guides: [],
@@ -230,18 +231,18 @@ export default function AddTourForm() {
               )}
             </div>
 
-            {/* date  */}
+            {/* start date  */}
             <div>
-              <label className="block text-green-700 mb-1">Date</label>
+              <label className="block text-green-700 mb-1">Start Date</label>
               <input
                 type="date"
-                {...register("date", {
-                  required: "Date is required",
+                {...register("startDate", {
+                  required: "Start Date is required",
                 })}
                 className={inputClass}
               />
-              {errors.date && (
-                <p className="text-red-600 text-sm">{errors.date.message}</p>
+              {errors.startDate && (
+                <p className="text-red-600 text-sm">Start Date is required</p>
               )}
             </div>
 
@@ -295,16 +296,39 @@ export default function AddTourForm() {
                 type="number"
                 step="0.01"
                 min="0"
-                {...register("price", {
+                {...register("pricePerPerson", {
                   required: "Price is required",
                   valueAsNumber: true,
                 })}
                 className={inputClass}
               />
-              {errors.price && (
-                <p className="text-red-600 text-sm">{errors.price.message}</p>
+              {errors.pricePerPerson && (
+                <p className="text-red-600 text-sm">
+                  Price per person is required
+                </p>
               )}
             </div>
+          </div>
+
+          {/* description */}
+          <div>
+            <label className="block text-green-700 mb-1">Description</label>
+            <textarea
+              {...register("description", {
+                required: "Description is required",
+                validate: (value) =>
+                  value.trim().split(/\s+/).length <= 10 ||
+                  "Maximum 10 words allowed",
+              })}
+              rows={2}
+              className={`${inputClass}`}
+              placeholder="Enter a small description upto 10 words"
+            />
+            {errors.description && (
+              <p className="text-red-600 text-sm">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* Overview textarea */}
