@@ -44,12 +44,7 @@ export default function AddTourForm() {
   } = useForm({
     defaultValues: {
       title: "",
-      location: {
-        lat: null,
-        lng: null,
-        name: "",
-        description: "",
-      },
+      location: "",
       duration: "",
       participants: "",
       difficulty: "Medium",
@@ -168,9 +163,8 @@ export default function AddTourForm() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* title, location */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* All input blocks remain same */}
-            {/* Example for Title */}
             <div>
               <label className="block text-green-700 mb-1">Title</label>
               <input
@@ -184,24 +178,133 @@ export default function AddTourForm() {
 
             <div>
               <label className="block text-green-700 mb-1">Location</label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  value={getValues("location.name") || ""}
-                  readOnly
-                  className={`${inputClass} bg-gray-50 flex-1`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setMapPickerConfig({ type: "location" })}
-                  className="px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer whitespace-nowrap"
-                >
-                  Choose Location
-                </button>
-              </div>
+              <input
+                {...register("location", { required: true })}
+                className={inputClass}
+              />
+              {errors.location && (
+                <p className="text-red-600 text-sm">Location is required.</p>
+              )}
+            </div>
+          </div>
+
+          {/* duration and participants*/}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* duration  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Duration (in days)
+              </label>
+              <input
+                type="number"
+                step="any"
+                {...register("duration", {
+                  required: "Duration is required",
+                })}
+                className={inputClass}
+              />
+              {errors.duration && (
+                <p className="text-red-600 text-sm">Duration is required</p>
+              )}
             </div>
 
-            {/* Repeat for other inputs as above, no changes needed */}
-            {/* Duration, Participants, Difficulty, Languages, Date, Price */}
+            {/* participants */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Number of Participants
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="1"
+                {...register("participants", {
+                  required: "Number of participants is required",
+                  valueAsNumber: true,
+                })}
+                className={inputClass}
+              />
+              {errors.participants && (
+                <p className="text-red-600 text-sm">
+                  {errors.participants.message}
+                </p>
+              )}
+            </div>
+
+            {/* date  */}
+            <div>
+              <label className="block text-green-700 mb-1">Date</label>
+              <input
+                type="date"
+                {...register("date", {
+                  required: "Date is required",
+                })}
+                className={inputClass}
+              />
+              {errors.date && (
+                <p className="text-red-600 text-sm">{errors.date.message}</p>
+              )}
+            </div>
+
+            {/* difficulty  */}
+            <div>
+              <label className="block text-green-700 mb-1">Difficulty</label>
+              <select
+                {...register("difficulty", {
+                  required: "Difficulty is required",
+                })}
+                className={inputClass}
+              >
+                <option value="">Select difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="moderate">Moderate</option>
+                <option value="hard">Hard</option>
+              </select>
+              {errors.difficulty && (
+                <p className="text-red-600 text-sm">
+                  {errors.difficulty.message}
+                </p>
+              )}
+            </div>
+
+            {/* languages  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Languages (comma-separated)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. English, Spanish, Hindi"
+                {...register("languages", {
+                  required: "Languages are required",
+                })}
+                className={inputClass}
+              />
+              {errors.languages && (
+                <p className="text-red-600 text-sm">
+                  {errors.languages.message}
+                </p>
+              )}
+            </div>
+
+            {/* price  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Price per person (INR)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                {...register("price", {
+                  required: "Price is required",
+                  valueAsNumber: true,
+                })}
+                className={inputClass}
+              />
+              {errors.price && (
+                <p className="text-red-600 text-sm">{errors.price.message}</p>
+              )}
+            </div>
           </div>
 
           {/* Overview textarea */}
@@ -216,7 +319,20 @@ export default function AddTourForm() {
 
           {/* Highlights and Included fields */}
           {[
-            /* same mapping for Highlights and Included */
+            {
+              title: "Highlights",
+              name: "highlights",
+              fields: highlightFields,
+              append: appendHighlight,
+              remove: removeHighlight,
+            },
+            {
+              title: "Included",
+              name: "included",
+              fields: includedFields,
+              append: appendIncluded,
+              remove: removeIncluded,
+            },
           ].map(({ title, name, fields, append, remove }) => (
             <div key={name}>
               <label className="block text-green-700 mb-1">{title}</label>
@@ -227,6 +343,7 @@ export default function AddTourForm() {
                 >
                   <input
                     {...register(`${name}.${index}`)}
+                    defaultValue={field || ""}
                     className={inputClass}
                   />
                   <button
@@ -391,26 +508,15 @@ export default function AddTourForm() {
         {/* MapPicker modal */}
         {mapPickerConfig && (
           <MapPicker
-            initialSpots={
-              mapPickerConfig.type === "stop"
-                ? [getValues(`stops.${mapPickerConfig.index}`)]
-                : []
-            }
+            initialSpots={[getValues(`stops.${mapPickerConfig.index}`)]}
             onClose={() => setMapPickerConfig(null)}
             onConfirm={([picked]) => {
               if (!picked) {
                 setMapPickerConfig(null);
                 return;
               }
-              if (mapPickerConfig.type === "stop") {
-                updateStop(mapPickerConfig.index, picked);
-              } else {
-                setValue("location", {
-                  lat: picked.lat,
-                  lng: picked.lng,
-                  name: picked.name,
-                });
-              }
+
+              updateStop(mapPickerConfig.index, picked);
               setMapPickerConfig(null);
             }}
           />
