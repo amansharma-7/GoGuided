@@ -1,7 +1,6 @@
 import { useUser } from "../../../../context/UserContext";
 import Layout from "../AccountLayout";
 import UserLinks from "./UserLinks";
-import { ShieldAlert } from "lucide-react";
 import LoaderOverlay from "../../../common/LoaderOverlay";
 import AccessDenied from "../../../common/AccessDenied";
 
