@@ -128,7 +128,7 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
 
     useEffect(() => {
       if (searchResult) {
-        map.setView([searchResult.lat, searchResult.lng], 13);
+        map.setView([searchResult.lat, searchResult.lng], 9);
       }
     }, [searchResult, map]);
 
