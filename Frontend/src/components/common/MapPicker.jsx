@@ -46,13 +46,17 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
       const address = data.address;
 
       const primaryName =
-        address?.city ||
-        address?.town ||
-        address?.village ||
+        address?.neighbourhood ||
+        address?.residential ||
+        address?.locality ||
+        address?.quarter ||
+        address?.suburb ||
         address?.hamlet ||
+        address?.village ||
+        address?.town ||
+        address?.city ||
         address?.municipality ||
         address?.county ||
-        address?.suburb ||
         "Unknown Location";
 
       const secondaryName =
