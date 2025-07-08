@@ -2,42 +2,9 @@ import React, { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import DashboardHeader from "../common/DashboardHeader";
 import NoResult from "../../pages/NoResult";
-
-const jobListings = [
-  {
-    id: "job-1",
-    title: "Product Design Intern",
-    location: "Jammu, India",
-    type: "Internship",
-    level: "Entry Level",
-    salary: "Paid",
-    posted: "2 days ago",
-    applicants: 10,
-    lastDate: "2025-04-10",
-  },
-  {
-    id: "job-2",
-    title: "Software Engineer",
-    location: "Remote",
-    type: "Full-time",
-    level: "Mid Level",
-    salary: "$80k - $100k",
-    posted: "1 week ago",
-    applicants: 25,
-    lastDate: "2025-04-08",
-  },
-  {
-    id: "job-3",
-    title: "Marketing Manager",
-    location: "New York, USA",
-    type: "Part-time",
-    level: "Senior Level",
-    salary: "$60k - $75k",
-    posted: "5 days ago",
-    applicants: 15,
-    lastDate: "2025-04-12",
-  },
-];
+import { getAllJobs } from "../../services/jobService";
+import useApi from "../../hooks/useApi";
+import LoaderOverlay from "../common/LoaderOverlay";
 
 function Careers() {
   const [filterState, setFilterState] = useState({
@@ -46,35 +13,63 @@ function Careers() {
     selectedFilters: [],
   });
 
-  const [jobsData, setJobsData] = useState(jobListings);
+  const { loading: isJobLoading, request: getAllJobsRequest } =
+    useApi(getAllJobs);
+
+  const [jobs, setJobs] = useState([]);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const numberOfEntries = 10;
 
   useEffect(() => {
-    function fetchJobs(query) {
-      return jobListings.filter(
-        (job) =>
-          !query ||
-          job.title.toLowerCase().includes(query.toLowerCase()) ||
-          job.location.toLowerCase().includes(query.toLowerCase()) ||
-          job.type.toLowerCase().includes(query.toLowerCase())
-      );
-    }
+    const fetchJobs = async () => {
+      try {
+        const { searchQuery, selectedFilters, sortOrder } = filterState;
+        const params = new URLSearchParams();
 
-    const filteredJobs = fetchJobs(filterState.searchQuery);
-    setJobsData(filteredJobs);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
+        if (searchQuery) {
+          params.append("search", searchQuery);
+        }
 
-  const sortedJobs = [...jobsData].sort((a, b) => {
-    const isAscending = filterState.sortOrder === "asc";
-    return isAscending
-      ? new Date(a.lastDate) - new Date(b.lastDate)
-      : new Date(b.lastDate) - new Date(a.lastDate);
-  });
+        if (selectedFilters) {
+          if (selectedFilters["Date Interval"]) {
+            const { startDate, endDate } = selectedFilters["Date Interval"];
+            if (startDate) params.append("startDate", startDate);
+            if (endDate) params.append("endDate", endDate);
+          }
+        }
 
+        if (sortOrder) {
+          params.append("sort", sortOrder);
+        }
+
+        params.append("page", currentPage);
+        params.append("limit", numberOfEntries);
+
+        const response = await getAllJobsRequest(params.toString());
+
+        const { data } = response;
+        setJobs(data);
+        // setTotalPages(response.totalPages);
+        // setTotalJobs(response.total);
+      } catch (error) {
+        console.error("Failed to fetch jobs:", error);
+      }
+    };
+
+    fetchJobs();
+  }, [currentPage, filterState]);
+
+  if (isJobLoading) {
+    return <LoaderOverlay />;
+  }
   return (
     <section className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-6 flex flex-col gap-6 justify-center">
       <DashboardHeader
         title="Jobs"
-        totalCount={sortedJobs.length}
+        totalCount={jobs.length}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -87,10 +82,10 @@ function Careers() {
           },
         ]}
       />
-      {sortedJobs.length > 0 ? (
+      {jobs.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 sm:p-6 rounded-md">
-          {sortedJobs.map((job) => (
-            <JobCard key={job.id} {...job} />
+          {jobs.map((job) => (
+            <JobCard key={job._id} {...job} />
           ))}
         </div>
       ) : (

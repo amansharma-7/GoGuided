@@ -4,51 +4,62 @@ import useSafeNavigate from "../../utils/useSafeNavigate";
 export default function JobCard({
   title,
   location,
-  type,
-  level,
   salary,
-  posted,
-  lastDate,
-  applicants,
+  createdAt,
+  lastDateToApply,
+  numberOfPosts,
 }) {
   const navigate = useSafeNavigate();
-
-  // Slugify the title for URL path, simple version:
   const jobSlug = title.toLowerCase().replace(/\s+/g, "-");
 
+  function getDaysAgo(createdAt) {
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now - createdDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return " today";
+    if (diffDays === 1) return " yesterday";
+    return `${diffDays} days ago`;
+  }
+
   return (
-    <div className="py-6">
-      <div className="border rounded-2xl p-4 shadow-lg w-80 bg-white">
-        <h2 className="text-green-950 font-semibold text-lg mt-2">{title}</h2>
-        <div className="flex gap-x-2 items-center py-2 text-green-700">
-          <MdLocationOn size={18} />
-          <span>{location}</span>
-        </div>
-        <div className="flex flex-wrap gap-2 my-3">
-          <span className="bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">
-            {type}
-          </span>
-          <span className="bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">
-            {level}
-          </span>
-          <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
-            {salary}
-          </span>
-        </div>
-        <div className="bg-amber-200 text-green-950 text-xs px-3 py-1 rounded-full w-fit">
-          Last Date : {lastDate}
-        </div>
-        <div className="grid grid-cols-2 px-2 py-4">
-          <div className="flex flex-col font-extralight">
-            <span className="text-lg font-semibold">{posted}</span>
-            <span className="text-lg font-semibold">
-              {applicants} applicants
+    <div className="p-4">
+      <div className="bg-white shadow-md rounded-2xl border border-gray-200 hover:shadow-lg transition duration-200 max-w-sm w-full mx-auto">
+        <div className="p-5">
+          {/* Title */}
+          <h2 className="text-xl font-semibold text-green-950 mb-2">{title}</h2>
+
+          {/* Location */}
+          <div className="flex items-center text-sm text-green-700 mb-4">
+            <MdLocationOn className="mr-1" />
+            <span>{location}</span>
+          </div>
+
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
+              Salary: ₹{salary?.min} - ₹{salary?.max}
+            </span>
+            <span className="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full">
+              Last Date:{new Date(lastDateToApply).toLocaleDateString()}
             </span>
           </div>
+
+          {/* Info and Button */}
+          <div className="flex items-center justify-between mt-4 mb-4 px-2  ">
+            <div className="flex w-full justify-between">
+              <p className="text-sm text-gray-500">
+                Posted: {getDaysAgo(createdAt)}
+              </p>
+              <p className="text-sm text-gray-700 font-medium">
+                {numberOfPosts} {numberOfPosts === 1 ? "Opening" : "Openings"}
+              </p>
+            </div>
+          </div>
           <button
-            aria-label={`Apply now for ${title}`}
-            className="m-auto px-3 py-3 bg-green-500 rounded-xl text-white text-md cursor-pointer transition duration-200 ease-in-out hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
-            onClick={() => navigate(`/jobs/${jobSlug}`)}
+            onClick={() => navigate(`/careers/${jobSlug}`)}
+            className="w-full bg-green-500 hover:bg-green-600 text-white text-sm px-4 py-2 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
           >
             Apply Now
           </button>
