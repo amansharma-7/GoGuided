@@ -434,19 +434,37 @@ export default function AddTourForm() {
                 <label className="text-green-600 font-semibold">
                   Day {index + 1}
                 </label>
-                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {/* Description Input */}
+                  <input
+                    type="text"
+                    defaultValue={stop.description || ""}
+                    onBlur={(e) =>
+                      updateStop(index, { description: e.target.value })
+                    }
+                    placeholder="What will the tour do at this location?"
+                    className={`${inputClass} flex-1`}
+                  />
+
+                  {/* Location Name Input */}
                   <input
                     value={stop.name || ""}
                     readOnly
                     className={`${inputClass} bg-gray-50 flex-1`}
+                    placeholder="Location"
                   />
+
+                  {/* Choose Location Button */}
                   <button
                     type="button"
                     onClick={() => setMapPickerConfig({ type: "stop", index })}
-                    className="w-full sm:w-48 px-2 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-40 px-2 py-2 bg-green-500 text-white rounded hover:bg-green-600 whitespace-nowrap"
                   >
                     Choose Location
                   </button>
+
+                  {/* Remove Button */}
                   <button
                     type="button"
                     onClick={() => removeStop(index)}
@@ -457,10 +475,20 @@ export default function AddTourForm() {
                 </div>
               </div>
             ))}
+
+            {/* Add Stop Button */}
             <button
               type="button"
-              onClick={() => appendStop({ name: "", lat: "", lng: "" })}
-              className="mt-2 bg-green-600 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap"
+              onClick={() =>
+                appendStop({
+                  day: stopFields.length + 1,
+                  name: "",
+                  lat: "",
+                  lng: "",
+                  description: "",
+                })
+              }
+              className="mt-2 bg-green-600 text-white px-4 py-2 rounded cursor-pointer"
             >
               Add Stop
             </button>
@@ -529,22 +557,31 @@ export default function AddTourForm() {
           </div>
         </form>
 
-        {/* MapPicker modal */}
-        {mapPickerConfig && (
-          <MapPicker
-            initialSpots={[getValues(`stops.${mapPickerConfig.index}`)]}
-            onClose={() => setMapPickerConfig(null)}
-            onConfirm={([picked]) => {
-              if (!picked) {
-                setMapPickerConfig(null);
-                return;
-              }
+        {mapPickerConfig &&
+          (() => {
+            const stop = getValues(`stops.${mapPickerConfig.index}`);
 
-              updateStop(mapPickerConfig.index, picked);
-              setMapPickerConfig(null);
-            }}
-          />
-        )}
+            const lat = parseFloat(stop?.lat);
+            const lng = parseFloat(stop?.lng);
+
+            const initialSpots =
+              !isNaN(lat) && !isNaN(lng) ? [{ ...stop, lat, lng }] : [];
+
+            return (
+              <MapPicker
+                initialSpots={initialSpots}
+                onClose={() => setMapPickerConfig(null)}
+                onConfirm={([picked]) => {
+                  if (!picked) {
+                    setMapPickerConfig(null);
+                    return;
+                  }
+                  updateStop(mapPickerConfig.index, picked);
+                  setMapPickerConfig(null);
+                }}
+              />
+            );
+          })()}
       </div>
     </div>
   );

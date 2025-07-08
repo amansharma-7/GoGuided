@@ -24,95 +24,56 @@ L.Icon.Default.mergeOptions({
 
 function MapPicker({ initialSpots = [], onClose, onConfirm }) {
   const [spots, setSpots] = useState(initialSpots);
-  const [pendingSpot, setPendingSpot] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [tempDescription, setTempDescription] = useState("");
-  const [locationName, setLocationName] = useState("");
   const [searchResult, setSearchResult] = useState(null);
 
-  // Handle map click
-  function handleAddSpot(e) {
+  // Handle map click: fetch location and confirm immediately
+  async function handleAddSpot(e) {
     const { lat, lng } = e.latlng;
-    setPendingSpot({ lat, lng });
-    setTempDescription("");
-    setLocationName("Fetching...");
-    fetchLocationName(lat, lng);
-    setShowModal(true);
-  }
 
-  // Reverse geocoding
-  async function fetchLocationName(lat, lng) {
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-      );
-      const data = await response.json();
-      const address = data.address;
-
-      const primaryName =
-        address?.neighbourhood ||
-        address?.residential ||
-        address?.locality ||
-        address?.quarter ||
-        address?.suburb ||
-        address?.hamlet ||
-        address?.village ||
-        address?.town ||
-        address?.city ||
-        address?.municipality ||
-        address?.county ||
-        "Unknown Location";
-
-      const secondaryName =
-        address?.state ||
-        address?.state_district ||
-        address?.region ||
-        address?.country ||
-        "";
-
-      const placeName = secondaryName
-        ? `${primaryName}, ${secondaryName}`
-        : primaryName;
-
-      setLocationName(placeName);
+      // const name = await fetchLocationName(lat, lng);
+      const spot = {
+        lat,
+        lng,
+        name: `${lat},${lng}`,
+      };
+      setSpots([spot]);
+      if (onConfirm) onConfirm([spot]);
+      onClose();
     } catch (error) {
-      console.error("Error fetching location name:", error);
-      setLocationName("Unknown Location");
+      console.error("Error selecting location:", error);
     }
   }
 
-  function confirmAddSpot() {
-    if (!pendingSpot) return;
-    const newSpot = {
-      ...pendingSpot,
-      name: locationName,
-      description: tempDescription.trim(),
-      day: 1,
-    };
-    setSpots([newSpot]);
-    resetModalState();
-  }
+  async function fetchLocationName(lat, lng) {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+    );
+    const data = await response.json();
+    const address = data.address;
 
-  function cancelAddSpot() {
-    resetModalState();
-  }
+    const primaryName =
+      address?.neighbourhood ||
+      address?.residential ||
+      address?.locality ||
+      address?.quarter ||
+      address?.suburb ||
+      address?.hamlet ||
+      address?.village ||
+      address?.town ||
+      address?.city ||
+      address?.municipality ||
+      address?.county ||
+      "Unknown Location";
 
-  function resetModalState() {
-    setShowModal(false);
-    setPendingSpot(null);
-    setLocationName("");
-    setTempDescription("");
-  }
+    const secondaryName =
+      address?.state ||
+      address?.state_district ||
+      address?.region ||
+      address?.country ||
+      "";
 
-  function handleDeleteSpot() {
-    setSpots([]);
-  }
-
-  function handleClose() {
-    if (onConfirm) {
-      onConfirm(spots);
-    }
-    onClose();
+    return secondaryName ? `${primaryName}, ${secondaryName}` : primaryName;
   }
 
   function MapClickHandler() {
@@ -122,7 +83,6 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
     return null;
   }
 
-  // ✅ Pans map when search result updates
   function MapSearchHandler({ searchResult }) {
     const map = useMap();
 
@@ -135,7 +95,6 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
     return null;
   }
 
-  // ✅ SearchBox in Header (not inside map)
   function SearchBox({ onResult }) {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(false);
@@ -205,7 +164,7 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
             />
           </div>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl cursor-pointer self-start sm:self-center"
             title="Close"
           >
@@ -222,57 +181,17 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapSearchHandler searchResult={searchResult} />
+            <MapClickHandler />
             {spots.length === 1 && (
               <Marker position={[spots[0].lat, spots[0].lng]}>
                 <Popup>
-                  <div>
-                    <strong>{spots[0].name}</strong>
-                    <p className="text-sm mb-1">{spots[0].description}</p>
-                    <button
-                      onClick={handleDeleteSpot}
-                      className="text-red-500 hover:underline mt-2 block"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <strong>{spots[0].name}</strong>
                 </Popup>
               </Marker>
             )}
-            <MapClickHandler />
           </MapContainer>
         </div>
       </div>
-
-      {/* Description Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg space-y-4 w-full max-w-xs sm:max-w-md">
-            <h2 className="text-lg font-semibold">Add Location</h2>
-            <p className="text-sm text-gray-600">{locationName}</p>
-            <textarea
-              value={tempDescription}
-              onChange={(e) => setTempDescription(e.target.value)}
-              placeholder="Enter description"
-              className="w-full px-3 py-2 border border-gray-300 rounded resize-none"
-              rows={4}
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={cancelAddSpot}
-                className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAddSpot}
-                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
