@@ -22,7 +22,7 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-function MapPicker({ initialSpots = [], onClose, onConfirm }) {
+function MapPicker({ initialSpots = [], onClose, onConfirm, description }) {
   const [spots, setSpots] = useState(initialSpots);
   const [searchResult, setSearchResult] = useState(null);
 
@@ -36,6 +36,7 @@ function MapPicker({ initialSpots = [], onClose, onConfirm }) {
         lat,
         lng,
         name: `${lat},${lng}`,
+        description,
       };
       setSpots([spot]);
       if (onConfirm) onConfirm([spot]);

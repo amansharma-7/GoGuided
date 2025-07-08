@@ -563,6 +563,7 @@ export default function AddTourForm() {
 
             const lat = parseFloat(stop?.lat);
             const lng = parseFloat(stop?.lng);
+            const description = stop.description;
 
             const initialSpots =
               !isNaN(lat) && !isNaN(lng) ? [{ ...stop, lat, lng }] : [];
@@ -579,6 +580,7 @@ export default function AddTourForm() {
                   updateStop(mapPickerConfig.index, picked);
                   setMapPickerConfig(null);
                 }}
+                description={description}
               />
             );
           })()}
