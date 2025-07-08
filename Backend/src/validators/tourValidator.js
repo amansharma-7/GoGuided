@@ -1,8 +1,10 @@
 const { body } = require("express-validator");
 const validate = require("./validate");
+const mongoose = require("mongoose");
 
-exports.createTourValidator = validate([
+exports.tourInputValidator = validate([
   body("title")
+    .trim()
     .notEmpty()
     .withMessage("Please enter a tour title")
     .isString()
@@ -18,7 +20,9 @@ exports.createTourValidator = validate([
     .notEmpty()
     .withMessage("Please enter the tour duration")
     .isNumeric()
-    .withMessage("Duration must be a number"),
+    .withMessage("Duration must be a number")
+    .isFloat({ gt: 0 })
+    .withMessage("Duration must be greater than zero"),
 
   body("participants")
     .notEmpty()
@@ -27,8 +31,7 @@ exports.createTourValidator = validate([
     .withMessage("Participants must be a positive whole number"),
 
   body("difficulty")
-    .notEmpty()
-    .withMessage("Please select a difficulty level")
+    .customSanitizer((v) => v.toLowerCase())
     .isIn(["easy", "medium", "hard"])
     .withMessage("Difficulty must be one of: easy, medium, or hard"),
 
@@ -70,8 +73,10 @@ exports.createTourValidator = validate([
     .isArray({ min: 1 })
     .withMessage("Please list at least one tour highlight")
     .custom((arr) => {
-      if (!arr.every((item) => typeof item === "string")) {
-        throw new Error("Each highlight must be text");
+      if (
+        !arr.every((item) => typeof item === "string" && item.trim() !== "")
+      ) {
+        throw new Error("Each item must be a non-empty string");
       }
       return true;
     }),
@@ -80,31 +85,71 @@ exports.createTourValidator = validate([
     .isArray({ min: 1 })
     .withMessage("Please list what's included in the tour")
     .custom((arr) => {
-      if (!arr.every((item) => typeof item === "string")) {
-        throw new Error("Each included item must be text");
+      if (
+        !arr.every((item) => typeof item === "string" && item.trim() !== "")
+      ) {
+        throw new Error("Each item must be a non-empty string");
       }
       return true;
     }),
 
   body("guides")
     .isArray({ min: 1 })
-    .withMessage("Please add at least one guide")
+    .withMessage("Please select at least one guide")
     .custom((arr) => {
-      if (!arr.every((item) => typeof item === "string")) {
-        throw new Error("Each guide ID must be a valid string");
-      }
+      const isValid = arr.every((id) => mongoose.Types.ObjectId.isValid(id));
+      if (!isValid) throw new Error("One or more selected guides are invalid");
       return true;
     }),
 
-  // body("stops")
-  //   .isArray({ min: 1 })
-  //   .withMessage("Please list at least one stop")
-  //   .custom((arr) => {
-  //     if (!arr.every((item) => typeof item === "string")) {
-  //       throw new Error("Each stop must be text");
-  //     }
-  //     return true;
-  //   }),
+  body("stops")
+    .isArray({ min: 1 })
+    .withMessage("Please list at least one stop")
+    .custom((stops, { req }) => {
+      if (!Array.isArray(stops)) return false;
 
-  // Images and thumbnails should be handled separately via Multer or another file upload middleware.
+      for (let i = 0; i < stops.length; i++) {
+        const stop = stops[i];
+
+        const lat = parseFloat(stop.lat);
+        const lng = parseFloat(stop.lng);
+
+        if (isNaN(lat) || lat < -90 || lat > 90) {
+          throw new Error(
+            `Stop #${i + 1}: Latitude must be a number between -90 and 90`
+          );
+        }
+
+        if (isNaN(lng) || lng < -180 || lng > 180) {
+          throw new Error(
+            `Stop #${i + 1}: Longitude must be a number between -180 and 180`
+          );
+        }
+
+        if (typeof stop.name !== "string" || stop.name.trim() === "") {
+          throw new Error(
+            `Stop #${i + 1}: Name is required and must be a non-empty string`
+          );
+        }
+
+        if (
+          typeof stop.description !== "string" ||
+          stop.description.trim() === ""
+        ) {
+          throw new Error(
+            `Stop #${
+              i + 1
+            }: Description is required and must be a non-empty string`
+          );
+        }
+      }
+
+      const names = stops.map((s) => s.name.toLowerCase().trim());
+      const nameSet = new Set(names);
+      if (names.length !== nameSet.size) {
+        throw new Error("Stop names must be unique");
+      }
+
+      return true;
+    }),
 ]);
