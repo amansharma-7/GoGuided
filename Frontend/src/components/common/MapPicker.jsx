@@ -10,6 +10,8 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { IoClose } from "react-icons/io5";
+import useApi from "../../hooks/useApi";
+import { fetchLocationName } from "../../services/locationService";
 
 // Fix marker icon issue in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -26,16 +28,25 @@ function MapPicker({ initialSpots = [], onClose, onConfirm, description }) {
   const [spots, setSpots] = useState(initialSpots);
   const [searchResult, setSearchResult] = useState(null);
 
+  const { request: fetchLocationRequest } = useApi(fetchLocationName);
+
+  const fetchLocation = async (lat, lon) => {
+    try {
+      const response = await fetchLocationRequest({ params: { lat, lon } });
+      return response?.data?.locationName;
+    } catch (err) {}
+  };
+
   // Handle map click: fetch location and confirm immediately
   async function handleAddSpot(e) {
     const { lat, lng } = e.latlng;
 
     try {
-      // const name = await fetchLocationName(lat, lng);
+      const name = await fetchLocation(lat, lng);
       const spot = {
         lat,
         lng,
-        name: `${lat},${lng}`,
+        name,
         description,
       };
       setSpots([spot]);
@@ -44,37 +55,6 @@ function MapPicker({ initialSpots = [], onClose, onConfirm, description }) {
     } catch (error) {
       console.error("Error selecting location:", error);
     }
-  }
-
-  async function fetchLocationName(lat, lng) {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-    );
-    const data = await response.json();
-    const address = data.address;
-
-    const primaryName =
-      address?.neighbourhood ||
-      address?.residential ||
-      address?.locality ||
-      address?.quarter ||
-      address?.suburb ||
-      address?.hamlet ||
-      address?.village ||
-      address?.town ||
-      address?.city ||
-      address?.municipality ||
-      address?.county ||
-      "Unknown Location";
-
-    const secondaryName =
-      address?.state ||
-      address?.state_district ||
-      address?.region ||
-      address?.country ||
-      "";
-
-    return secondaryName ? `${primaryName}, ${secondaryName}` : primaryName;
   }
 
   function MapClickHandler() {

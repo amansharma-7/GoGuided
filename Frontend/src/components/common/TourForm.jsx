@@ -144,7 +144,16 @@ export default function AddTourForm() {
   };
 
   const onSubmit = (data) => {
-    console.log("Final Form Data:", data);
+    const localDateStr = data.startDate; // e.g., "2025-07-08"
+    const dateObj = new Date(localDateStr + "T00:00:00Z"); // UTC midnight
+
+    const finalData = {
+      ...data,
+      startDate: dateObj, // 👈 send actual Date object
+    };
+
+    console.log("Final Form Data:", finalData);
+    // Submit finalData to your API
   };
 
   const inputClass =
@@ -431,11 +440,15 @@ export default function AddTourForm() {
             <label className="block text-green-700 mb-2">Stops (Per Day)</label>
             {stopFields.map((stop, index) => (
               <div key={stop.id} className="mb-4">
-                <label className="text-green-600 font-semibold">
-                  Day {index + 1}
-                </label>
-
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {/* Day (Read-only Input) */}
+                  <input
+                    type="number"
+                    value={index + 1}
+                    readOnly
+                    className="w-20 px-2 py-2 border border-gray-300 rounded bg-gray-100 text-center"
+                  />
+
                   {/* Description Input */}
                   <input
                     type="text"
@@ -481,7 +494,6 @@ export default function AddTourForm() {
               type="button"
               onClick={() =>
                 appendStop({
-                  day: stopFields.length + 1,
                   name: "",
                   lat: "",
                   lng: "",
