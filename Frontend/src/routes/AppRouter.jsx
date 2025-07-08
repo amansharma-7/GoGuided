@@ -330,11 +330,14 @@ const router = createBrowserRouter([
 
       {
         path: "/careers",
-        children: [
-          { index: true, Component: Careers },
-          { path: ":name", Component: JobApplicationForm },
-        ],
+        element: <Careers />,
       },
+
+      {
+        path: "/careers/:name",
+        element: <JobApplicationForm />,
+      },
+
       {
         path: "/login",
         Component: LoginForm,
