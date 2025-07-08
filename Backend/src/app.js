@@ -19,6 +19,9 @@ const globalErrorHandler = require("./controllers/errorController");
 // =======================
 const authRoutes = require("./routes/authRoutes");
 const accountRoutes = require("./routes/accountRoutes");
+const tourRoutes = require("./routes/tourRoutes");
+
+const geocodeRoutes = require("./routes/geocodeRoutes");
 
 const app = express();
 
@@ -82,6 +85,9 @@ app.get("/api/v1/health", (req, res) => {
 // =======================
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/account", accountRoutes);
+app.use("/api/v1/tour", tourRoutes);
+
+app.use("/api/v1/geocode", geocodeRoutes);
 
 // =======================
 // Handle Unmatched Routes
