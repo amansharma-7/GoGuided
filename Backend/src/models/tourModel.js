@@ -47,7 +47,7 @@ const tourSchema = new mongoose.Schema(
       },
     ],
 
-    duration: { type: String, required: true },
+    duration: { type: Number, required: true },
     participants: { type: Number, required: true },
     difficulty: {
       type: String,

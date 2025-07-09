@@ -5,33 +5,32 @@ const AppError = require("./appError");
 const logger = require("./logger");
 
 /**
+ * Uploads and optionally resizes/compresses an image to Cloudinary.
+ *
  * @param {Object} params
- * @param {Buffer} params.buffer
- * @param {String} params.folder
- * @param {String} [params.publicId]
- * @param {Object} [params.resize] - Optional { width, height }
- * @param {Number} [params.quality] - Optional compression quality (1-100)
+ * @param {Buffer} params.buffer - Raw image buffer
+ * @param {String} params.folder - Cloudinary folder path
+ * @param {String} [params.publicId] - Optional specific public ID
+ * @param {Object} [params.resize] - Optional resize config { width, height }
+ * @param {Number} [params.quality] - WebP quality (default: 90)
+ * @returns {Promise<Object>} - Cloudinary upload result
  */
-const uploadImageToCloudinary = async ({
+const uploadImageToCloudinary = ({
   buffer,
   folder,
   publicId = undefined,
   resize = {},
-  quality = 90, // default to 90
+  quality = 90,
 }) => {
-  try {
-    let imagePipeline = sharp(buffer).webp({ quality });
+  return new Promise((resolve, reject) => {
+    try {
+      let transformer = sharp().webp({ quality });
 
-    if (resize.width && resize.height) {
-      imagePipeline = imagePipeline.resize(resize.width, resize.height);
-    } else if (resize.width) {
-      imagePipeline = imagePipeline.resize(resize.width);
-    }
-
-    const finalBuffer = await imagePipeline.toBuffer();
-
-    return new Promise((resolve, reject) => {
-      let readStream; // Declare early so it's accessible in the callback
+      if (resize.width && resize.height) {
+        transformer = transformer.resize(resize.width, resize.height);
+      } else if (resize.width) {
+        transformer = transformer.resize(resize.width);
+      }
 
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -42,28 +41,20 @@ const uploadImageToCloudinary = async ({
           use_filename: false,
         },
         (err, result) => {
-          // ✅ Cleanup after upload completes
-          if (readStream && !readStream.destroyed) {
-            readStream.destroy();
-          }
-
           if (err) {
             logger.error("⛔ Cloudinary error:", err);
-            return reject(
-              new AppError("Cloudinary upload failed. Try again later.", 502)
-            );
+            return reject(new AppError("Cloudinary upload failed", 502));
           }
-
           resolve(result);
         }
       );
 
-      readStream = streamifier.createReadStream(finalBuffer);
-      readStream.pipe(uploadStream);
-    });
-  } catch (err) {
-    throw new AppError("Image processing failed", 500);
-  }
+      streamifier.createReadStream(buffer).pipe(transformer).pipe(uploadStream);
+    } catch (err) {
+      logger.error("⛔ Stream setup failed:", err);
+      reject(new AppError("Image processing failed", 500));
+    }
+  });
 };
 
 module.exports = uploadImageToCloudinary;

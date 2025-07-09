@@ -88,7 +88,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
     title: title.trim(),
     slug,
     location: location.trim(),
-    duration: duration.toString(),
+    duration,
     participants: Number(participants),
     difficulty,
     languages,
