@@ -38,12 +38,18 @@ const uploadImageToCloudinary = ({
           public_id: publicId,
           resource_type: "image",
           overwrite: true,
-          use_filename: false,
+          disable_promises: true,
         },
         (err, result) => {
           if (err) {
-            logger.error("⛔ Cloudinary error:", err);
-            return reject(new AppError("Cloudinary upload failed", 502));
+            logger.error("⛔ Cloudinary upload error:", err);
+
+            return reject(
+              new AppError(
+                "There was a problem uploading the image. Please try again.",
+                502
+              )
+            );
           }
           resolve(result);
         }
@@ -51,8 +57,14 @@ const uploadImageToCloudinary = ({
 
       streamifier.createReadStream(buffer).pipe(transformer).pipe(uploadStream);
     } catch (err) {
-      logger.error("⛔ Stream setup failed:", err);
-      reject(new AppError("Image processing failed", 500));
+      logger.error("⛔ Image processing error:", err);
+
+      reject(
+        new AppError(
+          "Could not process the image. Please try again later.",
+          500
+        )
+      );
     }
   });
 };

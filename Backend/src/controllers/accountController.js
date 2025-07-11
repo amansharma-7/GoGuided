@@ -1,5 +1,4 @@
 // Core
-const sharp = require("sharp");
 
 // Models
 const User = require("../models/userModel");
@@ -7,9 +6,9 @@ const User = require("../models/userModel");
 // Utilities
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const uploadImageToCloudinary = require("../utils/cloudinaryUploader");
 
 // Configs
-const cloudinary = require("../config/cloudinary");
 
 exports.updateName = catchAsync(async (req, res, next) => {
   const { firstName, lastName } = req.body;
@@ -54,43 +53,20 @@ exports.updateProfilePicture = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found or has been deactivated.", 404));
   }
 
-  if (!req.file || !req.file.buffer) {
-    return next(new AppError("Invalid or missing image file.", 400));
+  // ✅ Validate uploaded image
+  const file = req.files?.profilePic?.[0];
+
+  if (!file || !file.buffer) {
+    return next(new AppError("No valid image file was provided.", 400));
   }
 
-  // Resize and convert to WEBP format
-  const processedBuffer = await sharp(req.file.buffer)
-    .resize(300, 300)
-    .webp({ quality: 90 })
-    .toBuffer();
-
-  // Upload to Cloudinary
-  const uploadToCloudinary = () =>
-    new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: `goguided/users/profilePics//${userId}`,
-          public_id: "avatar",
-          overwrite: true,
-          resource_type: "image",
-        },
-        (error, result) => {
-          if (error) {
-            return reject(
-              new AppError(
-                "Profile picture upload failed. Please try again later.",
-                502
-              )
-            );
-          }
-          resolve(result);
-        }
-      );
-
-      require("stream").Readable.from(processedBuffer).pipe(stream);
-    });
-
-  const uploadResult = await uploadToCloudinary();
+  const uploadResult = await uploadImageToCloudinary({
+    buffer: file.buffer,
+    folder: `goguided/users/${userId}`,
+    publicId: "avatar",
+    resize: { width: 300, height: 300 },
+    quality: 90,
+  });
 
   user.profilePic = {
     url: uploadResult.secure_url,
