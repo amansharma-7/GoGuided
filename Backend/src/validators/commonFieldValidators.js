@@ -37,6 +37,15 @@ exports.lastNameFieldValidator = body("lastName")
     return capitalize(value);
   });
 
+exports.fullNameFieldValidator = body("fullName")
+  .trim()
+  .notEmpty()
+  .withMessage("Full name is required")
+  .isLength({ min: 2, max: 100 })
+  .withMessage("Full name must be between 2 and 100 characters")
+  .matches(/^[a-zA-Z\s]+$/)
+  .withMessage("Full name must contain only letters and spaces");
+
 exports.splitNameToFirstAndLast = body("name")
   .trim()
   .notEmpty()

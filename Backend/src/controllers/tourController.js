@@ -7,7 +7,7 @@ const Tour = require("../models/tourModel");
 // Utilities
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const uploadImageToCloudinary = require("../utils/cloudinaryUploader");
+const { uploadImageToCloudinary } = require("../utils/cloudinaryUploader");
 
 exports.createTour = catchAsync(async (req, res, next) => {
   const {

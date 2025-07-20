@@ -6,7 +6,7 @@ const User = require("../models/userModel");
 // Utilities
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const uploadImageToCloudinary = require("../utils/cloudinaryUploader");
+const { uploadImageToCloudinary } = require("../utils/cloudinaryUploader");
 
 // Configs
 

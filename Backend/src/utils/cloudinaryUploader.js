@@ -69,4 +69,56 @@ const uploadImageToCloudinary = ({
   });
 };
 
-module.exports = uploadImageToCloudinary;
+/**
+ * Uploads a raw file (e.g., PDF, DOCX) to Cloudinary without image processing.
+ *
+ * @param {Object} params - Configuration object.
+ * @param {Buffer} params.buffer - The raw file buffer to upload.
+ * @param {string} params.folder - Cloudinary folder path (e.g., "applications/resumes").
+ * @param {string} [params.publicId] - Optional specific public ID.
+ * @param {string} [params.resourceType="raw"] - Cloudinary resource type. Default is "raw" for files.
+ * @param {string} [params.fileFormat] - Optional file format (e.g., "pdf", "docx").
+ * @returns {Promise<Object>} - Cloudinary upload result.
+ *
+ * @throws {AppError} - If the upload fails.
+ */
+const uploadFileToCloudinary = ({
+  buffer,
+  folder,
+  publicId = undefined,
+  resourceType = "raw",
+  fileFormat = undefined,
+}) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          public_id: publicId,
+          resource_type: resourceType,
+          format: fileFormat,
+          overwrite: true,
+          disable_promises: true,
+        },
+        (err, result) => {
+          if (err) {
+            logger.error("❌ Cloudinary file upload error:", err);
+            return reject(
+              new AppError("File upload failed. Please try again later.", 502)
+            );
+          }
+          resolve(result);
+        }
+      );
+
+      streamifier.createReadStream(buffer).pipe(uploadStream);
+    } catch (err) {
+      logger.error("❌ File streaming error:", err);
+      reject(
+        new AppError("Could not process the file. Please try again.", 500)
+      );
+    }
+  });
+};
+
+module.exports = { uploadImageToCloudinary, uploadFileToCloudinary };

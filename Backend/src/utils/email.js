@@ -179,7 +179,37 @@ const sendPasswordResetEmail = async ({ user, passwordResetUrl }) => {
   });
 };
 
+const sendGuideWelcomeEmail = async ({ user, tempPassword }) => {
+  if (!user?.email) {
+    throw new Error("Missing user email");
+  }
+
+  const html = buildEmailTemplate({
+    firstName: user.firstName || "there",
+    title: "Welcome to GoGuided!",
+    message: tempPassword
+      ? `
+      Your application has been approved. You're now registered as a <strong>Guide</strong> on our platform.<br /><br />
+      Here is your temporary password: <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">${tempPassword}</code><br /><br />
+      Use it to log in and complete your profile.<br />
+      <strong>Please change your password after logging in for security.</strong>
+    `
+      : `
+      Your application has been approved. You're now registered as a <strong>Guide</strong> on our platform.<br /><br />
+      You can now log in with your existing credentials to access your dashboard and complete your profile.<br />
+      <strong>If you face any issues, please contact support.</strong>
+    `,
+  });
+
+  return sendEmail({
+    to: user.email,
+    subject: "Your GoGuided Account is Ready",
+    html,
+  });
+};
+
 module.exports = {
   sendRegistrationOtpEmail,
   sendPasswordResetEmail,
+  sendGuideWelcomeEmail,
 };

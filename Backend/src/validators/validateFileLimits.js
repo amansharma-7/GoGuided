@@ -33,12 +33,12 @@ function validateFileLimits(limitsConfig) {
 
       // ✅ minCount check
       if (minCount !== undefined && uploaded.length < minCount) {
-        return next(
-          new AppError(
-            `At least ${minCount} file(s) required for '${field}'.`,
-            400
-          )
-        );
+        const message =
+          minCount === 1
+            ? `${field} file is missing.`
+            : `At least ${minCount} files required for '${field}'.`;
+
+        return next(new AppError(message, 400));
       }
 
       // ✅ maxCount check
