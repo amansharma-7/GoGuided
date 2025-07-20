@@ -5,7 +5,6 @@ import useApi from "../../../../hooks/useApi";
 import { createJob } from "../../../../services/jobService";
 
 function CreateJob() {
-  const navigate = useNavigate();
   const { loading: isJobCreating, request: createJobRequest } =
     useApi(createJob);
   const {
@@ -62,7 +61,6 @@ function CreateJob() {
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
-
           {/* Job Description */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -81,7 +79,6 @@ function CreateJob() {
               </p>
             )}
           </div>
-
           {/* Location */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -97,7 +94,6 @@ function CreateJob() {
               <p className="text-red-500 text-sm">{errors.location.message}</p>
             )}
           </div>
-
           {/* Salary Range */}
           <div>
             <label className="block text-sm font-medium text-green-700 mb-1">
@@ -141,7 +137,6 @@ function CreateJob() {
               </div>
             </div>
           </div>
-
           {/* Last Date */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -160,7 +155,6 @@ function CreateJob() {
               </p>
             )}
           </div>
-
           {/* Number of Posts */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -181,22 +175,24 @@ function CreateJob() {
               </p>
             )}
           </div>
-
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 mt-4">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-md"
-            >
-              Submit
-            </button>
+            {isJobCreating ? (
+              <button
+                type="button"
+                className="bg-green-400 text-white px-4 py-2 rounded-md cursor-not-allowed"
+                disabled
+              >
+                Creating...
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
+              >
+                Create
+              </button>
+            )}
           </div>
         </form>
       </div>

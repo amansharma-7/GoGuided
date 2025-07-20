@@ -4,23 +4,29 @@ import Pagination from "../common/Pagination";
 import { useLocation } from "react-router";
 
 function getStatusStyle(status) {
-  switch (status) {
+  switch (status?.toLowerCase()) {
     case "paid":
     case "completed":
-      return "bg-primary-light text-text-heading border-primary-dark px-2 py-1 rounded";
+    case "approved":
+      return "bg-green-100 text-green-800 border border-green-400 px-2 py-1 rounded text-xs font-medium";
+
     case "pending":
     case "ongoing":
-      return "bg-secondary-light text-secondary-dark border-secondary px-2 py-1 rounded";
+      return "bg-yellow-100 text-yellow-800 border border-yellow-400 px-2 py-1 rounded text-xs font-medium";
+
     case "failed":
     case "rejected":
-      return "bg-red-200 text-red-800 border-red-500 px-2 py-1 rounded";
+      return "bg-red-100 text-red-800 border border-red-400 px-2 py-1 rounded text-xs font-medium";
+
     case "refunded":
     case "upcoming":
-      return "bg-blue-200 text-blue-800 border-blue-500 px-2 py-1 rounded";
+      return "bg-blue-100 text-blue-800 border border-blue-400 px-2 py-1 rounded text-xs font-medium";
+
     case "free":
-      return "bg-gray-200 text-text-body border-gray-500 px-2 py-1 rounded";
+      return "bg-gray-100 text-gray-800 border border-gray-400 px-2 py-1 rounded text-xs font-medium";
+
     default:
-      return "bg-red-200 text-red-800 border-red-500 px-2 py-1 rounded";
+      return "bg-gray-200 text-gray-800 border border-gray-400 px-2 py-1 rounded text-xs font-medium";
   }
 }
 

@@ -2,6 +2,7 @@ import { MdLocationOn } from "react-icons/md";
 import useSafeNavigate from "../../utils/useSafeNavigate";
 
 export default function JobCard({
+  _id: jobId,
   title,
   location,
   salary,
@@ -10,7 +11,12 @@ export default function JobCard({
   numberOfPosts,
 }) {
   const navigate = useSafeNavigate();
-  const jobSlug = title.toLowerCase().replace(/\s+/g, "-");
+  const jobSlug = title
+    .toLowerCase()
+    .trim()
+    .replace(/[\/\\]/g, "-")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
 
   function getDaysAgo(createdAt) {
     const createdDate = new Date(createdAt);
@@ -28,7 +34,12 @@ export default function JobCard({
       <div className="bg-white shadow-md rounded-2xl border border-gray-200 hover:shadow-lg transition duration-200 max-w-sm w-full mx-auto">
         <div className="p-5">
           {/* Title */}
-          <h2 className="text-xl font-semibold text-green-950 mb-2">{title}</h2>
+          <div className="flex flex-col mb-2">
+            <h2 className="text-xl font-semibold text-green-950">{title}</h2>
+            <span className="text-xs text-gray-500">
+              #{jobId.toUpperCase()}
+            </span>
+          </div>
 
           {/* Location */}
           <div className="flex items-center text-sm text-green-700 mb-4">
@@ -58,7 +69,7 @@ export default function JobCard({
             </div>
           </div>
           <button
-            onClick={() => navigate(`/careers/${jobSlug}`)}
+            onClick={() => navigate(`/careers/${jobSlug}/${jobId}`)}
             className="w-full bg-green-500 hover:bg-green-600 text-white text-sm px-4 py-2 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
           >
             Apply Now
