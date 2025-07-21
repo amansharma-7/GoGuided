@@ -93,6 +93,9 @@ exports.createTour = catchAsync(async (req, res, next) => {
     difficulty,
     languages,
     startDate: new Date(startDate),
+    endDate: new Date(
+      new Date(startDate).setDate(new Date(startDate).getDate() + duration - 1)
+    ),
     overview: overview.trim(),
     highlights,
     included,

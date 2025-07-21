@@ -56,6 +56,7 @@ const tourSchema = new mongoose.Schema(
     },
     languages: [{ type: String, required: true }],
     startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     overview: { type: String, required: true },
     highlights: [{ type: String, required: true }],
     included: [{ type: String, required: true }],

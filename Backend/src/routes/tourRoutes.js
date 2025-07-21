@@ -19,7 +19,7 @@ const tourController = require("../controllers/tourController");
 
 // Create a new tour with thumbnail and images
 router.post(
-  "/create-tour",
+  "/create",
   fileParser(["thumbnail", "images"]),
   validateFileLimits({
     thumbnail: {

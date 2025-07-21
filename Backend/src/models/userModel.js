@@ -49,6 +49,19 @@ const userSchema = new mongoose.Schema(
       default: false,
       select: false,
     },
+
+    // ✅ Guide-specific fields
+
+    availabilityStatus: {
+      type: String,
+      enum: ["available", "unavailable"],
+      default: "available",
+    },
+
+    availableFrom: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
