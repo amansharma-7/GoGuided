@@ -1,36 +1,14 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { FaArrowLeft, FaSave, FaTimes, FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import MapPicker from "./MapPicker";
-
-const guidesData = [
-  {
-    _id: "g1",
-    name: "Ravi Mehta",
-    email: "ravi.mehta@example.com",
-    phone: "+91 9876543210",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    role: "Senior Guide",
-  },
-  {
-    _id: "g2",
-    name: "Anjali Sharma",
-    email: "anjali.sharma@example.com",
-    phone: "+91 9876543211",
-    avatar: "https://i.pravatar.cc/150?img=20",
-    role: "Local Expert",
-  },
-  {
-    _id: "g3",
-    name: "Mohammed Khan",
-    email: "mohammed.khan@example.com",
-    phone: "+91 9876543212",
-    avatar: "https://i.pravatar.cc/150?img=30",
-    role: "Hiking Specialist",
-  },
-];
+import { getAvailableGuides } from "../../services/guideService";
+import {} from "../../services/tourService";
+import useApi from "../../hooks/useApi";
+import toast from "react-hot-toast";
+import { createTour } from "../../services/tourService";
 
 export default function AddTourForm() {
   const navigate = useNavigate();
@@ -87,14 +65,30 @@ export default function AddTourForm() {
     update: updateStop,
   } = useFieldArray({ control, name: "stops" });
 
+  const selectedGuideIds = useWatch({ control, name: "guides" }) || [];
+
   const [imageFiles, setImageFiles] = useState([]);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [allGuides, setAllGuides] = useState([]);
   const [mapPickerConfig, setMapPickerConfig] = useState(null);
 
+  const { request: fetchGuides } = useApi(getAvailableGuides);
+  const { loading: creatingTour, request: createTourRequest } =
+    useApi(createTour);
+
   useEffect(() => {
-    setAllGuides(guidesData);
-  }, []);
+    const startDate = getValues("startDate");
+    const duration = getValues("duration");
+
+    if (!startDate || !duration) return; // avoid empty fetches
+
+    (async () => {
+      try {
+        const res = await fetchGuides({ params: { startDate, duration } });
+        setAllGuides(res?.data?.guides || []);
+      } catch (error) {}
+    })();
+  }, [getValues("startDate"), getValues("duration")]);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -143,17 +137,66 @@ export default function AddTourForm() {
     setValue("images", updated);
   };
 
-  const onSubmit = (data) => {
-    const localDateStr = data.startDate; // e.g., "2025-07-08"
-    const dateObj = new Date(localDateStr + "T00:00:00Z"); // UTC midnight
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
 
-    const finalData = {
-      ...data,
-      startDate: dateObj, // 👈 send actual Date object
-    };
+      // Basic fields
+      formData.append("title", data.title);
+      formData.append("location", data.location);
+      formData.append("duration", data.duration);
+      formData.append("participants", data.participants);
+      formData.append("difficulty", data.difficulty);
+      formData.append("startDate", data.startDate);
+      formData.append("overview", data.overview);
+      formData.append("description", data.description);
+      formData.append("pricePerPerson", data.pricePerPerson);
 
-    console.log("Final Form Data:", finalData);
-    // Submit finalData to your API
+      // Convert comma-separated string to array and append one by one
+      data.languages.split(",").forEach((lang) => {
+        formData.append("languages", lang.trim());
+      });
+
+      // Thumbnail (single file)
+      if (data.thumbnail) {
+        formData.append("thumbnail", data.thumbnail);
+      }
+
+      // Images (multiple files)
+      if (data.images && data.images.length) {
+        data.images.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+
+      // Highlights (array of strings)
+      data.highlights.forEach((h, i) => {
+        formData.append(`highlights[${i}]`, h);
+      });
+
+      // Included (array of strings)
+      data.included.forEach((i, idx) => {
+        formData.append(`included[${idx}]`, i);
+      });
+
+      // Guides (array of objects)
+      data.guides.forEach((g, i) => {
+        formData.append(`guides[${i}]`, g.id);
+      });
+
+      // Stops (nested structure with location)
+      data.stops.forEach((stop, i) => {
+        formData.append(`stops[${i}][name]`, stop.name);
+        formData.append(`stops[${i}][description]`, stop.description);
+        formData.append(`stops[${i}][lng]`, stop.lng);
+        formData.append(`stops[${i}][lat]`, stop.lat);
+      });
+
+      const res = await createTourRequest({ data: formData });
+      toast.success(res.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    }
   };
 
   const inputClass =
@@ -266,7 +309,7 @@ export default function AddTourForm() {
               >
                 <option value="">Select difficulty</option>
                 <option value="easy">Easy</option>
-                <option value="moderate">Moderate</option>
+                <option value="medium">Medium</option>
                 <option value="hard">Hard</option>
               </select>
               {errors.difficulty && (
@@ -401,31 +444,46 @@ export default function AddTourForm() {
           {/* Guides */}
           <div>
             <label className="block text-green-700 mb-2">Guides</label>
-            {guideFields.map((_, index) => (
-              <div
-                key={index}
-                className="flex flex-col sm:flex-row items-center gap-2 mb-2"
-              >
-                <select
-                  {...register(`guides.${index}.id`, { required: true })}
-                  className={inputClass}
+            {guideFields.map((field, index) => {
+              const selectedIds = selectedGuideIds
+                .map((g) => g?.id)
+                .filter(Boolean);
+              const currentId = selectedIds[index];
+
+              const filteredGuides = allGuides.filter(
+                (guide) =>
+                  !selectedIds.includes(guide.id) || guide.id === currentId
+              );
+
+              return (
+                <div
+                  key={field.id}
+                  className="flex flex-col sm:flex-row items-center gap-2 mb-2"
                 >
-                  <option value="">-- Select Guide --</option>
-                  {allGuides.map((guide) => (
-                    <option key={guide._id} value={guide._id}>
-                      {guide.name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => removeGuide(index)}
-                  className="text-red-600 hover:text-red-700 cursor-pointer whitespace-nowrap"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            ))}
+                  <select
+                    {...register(`guides.${index}.id`, { required: true })}
+                    className={inputClass}
+                    defaultValue={field.id}
+                  >
+                    <option value="">-- Select Guide --</option>
+                    {filteredGuides.map((guide) => (
+                      <option key={guide.id} value={guide.id}>
+                        {guide.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => removeGuide(index)}
+                    className="text-red-600 hover:text-red-700 cursor-pointer whitespace-nowrap"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              );
+            })}
+
             <button
               type="button"
               onClick={() => appendGuide({ id: "" })}
@@ -561,10 +619,17 @@ export default function AddTourForm() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              disabled={creatingTour}
+              className={`px-6 py-3 rounded-lg flex items-center gap-2 whitespace-nowrap
+    ${
+      creatingTour
+        ? "bg-green-400 text-white cursor-not-allowed"
+        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+    }
+  `}
             >
               <FaSave />
-              Save Tour
+              {creatingTour ? "Creating..." : "Create Tour"}
             </button>
           </div>
         </form>

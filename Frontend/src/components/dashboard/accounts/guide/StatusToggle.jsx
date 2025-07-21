@@ -1,104 +1,146 @@
 import { useState, useEffect } from "react";
 import { FaExclamationCircle } from "react-icons/fa";
 import ConfirmationModal from "../../../common/ConfirmationModal";
+import { getStatus, updateStatus } from "../../../../services/guideService";
+import useApi from "../../../../hooks/useApi";
+import toast from "react-hot-toast";
 
 function StatusToggle() {
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [datePickerField, setDatePickerField] = useState(false);
-  const [availableDate, setAvailableDate] = useState("");
-  const [tempDate, setTempDate] = useState(""); // Store user input
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [warningMessage, setWarningMessage] = useState("");
+  const [currentStatus, setCurrentStatus] = useState("available");
+  const [nextAvailableFrom, setNextAvailableFrom] = useState(null);
 
-  // Get today's date adjusted for local timezone
-  const todayDate = new Date(
-    Date.now() - new Date().getTimezoneOffset() * 60000
-  )
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [warningMessage, setWarningMessage] = useState("");
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  const { request: getStatusRequest } = useApi(getStatus);
+  const { request: updateStatusRequest } = useApi(updateStatus);
+
+  // Get today’s date (ISO format for input)
+  const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
     .toISOString()
     .split("T")[0];
 
-  // Handle input change (directly update tempDate)
-  const handleDateChange = (e) => {
-    setTempDate(e.target.value);
-  };
+  // Load guide status on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getStatusRequest({});
+        setCurrentStatus(res.data.availabilityStatus);
+        setNextAvailableFrom(res.data.nextAvailableFrom);
+      } catch (error) {
+        toast.error("Failed to fetch current status.");
+      }
+    })();
+  }, []);
 
-  // Auto-validate when tempDate changes
+  // Validate date input
   useEffect(() => {
     if (tempDate) {
-      if (tempDate < todayDate) {
-        setWarningMessage("Please enter a valid future date.");
-        setAvailableDate(""); // Reset available date
+      if (tempDate < today) {
+        setWarningMessage("Please select a future date.");
+        setSelectedDate("");
       } else {
-        setWarningMessage(""); // Clear warning if valid
-        setAvailableDate(tempDate); // Store valid date
+        setWarningMessage("");
+        setSelectedDate(tempDate);
       }
     }
-  }, [tempDate]); // Runs when tempDate updates
+  }, [tempDate]);
+
+  const handleDateChange = (e) => setTempDate(e.target.value);
 
   const toggleStatus = () => {
-    if (isAvailable) {
-      openDatePicker();
-    } else {
-      setConfirmModal(true);
+    if (currentStatus === "available") setShowDatePicker(true);
+    else setConfirmModalOpen(true);
+  };
+
+  const handleStatusConfirm = async () => {
+    const newStatus =
+      currentStatus === "available" ? "unavailable" : "available";
+
+    try {
+      const payload =
+        newStatus === "unavailable"
+          ? { status: "unavailable", nextAvailableFrom: selectedDate }
+          : { status: "available" };
+
+      const res = await updateStatusRequest({ data: payload });
+
+      setCurrentStatus(newStatus);
+      setNextAvailableFrom(res.data.nextAvailableFrom);
+      toast.success(res.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update status");
+    } finally {
+      resetFields();
+      setConfirmModalOpen(false);
     }
   };
 
-  const openDatePicker = () => {
-    setDatePickerField(true);
+  const resetFields = () => {
+    setShowDatePicker(false);
+    setTempDate("");
+    setSelectedDate("");
+    setWarningMessage("");
   };
 
   const closeModals = () => {
-    setConfirmModal(false);
-    setDatePickerField(false);
-    setAvailableDate(""); // Reset selected date
-    setWarningMessage(""); // Clear warning message
-    setTempDate(""); // Reset temp date
-  };
-
-  const confirmStatusChange = () => {
-    setIsAvailable(!isAvailable);
-    closeModals();
+    resetFields();
+    setConfirmModalOpen(false);
   };
 
   return (
     <div className="w-full p-6 bg-white shadow-sm rounded-lg text-center">
-      {/* Status Heading */}
       <h2 className="text-xl font-bold text-green-950">
         Status:{" "}
-        <span className="text-green-900">
-          {isAvailable ? "Available" : "Unavailable"}
+        <span
+          className={
+            currentStatus === "available" ? "text-green-800" : "text-red-600"
+          }
+        >
+          {currentStatus === "available" ? "Available" : "Unavailable"}
         </span>
       </h2>
 
-      {/* Toggle Button */}
-      <div className="my-4">
-        <button
-          onClick={toggleStatus}
-          className={`w-32 py-2 text-white font-semibold rounded-lg transition cursor-pointer ${
-            isAvailable
-              ? "bg-red-400 hover:bg-red-500"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          Change
-        </button>
-      </div>
+      {currentStatus === "unavailable" && nextAvailableFrom && (
+        <p className="text-sm text-gray-700 mt-1">
+          📅 <span className="font-medium">Available from:</span>{" "}
+          <span className="font-semibold">
+            {new Date(nextAvailableFrom).toLocaleDateString("en-GB")}
+          </span>
+        </p>
+      )}
 
-      {/* Available Mode - Date Picker */}
-      {datePickerField && (
+      {!showDatePicker && (
+        <div className="my-4">
+          <button
+            onClick={toggleStatus}
+            className={`w-32 py-2 text-white font-semibold rounded-lg transition ${
+              currentStatus === "available"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+          >
+            Change
+          </button>
+        </div>
+      )}
+
+      {showDatePicker && (
         <div className="mt-3">
-          <label className="block text-sm font-semibold text-gray-700 mb-1 cursor-pointer">
-            Available From:
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select date you’ll be available from:
           </label>
           <input
             type="date"
             value={tempDate}
-            min={todayDate}
-            onChange={handleDateChange} // Auto-validates after full date is entered
-            className="border p-2 rounded w-full border-green-300 outline-none cursor-pointer"
+            min={today}
+            onChange={handleDateChange}
+            className="border p-2 rounded w-full border-green-300 outline-none"
           />
 
-          {/* Warning Message - Show only when invalid date is entered */}
           {warningMessage && (
             <div className="flex items-center bg-red-100 text-red-700 px-3 py-2 rounded mt-2">
               <FaExclamationCircle className="w-5 h-5 mr-2" />
@@ -106,18 +148,18 @@ function StatusToggle() {
             </div>
           )}
 
-          {/* Confirm Unavailable Button */}
-          {availableDate && !warningMessage && (
+          {selectedDate && !warningMessage && (
             <>
-              <p className="text-sm text-gray-600 mt-2 cursor-pointer">
-                📅 Available from:{" "}
+              <p className="text-sm text-gray-600 mt-2">
+                📅{" "}
+                <span className="font-medium">You’ll be available from:</span>{" "}
                 <span className="font-semibold">
-                  {new Date(availableDate).toLocaleDateString("en-GB")}
+                  {new Date(selectedDate).toLocaleDateString("en-GB")}
                 </span>
               </p>
               <button
-                onClick={() => setConfirmModal(true)}
-                className="mt-4 px-4 py-2 bg-red-500 text-white cursor-pointer font-semibold rounded-lg hover:bg-red-600 transition"
+                onClick={() => setConfirmModalOpen(true)}
+                className="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600"
               >
                 Confirm Unavailable
               </button>
@@ -126,16 +168,15 @@ function StatusToggle() {
         </div>
       )}
 
-      {/* Confirmation Modal */}
-      {confirmModal && (
+      {confirmModalOpen && (
         <ConfirmationModal
           text={
-            isAvailable
+            currentStatus === "available"
               ? "Are you sure you want to mark yourself as Unavailable?"
               : "Are you sure you want to mark yourself as Available?"
           }
           onCancel={closeModals}
-          onConfirm={confirmStatusChange}
+          onConfirm={handleStatusConfirm}
         />
       )}
     </div>
