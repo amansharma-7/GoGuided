@@ -9,9 +9,25 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const { uploadImageToCloudinary } = require("../utils/cloudinaryUploader");
 
+function transformTourSpots(tourSpots) {
+  return tourSpots.map((spot) => {
+    const dayLabel = `Day ${spot.day}`;
+    const lat = spot.location.coordinates[1];
+    const lng = spot.location.coordinates[0];
+
+    return {
+      day: dayLabel,
+      place: spot.name,
+      task: spot.description,
+      position: { lat, lng },
+    };
+  });
+}
+
 exports.createTour = catchAsync(async (req, res, next) => {
   const {
     title,
+    description,
     location,
     duration,
     participants,
@@ -87,6 +103,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
   const newTour = await Tour.create({
     title: title.trim(),
     slug,
+    description,
     location: location.trim(),
     duration,
     participants: Number(participants),
@@ -94,7 +111,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
     languages,
     startDate: new Date(startDate),
     endDate: new Date(
-      new Date(startDate).setDate(new Date(startDate).getDate() + duration - 1)
+      new Date(startDate).getTime() + (duration - 1) * 24 * 60 * 60 * 1000
     ),
     overview: overview.trim(),
     highlights,
@@ -111,5 +128,82 @@ exports.createTour = catchAsync(async (req, res, next) => {
     isSuccess: true,
     message: "Tour created successfully.",
     tour: newTour,
+  });
+});
+
+exports.getAllTours = catchAsync(async (req, res, next) => {
+  const tours = await Tour.find().select(
+    "title slug location duration difficulty startDate endDate pricePerPerson description participants"
+  );
+
+  res.status(200).json({
+    isSuccess: true,
+    data: { tours },
+  });
+});
+
+exports.getAllToursAsCards = catchAsync(async (req, res, next) => {
+  const tours = await Tour.find()
+    .select(
+      "title slug description location startDate loacation difficulty tourSpots rating thumbnail"
+    )
+    .lean();
+
+  res.status(200).json({
+    isSuccess: true,
+    results: tours.length,
+    data: {
+      tours: tours.map((tour) => ({
+        _id: tour._id,
+        title: tour.title,
+        slug: tour.slug,
+        description: tour.description,
+        location: tour.location,
+        startDate: tour.startDate,
+        loacation: tour.loacation,
+        difficulty: tour.difficulty,
+        rating: tour.rating,
+        tourSpots: tour.tourSpots?.length || 0,
+        thumbnail: tour.thumbnail?.secure_url || null,
+      })),
+    },
+  });
+});
+
+exports.getTourBySlug = catchAsync(async (req, res, next) => {
+  const { slug } = req.params;
+
+  let tour = await Tour.findOne({ slug })
+    .populate({
+      path: "guides",
+      select: "firstName lastName profilePic",
+    })
+    .lean();
+
+  // Transform images
+  if (tour.images && Array.isArray(tour.images)) {
+    tour.images = tour.images.map((image) => ({ url: image.secure_url }));
+  }
+
+  // Transform guides
+  if (tour.guides && Array.isArray(tour.guides)) {
+    tour.guides = tour.guides.map((guide) => ({
+      _id: guide._id,
+      name: `${guide.firstName} ${guide.lastName}`,
+      profilePicUrl: guide.profilePic?.url || null,
+    }));
+  }
+
+  if (tour.tourSpots && Array.isArray(tour.tourSpots)) {
+    tour.tourSpots = transformTourSpots(tour.tourSpots);
+  }
+
+  console.log(tour.tourSpots);
+
+  res.status(200).json({
+    isSuccess: true,
+    data: {
+      tour: tour || [],
+    },
   });
 });

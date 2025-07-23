@@ -44,7 +44,14 @@ exports.fullNameFieldValidator = body("fullName")
   .isLength({ min: 2, max: 100 })
   .withMessage("Full name must be between 2 and 100 characters")
   .matches(/^[a-zA-Z\s]+$/)
-  .withMessage("Full name must contain only letters and spaces");
+  .withMessage("Full name must contain only letters and spaces")
+  .customSanitizer((value) => {
+    return value
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  });
 
 exports.splitNameToFirstAndLast = body("name")
   .trim()
