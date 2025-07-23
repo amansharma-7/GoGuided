@@ -86,7 +86,7 @@ const router = createBrowserRouter([
             Component: Tours,
           },
           {
-            path: ":id",
+            path: ":slug",
 
             children: [
               { index: true, Component: Tour },

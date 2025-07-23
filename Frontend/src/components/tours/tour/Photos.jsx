@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 
-export default function ImageGallery() {
+export default function ImageGallery({ images }) {
   const [galleryState, setGalleryState] = useState({
     isOpen: false, // Gallery modal state
     selectedIndex: null, // Single Image Viewer state
   });
-
-  const images = [
-    "/images/gallery1.jpg",
-    "/images/gallery2.jpeg",
-    "/images/gallery3.jpeg",
-    "/images/gallery4.jpg",
-  ];
 
   // Open gallery modal
   const openGallery = () =>
@@ -44,7 +37,7 @@ export default function ImageGallery() {
       <div className="h-[350px] md:h-[500px] grid grid-rows-2 grid-cols-1 md:grid-cols-[0.60fr_0.40fr] gap-1 rounded-lg overflow-hidden">
         <div className="row-span-1 md:row-span-2 overflow-hidden rounded-lg">
           <img
-            src={images[0]}
+            src={images[0].url}
             alt="Gallery Image 1"
             className="w-full h-full object-cover cursor-pointer"
             onClick={() => openImageViewer(0)}
@@ -52,7 +45,7 @@ export default function ImageGallery() {
         </div>
         <div className="overflow-hidden rounded-lg">
           <img
-            src={images[1]}
+            src={images[1].url}
             alt="Gallery Image 2"
             className="w-full h-full object-cover cursor-pointer"
             onClick={() => openImageViewer(1)}
@@ -61,7 +54,7 @@ export default function ImageGallery() {
         <div className="grid grid-cols-2 gap-1">
           <div className="overflow-hidden rounded-lg">
             <img
-              src={images[2]}
+              src={images[2].url}
               alt="Gallery Image 3"
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => openImageViewer(2)}
@@ -69,7 +62,7 @@ export default function ImageGallery() {
           </div>
           <div className="relative overflow-hidden rounded-lg">
             <img
-              src={images[3]}
+              src={images[3].url}
               alt="Gallery Image 4"
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => openImageViewer(3)}
@@ -94,7 +87,7 @@ export default function ImageGallery() {
               {images.map((img, index) => (
                 <img
                   key={index}
-                  src={img}
+                  src={img.url}
                   className="w-full h-full object-cover object-center rounded-lg cursor-pointer transition-transform duration-300"
                   onClick={() => openImageViewer(index)}
                   role="button"
@@ -130,7 +123,7 @@ export default function ImageGallery() {
               <RxCross2 size={24} />
             </button>
             <img
-              src={images[galleryState.selectedIndex]}
+              src={images[galleryState.selectedIndex].url}
               className="w-full h-full object-cover rounded-lg shadow-lg transition-transform duration-500 ease-in-out"
               alt="Full view"
             />

@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  FaStar,
-  FaRegStar,
-  FaHeart,
-  FaRegHeart,
-  FaArrowLeft,
-} from "react-icons/fa";
+import { FaStar, FaRegStar, FaArrowLeft } from "react-icons/fa";
 import { BsSunFill } from "react-icons/bs";
 import { TiGroup } from "react-icons/ti";
 import { HiArrowTrendingUp } from "react-icons/hi2";
@@ -16,65 +10,54 @@ import CallToAction from "./CallToAction";
 import IncludedAndGuided from "./IncludedAndGuides";
 import Timeline from "./Timeline";
 import Photos from "./Photos";
-import Map from "./Map";
+import TourMap from "./TourMap";
 import Reviews from "../../common/Reviews";
 import AddReview from "../../common/AddReview";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
 import ShareModal from "../../common/ShareModal";
+import { getTourBySlug } from "../../../services/tourService";
+import useApi from "../../../hooks/useApi";
+import { useEffect } from "react";
+import { useParams } from "react-router";
+import LoaderOverlay from "../../common/LoaderOverlay";
 
-const tourData = {
-  title: "The Forest Hiker",
-  location: "Jammu, India",
-  rating: 4.8,
-  bookings: "30k+ Booked",
-  duration: "7 Days",
-  participants: "7 People",
-  difficulty: "Medium",
-  languages: ["Hindi", "English"],
-  date: "07-10-2025",
-  overview:
-    "The Phi Phi archipelago is a must-visit while in Phuket, and this speedboat trip whisks you around the islands in one day. Swim over the coral reefs of Pileh Lagoon, have lunch at Phi Phi Leh, snorkel at Bamboo Island, and visit Monkey Beach and Maya Bay, immortalized in 'The Beach.' Boat transfers, snacks, buffet lunch, snorkeling equipment, and Phuket hotel pickup and drop-off all included.",
-  highlights: [
-    "Experience the thrill of a speedboat to the stunning Phi Phi Islands",
-    "Be amazed by the variety of marine life in the archipelago",
-    "Enjoy relaxing in paradise with white sand beaches and azure turquoise water",
-    "Feel the comfort of a tour limited to 35 passengers",
-    "Catch a glimpse of the wild monkeys around Monkey Beach",
-  ],
-  included: [
-    "Beverages, drinking water, morning tea and buffet lunch",
-    "Hotel Stay",
-    "Hotel pickup and drop-off by air-conditioned minivan",
-  ],
-  guides: [
-    {
-      name: "Sudhir Sharma",
-      role: "LEAD GUIDE",
-      image:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      name: "Aman Sharma",
-      role: "TOUR GUIDE",
-      image: "",
-    },
-  ],
-};
-
+function formatDate(date) {
+  return new Date(date).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
 function Tour() {
   const safeNavigate = useSafeNavigate();
 
+  const [tour, setTour] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userReview, setUserReview] = useState(null);
   const [liked, setLiked] = useState(false);
   const [share, setShare] = useState(false);
   const shareUrl = window.location.origin + location.pathname;
+  const { slug } = useParams();
+
+  const { loading: isLoading, request: fetchTour } = useApi(getTourBySlug);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchTour({ identifier: slug });
+        setTour(res?.data?.tour);
+      } catch (error) {}
+    })();
+  }, []);
 
   const handleReviewSubmit = (reviewData) => {
     console.log("Review Submitted:", reviewData);
     setUserReview(reviewData);
     setIsModalOpen(false); // Close modal after submission
   };
+
+  if (isLoading || tour?.length === 0) return <LoaderOverlay />;
+
   return (
     <div className="px-4 md:px-20 lg:px-32 py-6 flex flex-col gap-6">
       {/* Heading */}
@@ -91,34 +74,23 @@ function Tour() {
               <FaArrowLeft size={18} />
             </button>
             <h3 className="font-bold text-xl sm:text-3xl text-green-900 truncate max-w-xs sm:max-w-none">
-              {tourData.title}
+              {tour.title}
             </h3>
           </div>
           <div className="flex justify-between w-full ">
             <div className="flex gap-4 items-center ">
               {/* Rating */}
               <span className="flex items-center gap-1 text-lg sm:text-xl font-semibold text-green-950 whitespace-nowrap">
-                {tourData.rating}
+                {tour.rating}
                 <FaStar className="text-yellow-400 text-xl sm:text-2xl" />
               </span>
 
               {/* Location */}
               <span className="text-sm sm:text-lg text-green-950 truncate max-w-xs">
-                {tourData.location}
+                {tour.location}
               </span>
             </div>
             <div className="flex gap-3 sm:gap-4">
-              <button
-                className="text-white rounded-lg uppercase font-semibold tracking-wide transition cursor-pointer flex items-center justify-center p-1 sm:p-2"
-                onClick={() => setLiked(!liked)}
-                aria-label="Like tour"
-              >
-                {liked ? (
-                  <FaHeart color="red" size={20} />
-                ) : (
-                  <FaRegHeart color="black" size={20} />
-                )}
-              </button>
               <button
                 className="bg-green-700 text-white px-3 py-1 rounded-lg uppercase font-semibold tracking-wide hover:bg-green-800 transition cursor-pointer text-sm sm:text-base"
                 onClick={() => setShare(!share)}
@@ -133,7 +105,7 @@ function Tour() {
       </div>
 
       {/* Photos */}
-      <Photos />
+      <Photos images={tour.images} />
 
       {/* Overview */}
       <div className="flex flex-col md:flex-row rounded-lg gap-8">
@@ -150,7 +122,7 @@ function Tour() {
               Duration:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.duration}
+              {tour.duration} {tour.duration === 1 ? "day" : "days"}
             </span>
           </div>
 
@@ -160,7 +132,7 @@ function Tour() {
               Participants:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.participants}
+              {tour.participants}
             </span>
           </div>
 
@@ -170,7 +142,8 @@ function Tour() {
               Difficulty:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.difficulty}
+              {tour.difficulty.charAt(0).toUpperCase() +
+                tour.difficulty.slice(1).toLowerCase()}
             </span>
           </div>
 
@@ -180,7 +153,9 @@ function Tour() {
               Rating:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.rating}/5
+              {tour.rating && tour.rating > 0
+                ? `${tour.rating}/5`
+                : "Not rated"}
             </span>
           </div>
 
@@ -190,7 +165,7 @@ function Tour() {
               Languages:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.languages.join(", ")}
+              {tour.languages.join(", ")}
             </span>
           </div>
 
@@ -200,7 +175,7 @@ function Tour() {
               Date:
             </span>
             <span className="text-sm sm:text-lg font-light">
-              {tourData.date}
+              {formatDate(tour.startDate)}
             </span>
           </div>
         </div>
@@ -212,7 +187,7 @@ function Tour() {
               About This Tour
             </h3>
             <p className="text-green-950 leading-relaxed max-h-28 overflow-y-auto scrollbar-none text-sm sm:text-base">
-              {tourData.overview}
+              {tour.overview}
             </p>
           </div>
 
@@ -221,7 +196,7 @@ function Tour() {
               Tour Highlights
             </h4>
             <ul className="list-disc list-inside text-green-950 mt-2 space-y-1 md:space-y-2 max-h-36 overflow-y-auto scrollbar-none text-sm sm:text-base">
-              {tourData.highlights.map((highlight, index) => (
+              {tour.highlights.map((highlight, index) => (
                 <li key={index}>{highlight}</li>
               ))}
             </ul>
@@ -235,18 +210,15 @@ function Tour() {
           Itinerary
         </h2>
         <div className="flex flex-col md:flex-row gap-6 md:gap-10 w-full justify-between rounded-lg">
-          <Timeline />
-          <Map />
+          <Timeline tourSchedule={tour.tourSpots} />
+          <TourMap spots={tour.tourSpots} />
         </div>
       </div>
 
       {/* Buy and Included Things */}
       <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 md:gap-10 bg-white p-4 sm:p-6 rounded-xl shadow-lg h-full">
-        <IncludedAndGuided
-          included={tourData.included}
-          guides={tourData.guides}
-        />
-        <CallToAction />
+        <IncludedAndGuided included={tour.included} guides={tour.guides} />
+        <CallToAction images={tour.images} duration={tour.duration} />
       </div>
 
       {/* Reviews */}

@@ -1,16 +1,4 @@
-import React from "react";
-
-const tourSchedule = [
-  { day: "Day 1", task: "Airport Pick Up" },
-  { day: "Day 2", task: "Temples & River Cruise" },
-  { day: "Day 3", task: "Massage & Overnight Train" },
-  { day: "Day 4", task: "Khao Sok National Park" },
-  { day: "Day 5", task: "Travel to Koh Phangan" },
-  { day: "Day 6", task: "Island Boat Trip" },
-  { day: "Day 7", task: "Return Home" },
-];
-
-function Timeline() {
+function Timeline({ tourSchedule }) {
   return (
     <div
       className="bg-white py-2 rounded-lg shadow-sm 
@@ -38,11 +26,11 @@ function Timeline() {
               ></div>
 
               {/* Content */}
-              <div className="bg-white shadow-md px-4 py-2 rounded-md flex flex-col justify-center w-full md:w-64">
-                <h3 className="font-bold text-green-950 text-base md:text-lg">
-                  {event.day}
+              <div className="bg-white shadow-md px-4 py-1 rounded-md flex flex-col justify-center w-full md:w-64">
+                <h3 className=" text-green-900 text-base md:text-lg">
+                  {event.place}
                 </h3>
-                <p className="text-green-950 text-sm md:text-base">
+                <p className="text-green-950 text-xs md:text-sm">
                   {event.task}
                 </p>
               </div>

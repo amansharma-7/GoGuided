@@ -37,8 +37,8 @@ const startIcon = L.icon({
 
 // ✅ Function to Calculate Midpoint & Correct Bearing
 const calculateMidpointAndBearing = (pos1, pos2) => {
-  const [lat1, lon1] = pos1;
-  const [lat2, lon2] = pos2;
+  const { lat: lat1, lng: lon1 } = pos1;
+  const { lat: lat2, lng: lon2 } = pos2;
 
   const toRad = (deg) => (deg * Math.PI) / 180;
   const toDeg = (rad) => (rad * 180) / Math.PI;
@@ -107,68 +107,60 @@ function ZoomToMarker({ position, label, day, isSpecial }) {
   );
 }
 
+function mergeSameCoordinatesWithStartPoint(spots) {
+  const mergedMap = new Map();
+
+  for (const spot of spots) {
+    const { lat, lng } = spot.position;
+    const key = `${lat},${lng}`;
+
+    if (mergedMap.has(key)) {
+      const existing = mergedMap.get(key);
+
+      existing.day += ` / ${spot.day}`;
+      existing.task += ` / ${spot.task}`;
+
+      if (!existing.place.includes(spot.place)) {
+        existing.place += ` / ${spot.place}`;
+      }
+
+      // If this spot is Day 1, mark it as the starting point
+      if (spot.day === "Day 1" || spot.day.includes("Day 1")) {
+        existing.start = true;
+      }
+    } else {
+      mergedMap.set(key, {
+        ...spot,
+        isStartPoint: spot.day === "Day 1", // true for Day 1 only
+      });
+    }
+  }
+
+  return Array.from(mergedMap.values());
+}
+
 // ✅ Main Map Component
-function Map() {
-  const locations = [
-    {
-      day: "Day 1 / Day 7",
-      task: "Airport Pick Up / Return Home",
-      position: [33.9877, 74.7749],
-      isSpecial: true, // 🔴 Red Marker
-    },
-    {
-      day: "Day 2",
-      task: "Visit Shankaracharya Temple & Dal Lake Cruise",
-      position: [34.0837, 74.7973],
-      isSpecial: false,
-    },
-    {
-      day: "Day 3",
-      task: "Massage & Explore Mughal Gardens",
-      position: [34.0912, 74.8398],
-      isSpecial: false,
-    },
-    {
-      day: "Day 4",
-      task: "Excursion to Gulmarg",
-      position: [34.0486, 74.3805],
-      isSpecial: false,
-    },
-    {
-      day: "Day 5",
-      task: "Travel to Pahalgam",
-      position: [34.015, 75.315],
-      isSpecial: false,
-    },
-    {
-      day: "Day 6",
-      task: "Explore Betaab Valley & Lidder River",
-      position: [34.0595, 75.3206],
-      isSpecial: false,
-    },
-  ];
+function TourMap({ spots = [] }) {
+  const locations = mergeSameCoordinatesWithStartPoint(spots);
 
   return (
     <div className="relative w-full md:w-[70%] bg-white p-2 rounded-lg shadow-sm z-0 h-[300px] md:h-[500px]">
       <MapContainer
-        center={[34.0837, 74.7973]}
-        zoom={10}
+        center={[locations[0].position.lat, locations[0].position.lng]}
+        zoom={9}
         scrollWheelZoom={false}
         className="h-full w-full rounded-md"
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        />
+        <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
 
         {/* ✅ Green & Red Markers with Popups on Hover */}
         {locations.map((loc, index) => (
           <ZoomToMarker
             key={index}
-            position={loc.position}
+            position={[loc.position.lat, loc.position.lng]}
             label={loc.task}
             day={loc.day}
-            isSpecial={loc.isSpecial}
+            isSpecial={loc.isStartPoint}
           />
         ))}
 
@@ -207,4 +199,4 @@ function Map() {
   );
 }
 
-export default Map;
+export default TourMap;
