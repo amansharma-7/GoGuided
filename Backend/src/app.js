@@ -23,6 +23,8 @@ const tourRoutes = require("./routes/tourRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const guideRoutes = require("./routes/guideRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 const geocodeRoutes = require("./routes/geocodeRoutes");
 
@@ -92,6 +94,8 @@ app.use("/api/v1/tour", tourRoutes);
 app.use("/api/v1/job", jobRoutes);
 app.use("/api/v1/application", applicationRoutes);
 app.use("/api/v1/guide", guideRoutes);
+app.use("/api/v1/review", reviewRoutes);
+app.use("/api/v1/booking", bookingRoutes);
 
 app.use("/api/v1/geocode", geocodeRoutes);
 

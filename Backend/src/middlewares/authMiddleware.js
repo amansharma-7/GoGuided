@@ -33,7 +33,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // Attach user to request
-  req.user = { userId: currentUser._id, role: currentUser.role };
+  req.user = { userId: currentUser._id.toString(), role: currentUser.role };
   next();
 });
 
