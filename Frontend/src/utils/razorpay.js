@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+import api from "../services/apiClient";
 
 function loadScript(src) {
   return new Promise((resolve) => {
@@ -12,46 +12,25 @@ function loadScript(src) {
   });
 }
 
-export async function initiateRazorpayPayment({
-  token,
-  tour,
-  userDetails,
-  navigate,
-}) {
+export async function initiateRazorpayPayment({ tour }) {
   const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
   if (!res) {
     return;
   }
   try {
-    const response = await fetch(`${API_BASE_URL}/api/payment/create-order`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ tour }),
+    const response = await api.post("/payment/create-order", {
+      totalAmount: tour.price,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return;
-    }
-
-    const orderData = await response.json();
+    const orderData = await response.data;
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       currency: orderData.data.currency,
       amount: `${orderData.data.amount}`,
       order_id: orderData.data.id,
-      // name: "GoGuided",
-      // description: `Booking for Tour: ${tour?.name || "Tour"}`,
-      // prefill: {
-      //   name: userDetails.firstName,
-      //   email: userDetails.email,
-      // },
       handler: function (razorpayResponse) {
-        verifyPayment({ ...razorpayResponse, tour }, token, navigate);
+        verifyPayment({ ...razorpayResponse, tour });
       },
     };
 
@@ -66,24 +45,19 @@ export async function initiateRazorpayPayment({
   }
 }
 
-async function verifyPayment(bodyData, token) {
+async function verifyPayment({
+  razorpay_payment_id,
+  razorpay_order_id,
+  razorpay_signature,
+  tour,
+}) {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/payment/verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(bodyData),
+    const response = await api.post("payment/verify-payment", {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      tour,
     });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.message || "Payment verification failed");
-    }
-
-    // navigate("/dashboard/bookings");
   } catch (error) {
     console.error("PAYMENT VERIFY ERROR:", error);
   }

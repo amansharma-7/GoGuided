@@ -25,10 +25,10 @@ function TourCard({ tour }) {
           alt={tour.title}
         />
         {/* Background overlay shape */}
-        <div className="bg-white h-20 w-[120%] absolute -bottom-14 -rotate-9 text-black text-center z-10"></div>
+        <div className="bg-white h-20 w-[120%] absolute -bottom-10 -rotate-9 text-black text-center z-1"></div>
 
         {/* Title block */}
-        <div className="flex flex-col items-end  absolute bottom-8 right-0 z-20">
+        <div className="flex flex-col items-end  absolute bottom-8 right-0 z-2">
           <p className="bg-green-600/70 shadow-sm px-2 py-1 sm:px-3 sm:py-2 text-xl sm:text-2xl text-white font-semibold">
             {titleParts[0]?.toUpperCase()} {titleParts[1]?.toUpperCase()}
           </p>

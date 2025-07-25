@@ -37,14 +37,15 @@ exports.lastNameFieldValidator = body("lastName")
     return capitalize(value);
   });
 
-exports.fullNameFieldValidator = body("fullName")
-  .trim()
-  .notEmpty()
-  .withMessage("Full name is required")
-  .isLength({ min: 2, max: 100 })
-  .withMessage("Full name must be between 2 and 100 characters")
-  .matches(/^[a-zA-Z\s]+$/)
-  .withMessage("Full name must contain only letters and spaces");
+exports.fullNameFieldValidator = (field = "fullName") =>
+  body(field)
+    .trim()
+    .notEmpty()
+    .withMessage("Full name is required")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Full name must be between 2 and 100 characters")
+    .matches(/^[a-zA-Z\s]+$/)
+    .withMessage("Full name must contain only letters and spaces");
 
 exports.splitNameToFirstAndLast = body("name")
   .trim()
@@ -126,3 +127,23 @@ exports.otpFieldValidator = body("otp")
   .withMessage("OTP must be exactly 6 digits.")
   .isNumeric()
   .withMessage("OTP must contain only numbers.");
+
+exports.tourFieldValidator = [
+  body("tour._id")
+    .notEmpty()
+    .withMessage("Tour ID is required")
+    .isString()
+    .withMessage("Tour ID must be a valid string"),
+
+  body("tour.name")
+    .notEmpty()
+    .withMessage("Tour name is required")
+    .isString()
+    .withMessage("Tour name must be a string"),
+
+  body("tour.price")
+    .notEmpty()
+    .withMessage("Tour price is required")
+    .isFloat({ gt: 0 })
+    .withMessage("Tour price must be a positive number"),
+];
