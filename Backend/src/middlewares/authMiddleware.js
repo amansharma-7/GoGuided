@@ -6,12 +6,10 @@ const catchAsync = require("../utils/catchAsync");
 // Protect routes (only for logged-in users)
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
-
   // Get token from cookies instead of Authorization header
   if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }
-
   if (!token) {
     return next(
       new AppError("You're not logged in. Please log in to continue.", 401)
@@ -22,6 +20,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   // Check if user still exists
+
   const currentUser = await User.findById(decoded.id).select("role");
   if (!currentUser) {
     return next(

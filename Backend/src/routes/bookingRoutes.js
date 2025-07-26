@@ -5,6 +5,17 @@ const bookingController = require("../controllers/bookingController");
 
 const router = express.Router();
 
-router.post("/:slug", authMiddleware.protect, bookingController.createBooking);
+router.get(
+  "/",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("user"),
+  bookingController.getUserBookings
+);
+
+router.patch(
+  "/cancel/:id",
+  authMiddleware.protect,
+  bookingController.cancelBooking
+);
 
 module.exports = router;

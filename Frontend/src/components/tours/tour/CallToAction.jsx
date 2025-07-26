@@ -1,6 +1,32 @@
+import { useEffect, useState } from "react";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
-function CallToAction({ images, duration }) {
+
+function CallToAction({ images, duration, startDate, availableSlots }) {
   const navigate = useSafeNavigate();
+
+  const [isBookingClosed, setIsBookingClosed] = useState(false);
+  const [isFull, setIsFull] = useState(false);
+
+  useEffect(() => {
+    if (startDate) {
+      const today = new Date();
+      const tourStart = new Date(startDate);
+      setIsBookingClosed(tourStart < today);
+    }
+
+    if (typeof availableSlots === "number") {
+      setIsFull(availableSlots <= 0);
+    }
+  }, [startDate, availableSlots]);
+
+  const isDisabled = isBookingClosed || isFull;
+
+  const getButtonLabel = () => {
+    if (isBookingClosed) return "Booking Closed";
+    if (isFull) return "No Slots Available";
+    return "Book Tour Now!";
+  };
+
   return (
     <div className="flex flex-col justify-between w-full md:w-[60%] p-6 md:p-8 rounded-lg shadow-sm h-full min-h-[400px]">
       {/* Top Images */}
@@ -29,10 +55,16 @@ function CallToAction({ images, duration }) {
       {/* Bottom Button */}
       <div className="flex justify-center px-2">
         <button
-          className="bg-green-600 text-white text-sm font-semibold py-3 px-6 md:px-8 rounded-full shadow-md hover:bg-green-700 transition-all duration-300 cursor-pointer"
+          disabled={isDisabled}
           onClick={() => navigate("book-tour")}
+          className={`bg-green-600 text-white text-sm font-semibold py-3 px-6 md:px-8 rounded-full shadow-md transition-all duration-300
+            ${
+              isDisabled
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:bg-green-700 cursor-pointer"
+            }`}
         >
-          Book Tour Now!
+          {getButtonLabel()}
         </button>
       </div>
     </div>

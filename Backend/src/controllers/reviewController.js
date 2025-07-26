@@ -1,6 +1,7 @@
 const Review = require("../models/reviewModel");
 const User = require("../models/userModel");
 const Tour = require("../models/tourModel");
+const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
@@ -82,10 +83,11 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
 exports.getUserReviews = catchAsync(async (req, res, next) => {
   const { userId } = req.user;
 
-  // 1. Get user bookings
-  const { bookings } = await User.findById(userId).select("bookings");
+  // 1. Get user's bookings (booking IDs)
+  const user = await User.findById(userId).select("bookings");
+  const bookingIds = user?.bookings;
 
-  if (!bookings || bookings.length === 0) {
+  if (!bookingIds || bookingIds.length === 0) {
     return res.status(200).json({
       isSuccess: true,
       reviewed: [],
@@ -93,27 +95,41 @@ exports.getUserReviews = catchAsync(async (req, res, next) => {
     });
   }
 
-  // 2. Get all reviews by this user
+  // 2. Get valid Booking documents
+  const bookings = await Booking.find({
+    _id: { $in: bookingIds },
+    status: { $ne: "cancelled" }, // ✅ Exclude cancelled
+  }).select("tour");
+
+  const tourIds = bookings.map((b) => b.tour.toString());
+
+  // 3. Get all reviews by this user
   const reviews = await Review.find({ user: userId }).select(
     "tour rating review createdAt"
   );
 
   const reviewedTourIds = reviews.map((r) => r.tour.toString());
-  const bookingsTourIds = bookings.map((b) => b._id.toString());
+
+  // 4. Get all tours once, reduce DB calls
+  const tours = await Tour.find({ _id: { $in: tourIds } }).select(
+    "title slug endDate"
+  );
 
   const reviewedTours = [];
   const notReviewedTours = [];
 
-  for (const tourId of bookingsTourIds) {
-    const tour = await Tour.findById(tourId).select("title slug");
+  const today = new Date();
+
+  for (const tour of tours) {
+    const tourId = tour._id.toString();
+
+    const isCompleted = new Date(tour.endDate) < today;
+
+    if (!isCompleted) continue; // ✅ Skip tours not yet completed
 
     if (reviewedTourIds.includes(tourId)) {
       const review = reviews.find((r) => r.tour.toString() === tourId);
-
-      reviewedTours.push({
-        tour,
-        review,
-      });
+      reviewedTours.push({ tour, review });
     } else {
       notReviewedTours.push(tour);
     }

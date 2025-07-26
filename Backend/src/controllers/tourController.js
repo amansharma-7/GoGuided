@@ -3,6 +3,8 @@ const slugify = require("slugify");
 
 // Models
 const Tour = require("../models/tourModel");
+const Booking = require("../models/bookingModel");
+const Review = require("../models/reviewModel");
 
 // Utilities
 const catchAsync = require("../utils/catchAsync");
@@ -143,12 +145,30 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllToursAsCards = catchAsync(async (req, res, next) => {
+  // Step 1: Get all tours
   const tours = await Tour.find()
     .select(
-      "title slug description location startDate loacation difficulty tourSpots rating thumbnail"
+      "title slug description location startDate loacation difficulty tourSpots thumbnail"
     )
     .lean();
 
+  // Step 2: Get avgRating for all tours
+  const ratingAgg = await Review.aggregate([
+    {
+      $group: {
+        _id: "$tour",
+        avgRating: { $avg: "$rating" },
+      },
+    },
+  ]);
+
+  // Step 3: Create a map for quick lookup
+  const ratingMap = {};
+  ratingAgg.forEach((r) => {
+    ratingMap[r._id.toString()] = parseFloat(r.avgRating.toFixed(1));
+  });
+
+  // Step 4: Build final response
   res.status(200).json({
     isSuccess: true,
     results: tours.length,
@@ -162,7 +182,7 @@ exports.getAllToursAsCards = catchAsync(async (req, res, next) => {
         startDate: tour.startDate,
         loacation: tour.loacation,
         difficulty: tour.difficulty,
-        rating: tour.rating,
+        avgRating: ratingMap[tour._id.toString()] || 0,
         tourSpots: tour.tourSpots?.length || 0,
         thumbnail: tour.thumbnail?.secure_url || null,
       })),
@@ -173,12 +193,73 @@ exports.getAllToursAsCards = catchAsync(async (req, res, next) => {
 exports.getTourBySlug = catchAsync(async (req, res, next) => {
   const { slug } = req.params;
 
-  let tour = await Tour.findOne({ slug })
+  let tour = await Tour.findOne({ slug }).populate({
+    path: "guides",
+    select: "firstName lastName profilePic",
+  });
+
+  // Get all reviews for this tour with user info
+  const reviews = await Review.find({ tour: tour._id })
+    .select("rating review")
     .populate({
-      path: "guides",
+      path: "user",
       select: "firstName lastName profilePic",
     })
-    .lean();
+    .sort({ createdAt: -1 })
+    .limit(10);
+
+  // Calculate booked participants
+  const bookingAgg = await Booking.aggregate([
+    {
+      $match: {
+        tour: tour._id,
+        status: "confirmed",
+      },
+    },
+    {
+      $group: {
+        _id: "$tour",
+        totalBooked: { $sum: "$numberOfParticipants" },
+      },
+    },
+  ]);
+
+  const booked = bookingAgg[0]?.totalBooked || 0;
+  const availableSlots = Math.max(0, tour.participants - booked);
+
+  // Get average rating and total reviews for this tour
+  const ratingAgg = await Review.aggregate([
+    {
+      $match: { tour: tour._id },
+    },
+    {
+      $group: {
+        _id: "$tour",
+        avgRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const avgRating = ratingAgg[0]?.avgRating || 0;
+  const totalReviews = ratingAgg[0]?.totalReviews || 0;
+
+  // Convert tour to plain object
+  tour = tour.toObject();
+
+  // Add reviews
+  tour.reviews = reviews.map((r) => ({
+    _id: r._id,
+    rating: r.rating,
+    review: r.review,
+    reviewerName: `${r.user.firstName} ${r.user.lastName}`,
+    profilePicUrl: r.user.profilePic?.url || null,
+  }));
+
+  // Add available slots and rating info
+  tour.availableSlots = availableSlots;
+  tour.avgRating = parseFloat(avgRating.toFixed(1));
+  tour.totalReviews = totalReviews;
 
   // Transform images
   if (tour.images && Array.isArray(tour.images)) {
@@ -197,8 +278,6 @@ exports.getTourBySlug = catchAsync(async (req, res, next) => {
   if (tour.tourSpots && Array.isArray(tour.tourSpots)) {
     tour.tourSpots = transformTourSpots(tour.tourSpots);
   }
-
-  console.log(tour.tourSpots);
 
   res.status(200).json({
     isSuccess: true,

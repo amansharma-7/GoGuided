@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Booking = require("./bookingModel");
 
 const tourSchema = new mongoose.Schema(
   {

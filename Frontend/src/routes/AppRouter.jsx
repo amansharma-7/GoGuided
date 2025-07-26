@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import AppLayout from "../layouts/AppLayout";
 import Error from "../pages/Error";
-import Loading from "../pages/Loading";
+import LoaderOverlay from "../components/common/LoaderOverlay";
 
 // pages
 import Home from "../pages/Home";
@@ -71,7 +71,7 @@ const router = createBrowserRouter([
     Component: AppLayout,
     errorElement: <Error />,
     // loadingElement: <Loading />,
-    HydrateFallback: Loading,
+    HydrateFallback: LoaderOverlay,
     children: [
       {
         path: "/",

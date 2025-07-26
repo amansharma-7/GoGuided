@@ -44,8 +44,8 @@ function Reviews() {
     (async () => {
       try {
         const res = await fetchUserReviews({});
-        setReviewedTours(res?.data?.reviewedTours);
-        setUnreviewedTours(res?.data?.notReviewedTours);
+        setReviewedTours(res?.data?.reviewedTours || []);
+        setUnreviewedTours(res?.data?.notReviewedTours || []);
       } catch (error) {
         console.log(error);
       }
@@ -120,20 +120,22 @@ function Reviews() {
     setAddReview({ show: true, tourId: id });
   };
 
-  if (loading) return <LoaderOverlay />;
+  if (loading || reviewedTours === undefined || unreviewedTours === undefined) {
+    return <LoaderOverlay />;
+  }
 
   return (
     <div className="p-4 sm:px-6 md:px-10 flex flex-col bg-green-50 h-full">
       <ReviewsHeader
         title="Reviews"
-        totalCount={reviewedTours.length + unreviewedTours.length}
+        totalCount={reviewedTours?.length + unreviewedTours?.length}
         filterState={filterState}
         setFilterState={setFilterState}
       />
 
       <div className="flex flex-col gap-4 overflow-y-auto h-full scrollbar-none">
         {/* Reviewed Tours Section */}
-        {reviewedTours.length > 0 && (
+        {reviewedTours?.length > 0 && (
           <h2 className="text-xl sm:text-2xl font-bold text-green-900 mb-2">
             Reviewed Tours
           </h2>
@@ -208,9 +210,9 @@ function Reviews() {
           </h2>
         )}
 
-        {unreviewedTours.map((tour) => (
+        {unreviewedTours.map((tour, i) => (
           <div
-            key={tour._id}
+            key={tour._id + i}
             className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-500"
           >
             <h2 className="text-lg sm:text-xl font-semibold text-green-700">

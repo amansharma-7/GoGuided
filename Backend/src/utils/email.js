@@ -208,8 +208,39 @@ const sendGuideWelcomeEmail = async ({ user, tempPassword }) => {
   });
 };
 
+const sendAdminWelcomeEmail = async ({ user, tempPassword }) => {
+  if (!user?.email) {
+    throw new Error("Missing user email");
+  }
+
+  const html = buildEmailTemplate({
+    firstName: user.firstName || "Admin",
+    title: "Welcome to the Admin Panel",
+    message: tempPassword
+      ? `
+      You've been added as an <strong>Admin</strong> on our platform.<br /><br />
+      Your temporary password is: <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">${tempPassword}</code><br /><br />
+      Use it to log in and access the admin dashboard.<br />
+      <strong>Please change your password after logging in.</strong>
+    `
+      : `
+      You've been added as an <strong>Admin</strong> on our platform.<br /><br />
+      You can now log in using your existing credentials.<br />
+      <strong>If you face any issues, please contact support.</strong>
+    `,
+    footerNote: "If this wasn't you, please contact support immediately.",
+  });
+
+  return sendEmail({
+    to: user.email,
+    subject: "Your Admin Access is Ready",
+    html,
+  });
+};
+
 module.exports = {
   sendRegistrationOtpEmail,
   sendPasswordResetEmail,
   sendGuideWelcomeEmail,
+  sendAdminWelcomeEmail,
 };

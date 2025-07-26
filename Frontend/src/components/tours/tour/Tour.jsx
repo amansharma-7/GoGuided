@@ -32,9 +32,6 @@ function Tour() {
   const safeNavigate = useSafeNavigate();
 
   const [tour, setTour] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userReview, setUserReview] = useState(null);
-  const [liked, setLiked] = useState(false);
   const [share, setShare] = useState(false);
   const shareUrl = window.location.origin + location.pathname;
   const { slug } = useParams();
@@ -49,12 +46,6 @@ function Tour() {
       } catch (error) {}
     })();
   }, []);
-
-  const handleReviewSubmit = (reviewData) => {
-    console.log("Review Submitted:", reviewData);
-    setUserReview(reviewData);
-    setIsModalOpen(false); // Close modal after submission
-  };
 
   if (isLoading || tour?.length === 0) return <LoaderOverlay />;
 
@@ -80,10 +71,24 @@ function Tour() {
           <div className="flex justify-between w-full ">
             <div className="flex gap-4 items-center ">
               {/* Rating */}
-              <span className="flex items-center gap-1 text-lg sm:text-xl font-semibold text-green-950 whitespace-nowrap">
-                {tour.rating}
-                <FaStar className="text-yellow-400 text-xl sm:text-2xl" />
-              </span>
+              {tour.totalReviews > 0 ? (
+                <div className="flex items-center gap-1 text-green-950 text-lg sm:text-xl font-semibold whitespace-nowrap">
+                  <span>
+                    {tour.avgRating === 5
+                      ? "5"
+                      : tour.avgRating.toFixed(1).replace(/\.0$/, "")}
+                  </span>
+                  <FaStar className="text-yellow-400 text-base sm:text-lg" />
+                  <span className="text-sm sm:text-base font-medium text-gray-600">
+                    ({tour.totalReviews}{" "}
+                    {tour.totalReviews === 1 ? "review" : "reviews"})
+                  </span>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-500 italic">
+                  No ratings yet
+                </span>
+              )}
 
               {/* Location */}
               <span className="text-sm sm:text-lg text-green-950 truncate max-w-xs">
@@ -218,7 +223,12 @@ function Tour() {
       {/* Buy and Included Things */}
       <div className="flex flex-col md:flex-row justify-between items-stretch gap-6 md:gap-10 bg-white p-4 sm:p-6 rounded-xl shadow-lg h-full">
         <IncludedAndGuided included={tour.included} guides={tour.guides} />
-        <CallToAction images={tour.images} duration={tour.duration} />
+        <CallToAction
+          images={tour.images}
+          duration={tour.duration}
+          startDate={tour.startDate}
+          availableSlots={tour.availableSlots}
+        />
       </div>
 
       {/* Reviews */}
@@ -228,25 +238,10 @@ function Tour() {
             <h2 className="text-xl md:text-2xl font-bold text-green-900">
               Reviews
             </h2>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="font-bold text-green-600 border border-green-300 p-2 rounded-lg cursor-pointer self-start sm:self-auto"
-            >
-              {userReview ? "Edit Review" : "Add Review"}
-            </button>
           </div>
 
-          <Reviews />
+          <Reviews reviews={tour.reviews} />
         </div>
-
-        {/* Modal */}
-        {isModalOpen && (
-          <AddReview
-            initialReview={userReview}
-            onSubmit={handleReviewSubmit}
-            setIsModalOpen={setIsModalOpen}
-          />
-        )}
 
         {share && (
           <ShareModal
