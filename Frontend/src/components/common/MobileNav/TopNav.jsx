@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useUser } from "../../common/UserContext"; // adjust path as needed
+import { useUser } from "../../../context/UserContext";
 import Avatar from "../Avatar";
 import { UserRound } from "lucide-react";
 import useSafeNavigate from "../../../utils/useSafeNavigate";

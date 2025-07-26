@@ -10,43 +10,20 @@ import BookingsHeader from "../../../../common/DashboardHeader";
 import ConfirmationModal from "../../../../common/ConfirmationModal";
 import NoResult from "../../../../../pages/NoResult";
 import NoBooking from "./NoBooking";
+import {
+  cancelBookingById,
+  getUserBookings,
+} from "../../../../../services/bookingService";
+import useApi from "../../../../../hooks/useApi";
+import LoaderOverlay from "../../../../common/LoaderOverlay";
+import toast from "react-hot-toast";
 
-const bookingsData = [
-  {
-    id: 1,
-    tourName: "Forest Adventure",
-    startDate: "2025-04-01",
-    endDate: "2025-04-06",
-    tourId: "forest-adventure",
-    tourGuide: ["Aman Sharma", "Sudhir Sharma"],
-  },
-  {
-    id: 2,
-    tourName: "Mountain Hiking",
-    startDate: "2025-06-10",
-    endDate: "2025-06-17",
-    tourId: "mountain-hiking",
-    tourGuide: ["Aman Sharma", "Sudhir Sharma"],
-  },
-  {
-    id: 3,
-    tourName: "Safari Exploration",
-    startDate: "2025-03-25",
-    endDate: "2025-03-28",
-    tourId: "safari-exploration",
-    tourGuide: ["Aman Sharma", "Sudhir Sharma"],
-  },
-];
-
-const getStatus = (startDate, endDate) => {
-  const today = new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  if (today < start) return "Upcoming";
-  if (today >= start && today <= end) return "Ongoing";
-  return "Completed";
-};
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 
 export default function Bookings() {
   const [filterState, setFilterState] = useState({
@@ -64,6 +41,19 @@ export default function Bookings() {
     bookingId: null,
   });
 
+  const { loading, request: fetchBookings } = useApi(getUserBookings);
+  const { loading: isCanceling, request: cancelBooking } =
+    useApi(cancelBookingById);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchBookings({});
+        setBookings(res?.data || []);
+      } catch (error) {}
+    })();
+  }, []);
+
   const toggleAccordion = (id) => {
     setExpandedBooking(expandedBooking === id ? null : id);
   };
@@ -72,9 +62,22 @@ export default function Bookings() {
     setDeleteConfirm({ show: true, bookingId: id });
   };
 
-  const confirmCancel = () => {
+  const confirmCancel = async () => {
+    const { bookingId } = deleteConfirm;
     setDeleteConfirm({ show: false, bookingId: null });
-    // Add cancellation logic here
+
+    try {
+      const res = await cancelBooking({ identifier: bookingId });
+      toast.success(res?.message);
+      // Update local state after cancellation
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.bookingId === bookingId ? { ...b, status: "cancelled" } : b
+        )
+      );
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
   };
 
   const cancelDelete = () => {
@@ -82,61 +85,14 @@ export default function Bookings() {
   };
 
   const viewAnnouncements = (tourId) => {
-    navigate(`announcements/${tourId}`); // Navigate to the announcements page
+    navigate(`announcements/${tourId}`);
   };
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const numberOfEntries = 10;
-
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        //   const { searchQuery, selectedFilters, sortOrder } = filterState;
-        //   const params = new URLSearchParams();
-
-        //   if (searchQuery) {
-        //     params.append("search", searchQuery);
-        //   }
-
-        //   if (selectedFilters) {
-        //     if (selectedFilters["Date Interval"]) {
-        //       const { startDate, endDate } = selectedFilters["Date Interval"];
-        //       if (startDate) params.append("startDate", startDate);
-        //       if (endDate) params.append("endDate", endDate);
-        //     }
-        //   }
-
-        //   if (sortOrder) {
-        //     params.append("sort", sortOrder);
-        //   }
-
-        //   params.append("page", currentPage);
-        //   params.append("limit", numberOfEntries);
-
-        //   // getting all users
-        //   const response = await getAllUsers(user.token, params.toString());
-
-        //   const { data } = response;
-
-        setBookings(bookingsData); // Replace with actual API call
-        // setTotalPages(response.totalPages);
-        // setTotalUsers(response.total);
-        setLoading(false);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
-  }, [currentPage, filterState]);
 
   if (!bookings.length) {
     return <NoBooking />;
   }
+
+  if (loading) return <LoaderOverlay />;
 
   return (
     <div className="p-4 sm:px-6 md:px-10 pb-24 grid grid-cols-1 gap-4 bg-green-50 overflow-y-auto h-full scrollbar-none">
@@ -184,7 +140,7 @@ export default function Bookings() {
               {/* Booking Header */}
               <div className="flex justify-between items-center flex-wrap gap-y-2">
                 <h2 className="text-xl sm:text-2xl font-semibold text-green-800">
-                  {booking.tourName}
+                  {booking?.tour?.title}
                 </h2>
                 <button
                   onClick={() => toggleAccordion(booking.id)}
@@ -199,10 +155,39 @@ export default function Bookings() {
               </div>
 
               {/* Booking Status */}
-              <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-4 shadow-sm text-sm sm:text-base">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-2 bg-gray-100 p-3 rounded-md mb-4 shadow-sm text-sm sm:text-base">
+                {/* Booking Status */}
                 <p className="text-green-800">
-                  <strong>Status:</strong>{" "}
-                  {getStatus(booking.startDate, booking.endDate)}
+                  <strong>Booking Status:</strong>{" "}
+                  <span
+                    className={`font-semibold ${
+                      booking.status === "cancelled"
+                        ? "text-red-500"
+                        : booking.status === "pending"
+                        ? "text-yellow-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {booking.status.charAt(0).toUpperCase() +
+                      booking.status.slice(1)}
+                  </span>
+                </p>
+
+                {/* Trip Status */}
+                <p className="text-green-800">
+                  <strong>Tour Status:</strong>{" "}
+                  <span
+                    className={`font-semibold ${
+                      booking.tripStatus === "completed"
+                        ? "text-gray-600"
+                        : booking.tripStatus === "ongoing"
+                        ? "text-blue-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {booking.tripStatus.charAt(0).toUpperCase() +
+                      booking.tripStatus.slice(1)}
+                  </span>
                 </p>
               </div>
 
@@ -210,21 +195,29 @@ export default function Bookings() {
               {expandedBooking === booking.id && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-md shadow-sm text-sm sm:text-base">
                   <p className="text-green-800 font-medium">
+                    Booked On:{" "}
+                    <span className="font-normal text-green-700">
+                      {formatDate(booking?.createdAt)}
+                    </span>
+                  </p>
+                  <p className="text-green-800 font-medium">
+                    Tour Guides:{" "}
+                    <span className="font-normal text-green-700">
+                      {booking?.tour?.guides?.length
+                        ? booking.tour.guides.join(", ")
+                        : "Not assigned"}
+                    </span>
+                  </p>
+                  <p className="text-green-800 font-medium">
                     Start Date:{" "}
                     <span className="font-normal text-green-700">
-                      {booking.startDate}
+                      {formatDate(booking?.tour?.startDate)}
                     </span>
                   </p>
                   <p className="text-green-800 font-medium">
                     End Date:{" "}
                     <span className="font-normal text-green-700">
-                      {booking.endDate}
-                    </span>
-                  </p>
-                  <p className="text-green-800 font-medium sm:col-span-2">
-                    Tour Guides:{" "}
-                    <span className="font-normal text-green-700">
-                      {booking.tourGuide.join(", ")}
+                      {formatDate(booking?.tour?.endDate)}
                     </span>
                   </p>
                 </div>
@@ -233,21 +226,21 @@ export default function Bookings() {
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 w-full items-center">
                 <button
-                  onClick={() => viewAnnouncements(booking.tourId)}
+                  onClick={() => viewAnnouncements(booking?.tour?._id)}
                   className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                 >
                   <FaBullhorn size={16} /> View Announcements
                 </button>
 
-                {getStatus(booking.startDate, booking.endDate) ===
-                  "Upcoming" && (
-                  <button
-                    onClick={() => handleCancel(booking.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                  >
-                    <FaTrash size={16} /> Cancel Booking
-                  </button>
-                )}
+                {booking.tripStatus === "upcoming" &&
+                  booking.status !== "cancelled" && (
+                    <button
+                      onClick={() => handleCancel(booking.id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                    >
+                      <FaTrash size={16} /> Cancel Booking
+                    </button>
+                  )}
               </div>
             </div>
           ))}

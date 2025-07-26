@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+
+import useApi from "../../hooks/useApi";
+import { sendOtp, registerUser } from "../../services/authService";
 
 function SignupForm() {
+  // ------------------- State -------------------
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [hasRequestedOtp, setHasRequestedOtp] = useState(false);
+
+  // ------------------- Form -------------------
   const {
     register,
     handleSubmit,
@@ -11,26 +22,79 @@ function SignupForm() {
     formState: { errors },
   } = useForm();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // ------------------- API -------------------
+  const { request: sendOtpRequest, loading: otpLoading } = useApi(sendOtp);
 
-  const onSubmit = (data) => {
-    console.log("Signup Data:", data);
-    // Handle signup logic (e.g., API call)
+  const { request: registerRequest, loading: registerLoading } =
+    useApi(registerUser);
+
+  const navigate = useNavigate();
+
+  // ------------------- Handlers -------------------
+
+  const handleOtpRequest = async () => {
+    try {
+      const email = watch("email");
+
+      if (!email) {
+        toast.error("Enter email before requesting OTP.");
+        return;
+      }
+
+      const response = await sendOtpRequest({ data: { email } });
+
+      toast.success(response.message);
+
+      // First-time request
+      if (!hasRequestedOtp) setHasRequestedOtp(true);
+
+      // Start resend cooldown
+      setResendCooldown(60);
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
   };
 
+  useEffect(() => {
+    if (resendCooldown === 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) clearInterval(interval);
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  const onSubmit = async (formData) => {
+    try {
+      const response = await registerRequest({ data: formData });
+      toast.success(response.message);
+      navigate("/login");
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
+  };
+
+  // ------------------- Render -------------------
+
   return (
-    <div className="flex items-center justify-center h-[85vh]">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-green-50">
+    <div className="flex items-center justify-center h-auto py-2 max-h-screen px-4">
+      <div className="w-full max-w-md p-6  rounded-lg shadow-lg bg-green-50">
         <h2 className="text-2xl font-semibold text-green-950 text-center mb-4">
           Create an Account
         </h2>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-y-4"
         >
-          {/* First & Last Name Fields */}
-          <div className="flex gap-x-4">
+          {/* First & Last Name */}
+          <div className="flex flex-col sm:flex-row gap-4">
             <label className="w-full">
               <p className="mb-1 text-lg text-green-950">First Name</p>
               <input
@@ -39,7 +103,7 @@ function SignupForm() {
                 {...register("firstName", {
                   required: "First name is required",
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
               />
               {errors.firstName && (
                 <p className="text-red-400 text-xs">
@@ -47,13 +111,16 @@ function SignupForm() {
                 </p>
               )}
             </label>
+
             <label className="w-full">
               <p className="mb-1 text-lg text-green-950">Last Name</p>
               <input
                 type="text"
                 placeholder="Last Name"
-                {...register("lastName", { required: "Last name is required" })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+                {...register("lastName", {
+                  required: "Last name is required",
+                })}
+                className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
               />
               {errors.lastName && (
                 <p className="text-red-400 text-xs">
@@ -63,7 +130,7 @@ function SignupForm() {
             </label>
           </div>
 
-          {/* Email Field */}
+          {/* Email */}
           <label className="w-full">
             <p className="mb-1 text-lg text-green-950">Email Address</p>
             <input
@@ -76,50 +143,38 @@ function SignupForm() {
                   message: "Invalid email format",
                 },
               })}
-              className="w-full focus:border-2 border-black rounded-lg  p-2 text-green-950 focus:outline-none"
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
             />
             {errors.email && (
               <p className="text-red-400 text-xs">{errors.email.message}</p>
             )}
           </label>
 
-          {/* Contact Field */}
+          {/* Phone */}
           <label className="w-full">
-            <p className="mb-1 text-lg text-green-950">Contact</p>
-            <div className="flex gap-x-4">
-              <select
-                {...register("countryCode", { required: "Code is required" })}
-                className="w-1/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
-              >
-                <option value="+1">+1 (US)</option>
-                <option value="+91">+91 (IN)</option>
-                <option value="+44">+44 (UK)</option>
-                <option value="+61">+61 (AU)</option>
-                <option value="+81">+81 (JP)</option>
-              </select>
-
-              <input
-                type="tel"
-                placeholder="Enter contact number"
-                {...register("contactNumber", {
-                  required: "Contact number is required",
-                  pattern: {
-                    value: /^[0-9]{7,15}$/,
-                    message: "Invalid contact number",
-                  },
-                })}
-                className="w-2/3 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
-              />
-            </div>
-            {(errors.countryCode || errors.contactNumber) && (
+            <p className="mb-1 text-lg text-green-950">Phone Number</p>
+            <input
+              type="tel"
+              placeholder="Enter 10-digit Indian phone number"
+              {...register("phone", {
+                required: "Phone number is required",
+                pattern: {
+                  value: /^[6-9]\d{9}$/,
+                  message:
+                    "Enter a valid 10-digit Indian phone number starting with 6-9",
+                },
+              })}
+              className="w-full focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+            />
+            {errors.phone && (
               <p className="text-red-400 text-xs mt-1">
-                {errors.countryCode?.message || errors.contactNumber?.message}
+                {errors.phone.message}
               </p>
             )}
           </label>
 
           {/* Password Fields */}
-          <div className="flex gap-x-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <label className="relative w-full">
               <p className="mb-1 text-lg text-green-950">Create Password</p>
               <input
@@ -132,7 +187,7 @@ function SignupForm() {
                     message: "Password must be at least 6 characters",
                   },
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -161,7 +216,7 @@ function SignupForm() {
                   validate: (value) =>
                     value === watch("password") || "Passwords do not match",
                 })}
-                className="w-full focus:border-2 border-black rounded-lg  p-2 pr-10 text-green-950 focus:outline-none"
+                className="w-full focus:border-2 border-black rounded-lg p-2 pr-10 text-green-950 focus:outline-none"
               />
               <span
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -181,16 +236,68 @@ function SignupForm() {
             </label>
           </div>
 
+          {/* OTP Field */}
+          <div className="w-full">
+            <p className="mb-1 text-lg text-green-950">OTP Code</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                placeholder="Enter the OTP code"
+                {...register("otp", {
+                  required: "OTP is required",
+                  minLength: {
+                    value: 4,
+                    message: "OTP must be at least 4 digits",
+                  },
+                })}
+                className="flex-1 focus:border-2 border-black rounded-lg p-2 text-green-950 focus:outline-none"
+              />
+              {!hasRequestedOtp && (
+                <button
+                  type="button"
+                  onClick={handleOtpRequest}
+                  className="sm:w-auto w-full rounded-md bg-green-500 text-white px-4 py-2 font-semibold cursor-pointer hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
+                >
+                  {otpLoading ? "Sending" : "Get OTP"}
+                </button>
+              )}
+            </div>
+
+            {/* Resend OTP */}
+            {hasRequestedOtp && (
+              <p className="text-sm mt-1 text-green-900">
+                Didn’t receive it?{" "}
+                <button
+                  type="button"
+                  onClick={handleOtpRequest}
+                  disabled={otpLoading || resendCooldown > 0}
+                  className="text-green-700 font-medium underline hover:text-green-800 cursor-pointer disabled:text-green-400 disabled:cursor-not-allowed"
+                >
+                  {resendCooldown > 0
+                    ? `Resend in ${resendCooldown}s`
+                    : otpLoading
+                    ? "Sending..."
+                    : "Resend OTP"}
+                </button>
+              </p>
+            )}
+
+            {errors.otp && (
+              <p className="text-red-400 text-xs mt-1">{errors.otp.message}</p>
+            )}
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
-            className="mt-4 rounded-lg bg-green-500 py-2 text-black font-semibold hover:bg-green-400 transition"
+            disabled={registerLoading}
+            className="mt-4 rounded-md bg-green-600 text-white py-2 font-semibold cursor-pointer hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
           >
-            Create Account
+            {registerLoading ? "Creating..." : "Create Account"}
           </button>
 
           {/* Login Link */}
-          <p className="mt-2 text-center text-green-950">
+          <p className=" text-center text-green-950">
             Already have an account?{" "}
             <Link to="/login" className="text-green-800 font-semibold">
               Log In

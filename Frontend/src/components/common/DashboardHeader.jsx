@@ -79,7 +79,7 @@ function DashboardHeader({
                 searchQuery: query,
               }))
             }
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-r-md shadow-md flex items-center h-9"
+            className="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-3 py-1.5 rounded-r-md shadow-md flex items-center h-9"
           >
             <Search className="w-4 h-4 text-white" />
           </button>
@@ -94,7 +94,7 @@ function DashboardHeader({
                 sortOrder: prev.sortOrder === "asc" ? "desc" : "asc",
               }));
             }}
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md shadow-md h-9"
+            className="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-3 py-1.5 rounded-md shadow-md h-9"
           >
             {filterState.sortOrder === "asc" ? (
               <FaSortAmountUp className="w-4 h-4 text-white" />

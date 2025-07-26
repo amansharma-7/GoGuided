@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const logger = require("./utils/logger");
-const app = require("./app");
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
@@ -16,6 +15,8 @@ const envFile = `.env.${env}`;
 logger.info(`🌱 Loading environment from: ${envFile}`);
 
 dotenv.config({ path: envFile });
+
+const app = require("./app");
 
 // Config
 const PORT = process.env.PORT || 5000;
@@ -48,6 +49,11 @@ const connectDB = async (retries = 5) => {
 const startServer = () => {
   server = app.listen(PORT, "0.0.0.0", () => {
     logger.info(`🚀 Server running at ${SERVER_URL} [${env}]`);
+
+    // one-time console confirmation in prod for terminal visibility
+    if (process.env.NODE_ENV === "production") {
+      console.log(`✔️  Server started on port ${PORT} [production]`);
+    }
   });
 };
 
@@ -62,16 +68,19 @@ process.on("SIGTERM", () => {
   shutdown(0);
 });
 
-const shutdown = (exitCode) => {
-  if (server) {
-    server.close(() => {
-      mongoose.connection.close(() => {
-        logger.info("📴 MongoDB connection closed");
-        process.exit(exitCode);
-      });
-    });
-  } else {
+const shutdown = async (exitCode) => {
+  try {
+    if (server) {
+      await new Promise((resolve) => server.close(resolve));
+    }
+
+    await mongoose.connection.close();
+    logger.info("📴 MongoDB connection closed");
+
     process.exit(exitCode);
+  } catch (err) {
+    logger.error(`❌ Error during shutdown: ${err.message}`);
+    process.exit(1);
   }
 };
 

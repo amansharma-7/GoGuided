@@ -39,31 +39,6 @@ const demoAdmins = [
 
 const filterOptions = [
   {
-    label: "Booking Status",
-    children: [
-      { label: "Upcoming", value: "upcoming" },
-      { label: "Ongoing", value: "ongoing" },
-      { label: "Cancelled", value: "cancelled" },
-      { label: "Completed", value: "completed" },
-    ],
-  },
-  {
-    label: "Tour",
-    children: [
-      { label: "tour1", value: "tour1" },
-      { label: "tour2", value: "tour2" },
-      { label: "tour3", value: "tour3" },
-    ],
-  },
-  {
-    label: "Date Filter",
-    children: [
-      { label: "This Month", value: "this_month" },
-      { label: "This Year", value: "this_year" },
-    ],
-  },
-
-  {
     label: "Date Interval",
     children: [
       { label: "Start Date", value: "startDate", type: "date" },

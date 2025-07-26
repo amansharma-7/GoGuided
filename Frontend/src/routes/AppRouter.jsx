@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import AppLayout from "../layouts/AppLayout";
 import Error from "../pages/Error";
-import Loading from "../pages/Loading";
+import LoaderOverlay from "../components/common/LoaderOverlay";
 
 // pages
 import Home from "../pages/Home";
@@ -60,9 +60,8 @@ import AddNewAdmin from "../components/dashboard/accounts/admin/AddNewAdmin";
 import GuideDashboard from "../components/dashboard/accounts/guide/DashBoard";
 import GuideStats from "../components/dashboard/accounts/guide/Stats";
 import GuideBookings from "../components/dashboard/accounts/guide/Bookings";
-import { Component } from "react";
 import JobApplicationForm from "../components/careers/JobApplicationForm";
-import UpdatePassword from "../components/auth/UpdatePassword";
+import ResetPassword from "../components/auth/ResetPassword";
 import BookTourForm from "../components/tours/tour/Booktour";
 import TermsAndConditions from "../pages/Terms";
 import PrivacyPolicy from "../pages/privacy";
@@ -72,7 +71,7 @@ const router = createBrowserRouter([
     Component: AppLayout,
     errorElement: <Error />,
     // loadingElement: <Loading />,
-    HydrateFallback: Loading,
+    HydrateFallback: LoaderOverlay,
     children: [
       {
         path: "/",
@@ -87,7 +86,7 @@ const router = createBrowserRouter([
             Component: Tours,
           },
           {
-            path: ":id",
+            path: ":slug",
 
             children: [
               { index: true, Component: Tour },
@@ -331,11 +330,14 @@ const router = createBrowserRouter([
 
       {
         path: "/careers",
-        children: [
-          { index: true, Component: Careers },
-          { path: ":name", Component: JobApplicationForm },
-        ],
+        element: <Careers />,
       },
+
+      {
+        path: "/careers/:name/:jobId",
+        element: <JobApplicationForm />,
+      },
+
       {
         path: "/login",
         Component: LoginForm,
@@ -345,8 +347,8 @@ const router = createBrowserRouter([
         Component: SignupForm,
       },
       {
-        path: "/change-password/:id", // route with token from email
-        Component: UpdatePassword,
+        path: "/reset-password",
+        element: <ResetPassword />,
       },
       {
         path: "*",

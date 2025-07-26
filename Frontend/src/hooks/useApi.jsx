@@ -2,11 +2,9 @@ import { useState } from "react";
 
 const useApi = (apiFunc) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const request = async ({ identifier, data, params }) => {
     setLoading(true);
-    setError(null);
 
     try {
       const res = await apiFunc({ identifier, data, params });
@@ -14,13 +12,12 @@ const useApi = (apiFunc) => {
       return res.data;
     } catch (err) {
       setLoading(false);
-      const msg = err.response?.data?.message || "Something went wrong";
-      setError(msg);
+
       throw err;
     }
   };
 
-  return { request, loading, error };
+  return { loading, request };
 };
 
 export default useApi;

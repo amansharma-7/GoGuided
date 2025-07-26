@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 
@@ -12,8 +11,8 @@ function AddNewAdmin({ onSubmitAdmin }) {
   } = useForm();
 
   const onSubmit = (data) => {
-    onSubmitAdmin(data); // Pass form data to parent or handle here
-    reset(); // Clear form after submission
+    onSubmitAdmin(data);
+    reset();
   };
 
   return (
@@ -56,19 +55,19 @@ function AddNewAdmin({ onSubmitAdmin }) {
             )}
           </div>
 
-          {/* Password Field */}
+          {/* Phone Field */}
           <div>
             <label className="block text-green-700 font-medium mb-1">
-              Password
+              Phone
             </label>
             <input
-              type="password"
-              {...register("password", { required: "Password is required" })}
+              type="number"
+              {...register("phone", { required: "Phone number is required" })}
               className="w-full px-4 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-            {errors.password && (
+            {errors.phone && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
+                {errors.phone.message}
               </p>
             )}
           </div>

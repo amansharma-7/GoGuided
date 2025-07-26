@@ -37,7 +37,7 @@ function OurMission() {
         Our Mission
       </div>
       <div className="w-full rounded-xl">
-        <div className="flex flex-wrap gap-4 items-center justify-center">
+        <div className="flex gap-4 items-center justify-center">
           {missionData.map((mission, index) => (
             <FeatureCard
               key={index}

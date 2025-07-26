@@ -1,36 +1,14 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { FaArrowLeft, FaSave, FaTimes, FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import MapPicker from "./MapPicker";
-
-const guidesData = [
-  {
-    _id: "g1",
-    name: "Ravi Mehta",
-    email: "ravi.mehta@example.com",
-    phone: "+91 9876543210",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    role: "Senior Guide",
-  },
-  {
-    _id: "g2",
-    name: "Anjali Sharma",
-    email: "anjali.sharma@example.com",
-    phone: "+91 9876543211",
-    avatar: "https://i.pravatar.cc/150?img=20",
-    role: "Local Expert",
-  },
-  {
-    _id: "g3",
-    name: "Mohammed Khan",
-    email: "mohammed.khan@example.com",
-    phone: "+91 9876543212",
-    avatar: "https://i.pravatar.cc/150?img=30",
-    role: "Hiking Specialist",
-  },
-];
+import { getAvailableGuides } from "../../services/guideService";
+import {} from "../../services/tourService";
+import useApi from "../../hooks/useApi";
+import toast from "react-hot-toast";
+import { createTour } from "../../services/tourService";
 
 export default function AddTourForm() {
   const navigate = useNavigate();
@@ -44,19 +22,15 @@ export default function AddTourForm() {
   } = useForm({
     defaultValues: {
       title: "",
-      location: {
-        lat: null,
-        lng: null,
-        name: "",
-        description: "",
-      },
+      location: "",
       duration: "",
       participants: "",
       difficulty: "Medium",
       languages: "",
-      date: "",
+      startDate: "",
       overview: "",
-      price: "",
+      description: "",
+      pricePerPerson: "",
       highlights: [""],
       included: [""],
       guides: [],
@@ -91,14 +65,30 @@ export default function AddTourForm() {
     update: updateStop,
   } = useFieldArray({ control, name: "stops" });
 
+  const selectedGuideIds = useWatch({ control, name: "guides" }) || [];
+
   const [imageFiles, setImageFiles] = useState([]);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [allGuides, setAllGuides] = useState([]);
   const [mapPickerConfig, setMapPickerConfig] = useState(null);
 
+  const { request: fetchGuides } = useApi(getAvailableGuides);
+  const { loading: creatingTour, request: createTourRequest } =
+    useApi(createTour);
+
   useEffect(() => {
-    setAllGuides(guidesData);
-  }, []);
+    const startDate = getValues("startDate");
+    const duration = getValues("duration");
+
+    if (!startDate || !duration) return; // avoid empty fetches
+
+    (async () => {
+      try {
+        const res = await fetchGuides({ params: { startDate, duration } });
+        setAllGuides(res?.data?.guides || []);
+      } catch (error) {}
+    })();
+  }, [getValues("startDate"), getValues("duration")]);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -147,8 +137,66 @@ export default function AddTourForm() {
     setValue("images", updated);
   };
 
-  const onSubmit = (data) => {
-    console.log("Final Form Data:", data);
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+
+      // Basic fields
+      formData.append("title", data.title);
+      formData.append("location", data.location);
+      formData.append("duration", data.duration);
+      formData.append("participants", data.participants);
+      formData.append("difficulty", data.difficulty);
+      formData.append("startDate", data.startDate);
+      formData.append("overview", data.overview);
+      formData.append("description", data.description);
+      formData.append("pricePerPerson", data.pricePerPerson);
+
+      // Convert comma-separated string to array and append one by one
+      data.languages.split(",").forEach((lang) => {
+        formData.append("languages", lang.trim());
+      });
+
+      // Thumbnail (single file)
+      if (data.thumbnail) {
+        formData.append("thumbnail", data.thumbnail);
+      }
+
+      // Images (multiple files)
+      if (data.images && data.images.length) {
+        data.images.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+
+      // Highlights (array of strings)
+      data.highlights.forEach((h, i) => {
+        formData.append(`highlights[${i}]`, h);
+      });
+
+      // Included (array of strings)
+      data.included.forEach((i, idx) => {
+        formData.append(`included[${idx}]`, i);
+      });
+
+      // Guides (array of objects)
+      data.guides.forEach((g, i) => {
+        formData.append(`guides[${i}]`, g.id);
+      });
+
+      // Stops (nested structure with location)
+      data.stops.forEach((stop, i) => {
+        formData.append(`stops[${i}][name]`, stop.name);
+        formData.append(`stops[${i}][description]`, stop.description);
+        formData.append(`stops[${i}][lng]`, stop.lng);
+        formData.append(`stops[${i}][lat]`, stop.lat);
+      });
+
+      const res = await createTourRequest({ data: formData });
+      toast.success(res.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    }
   };
 
   const inputClass =
@@ -168,9 +216,8 @@ export default function AddTourForm() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* title, location */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* All input blocks remain same */}
-            {/* Example for Title */}
             <div>
               <label className="block text-green-700 mb-1">Title</label>
               <input
@@ -184,24 +231,156 @@ export default function AddTourForm() {
 
             <div>
               <label className="block text-green-700 mb-1">Location</label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  value={getValues("location.name") || ""}
-                  readOnly
-                  className={`${inputClass} bg-gray-50 flex-1`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setMapPickerConfig({ type: "location" })}
-                  className="px-4 text-sm bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer whitespace-nowrap"
-                >
-                  Choose Location
-                </button>
-              </div>
+              <input
+                {...register("location", { required: true })}
+                className={inputClass}
+              />
+              {errors.location && (
+                <p className="text-red-600 text-sm">Location is required.</p>
+              )}
+            </div>
+          </div>
+
+          {/* duration and participants*/}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* duration  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Duration (in days)
+              </label>
+              <input
+                type="number"
+                step="any"
+                {...register("duration", {
+                  required: "Duration is required",
+                })}
+                className={inputClass}
+              />
+              {errors.duration && (
+                <p className="text-red-600 text-sm">Duration is required</p>
+              )}
             </div>
 
-            {/* Repeat for other inputs as above, no changes needed */}
-            {/* Duration, Participants, Difficulty, Languages, Date, Price */}
+            {/* participants */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Number of Participants
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="1"
+                {...register("participants", {
+                  required: "Number of participants is required",
+                  valueAsNumber: true,
+                })}
+                className={inputClass}
+              />
+              {errors.participants && (
+                <p className="text-red-600 text-sm">
+                  {errors.participants.message}
+                </p>
+              )}
+            </div>
+
+            {/* start date  */}
+            <div>
+              <label className="block text-green-700 mb-1">Start Date</label>
+              <input
+                type="date"
+                {...register("startDate", {
+                  required: "Start Date is required",
+                })}
+                className={inputClass}
+              />
+              {errors.startDate && (
+                <p className="text-red-600 text-sm">Start Date is required</p>
+              )}
+            </div>
+
+            {/* difficulty  */}
+            <div>
+              <label className="block text-green-700 mb-1">Difficulty</label>
+              <select
+                {...register("difficulty", {
+                  required: "Difficulty is required",
+                })}
+                className={inputClass}
+              >
+                <option value="">Select difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              {errors.difficulty && (
+                <p className="text-red-600 text-sm">
+                  {errors.difficulty.message}
+                </p>
+              )}
+            </div>
+
+            {/* languages  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Languages (comma-separated)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. English, Spanish, Hindi"
+                {...register("languages", {
+                  required: "Languages are required",
+                })}
+                className={inputClass}
+              />
+              {errors.languages && (
+                <p className="text-red-600 text-sm">
+                  {errors.languages.message}
+                </p>
+              )}
+            </div>
+
+            {/* price  */}
+            <div>
+              <label className="block text-green-700 mb-1">
+                Price per person (INR)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                {...register("pricePerPerson", {
+                  required: "Price is required",
+                  valueAsNumber: true,
+                })}
+                className={inputClass}
+              />
+              {errors.pricePerPerson && (
+                <p className="text-red-600 text-sm">
+                  Price per person is required
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* description */}
+          <div>
+            <label className="block text-green-700 mb-1">Description</label>
+            <textarea
+              {...register("description", {
+                required: "Description is required",
+                validate: (value) =>
+                  value.trim().split(/\s+/).length <= 10 ||
+                  "Maximum 10 words allowed",
+              })}
+              rows={2}
+              className={`${inputClass}`}
+              placeholder="Enter a small description upto 10 words"
+            />
+            {errors.description && (
+              <p className="text-red-600 text-sm">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* Overview textarea */}
@@ -216,7 +395,20 @@ export default function AddTourForm() {
 
           {/* Highlights and Included fields */}
           {[
-            /* same mapping for Highlights and Included */
+            {
+              title: "Highlights",
+              name: "highlights",
+              fields: highlightFields,
+              append: appendHighlight,
+              remove: removeHighlight,
+            },
+            {
+              title: "Included",
+              name: "included",
+              fields: includedFields,
+              append: appendIncluded,
+              remove: removeIncluded,
+            },
           ].map(({ title, name, fields, append, remove }) => (
             <div key={name}>
               <label className="block text-green-700 mb-1">{title}</label>
@@ -227,6 +419,7 @@ export default function AddTourForm() {
                 >
                   <input
                     {...register(`${name}.${index}`)}
+                    defaultValue={field || ""}
                     className={inputClass}
                   />
                   <button
@@ -251,31 +444,46 @@ export default function AddTourForm() {
           {/* Guides */}
           <div>
             <label className="block text-green-700 mb-2">Guides</label>
-            {guideFields.map((_, index) => (
-              <div
-                key={index}
-                className="flex flex-col sm:flex-row items-center gap-2 mb-2"
-              >
-                <select
-                  {...register(`guides.${index}.id`, { required: true })}
-                  className={inputClass}
+            {guideFields.map((field, index) => {
+              const selectedIds = selectedGuideIds
+                .map((g) => g?.id)
+                .filter(Boolean);
+              const currentId = selectedIds[index];
+
+              const filteredGuides = allGuides.filter(
+                (guide) =>
+                  !selectedIds.includes(guide.id) || guide.id === currentId
+              );
+
+              return (
+                <div
+                  key={field.id}
+                  className="flex flex-col sm:flex-row items-center gap-2 mb-2"
                 >
-                  <option value="">-- Select Guide --</option>
-                  {allGuides.map((guide) => (
-                    <option key={guide._id} value={guide._id}>
-                      {guide.name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => removeGuide(index)}
-                  className="text-red-600 hover:text-red-700 cursor-pointer whitespace-nowrap"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            ))}
+                  <select
+                    {...register(`guides.${index}.id`, { required: true })}
+                    className={inputClass}
+                    defaultValue={field.id}
+                  >
+                    <option value="">-- Select Guide --</option>
+                    {filteredGuides.map((guide) => (
+                      <option key={guide.id} value={guide.id}>
+                        {guide.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => removeGuide(index)}
+                    className="text-red-600 hover:text-red-700 cursor-pointer whitespace-nowrap"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              );
+            })}
+
             <button
               type="button"
               onClick={() => appendGuide({ id: "" })}
@@ -290,22 +498,44 @@ export default function AddTourForm() {
             <label className="block text-green-700 mb-2">Stops (Per Day)</label>
             {stopFields.map((stop, index) => (
               <div key={stop.id} className="mb-4">
-                <label className="text-green-600 font-semibold">
-                  Day {index + 1}
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {/* Day (Read-only Input) */}
+                  <input
+                    type="number"
+                    value={index + 1}
+                    readOnly
+                    className="w-20 px-2 py-2 border border-gray-300 rounded bg-gray-100 text-center"
+                  />
+
+                  {/* Description Input */}
+                  <input
+                    type="text"
+                    defaultValue={stop.description || ""}
+                    onBlur={(e) =>
+                      updateStop(index, { description: e.target.value })
+                    }
+                    placeholder="What will the tour do at this location?"
+                    className={`${inputClass} flex-1`}
+                  />
+
+                  {/* Location Name Input */}
                   <input
                     value={stop.name || ""}
                     readOnly
                     className={`${inputClass} bg-gray-50 flex-1`}
+                    placeholder="Location"
                   />
+
+                  {/* Choose Location Button */}
                   <button
                     type="button"
                     onClick={() => setMapPickerConfig({ type: "stop", index })}
-                    className="w-full sm:w-48 px-2 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-40 px-2 py-2 bg-green-500 text-white rounded hover:bg-green-600 whitespace-nowrap"
                   >
                     Choose Location
                   </button>
+
+                  {/* Remove Button */}
                   <button
                     type="button"
                     onClick={() => removeStop(index)}
@@ -316,10 +546,19 @@ export default function AddTourForm() {
                 </div>
               </div>
             ))}
+
+            {/* Add Stop Button */}
             <button
               type="button"
-              onClick={() => appendStop({ name: "", lat: "", lng: "" })}
-              className="mt-2 bg-green-600 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap"
+              onClick={() =>
+                appendStop({
+                  name: "",
+                  lat: "",
+                  lng: "",
+                  description: "",
+                })
+              }
+              className="mt-2 bg-green-600 text-white px-4 py-2 rounded cursor-pointer"
             >
               Add Stop
             </button>
@@ -380,41 +619,48 @@ export default function AddTourForm() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              disabled={creatingTour}
+              className={`px-6 py-3 rounded-lg flex items-center gap-2 whitespace-nowrap
+    ${
+      creatingTour
+        ? "bg-green-400 text-white cursor-not-allowed"
+        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+    }
+  `}
             >
               <FaSave />
-              Save Tour
+              {creatingTour ? "Creating..." : "Create Tour"}
             </button>
           </div>
         </form>
 
-        {/* MapPicker modal */}
-        {mapPickerConfig && (
-          <MapPicker
-            initialSpots={
-              mapPickerConfig.type === "stop"
-                ? [getValues(`stops.${mapPickerConfig.index}`)]
-                : []
-            }
-            onClose={() => setMapPickerConfig(null)}
-            onConfirm={([picked]) => {
-              if (!picked) {
-                setMapPickerConfig(null);
-                return;
-              }
-              if (mapPickerConfig.type === "stop") {
-                updateStop(mapPickerConfig.index, picked);
-              } else {
-                setValue("location", {
-                  lat: picked.lat,
-                  lng: picked.lng,
-                  name: picked.name,
-                });
-              }
-              setMapPickerConfig(null);
-            }}
-          />
-        )}
+        {mapPickerConfig &&
+          (() => {
+            const stop = getValues(`stops.${mapPickerConfig.index}`);
+
+            const lat = parseFloat(stop?.lat);
+            const lng = parseFloat(stop?.lng);
+            const description = stop.description;
+
+            const initialSpots =
+              !isNaN(lat) && !isNaN(lng) ? [{ ...stop, lat, lng }] : [];
+
+            return (
+              <MapPicker
+                initialSpots={initialSpots}
+                onClose={() => setMapPickerConfig(null)}
+                onConfirm={([picked]) => {
+                  if (!picked) {
+                    setMapPickerConfig(null);
+                    return;
+                  }
+                  updateStop(mapPickerConfig.index, picked);
+                  setMapPickerConfig(null);
+                }}
+                description={description}
+              />
+            );
+          })()}
       </div>
     </div>
   );

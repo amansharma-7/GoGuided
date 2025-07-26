@@ -1,26 +1,41 @@
-import { useParams } from "react-router";
-import { useState } from "react";
-import { FaPlus, FaTrash } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { initiateRazorpayPayment } from "../../../utils/razorpay";
-
-const tourData = {
-  basePrice: 200,
-  availableSlots: 5,
-  insuranceFee: 20,
-};
-
-const user = {
-  name: "Sudhir Sharma",
-  email: "Sudhirtemp123@gmail.com",
-  phone: 9796971234,
-};
+import { useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import {
+  FaPlus,
+  FaRegCalendarTimes,
+  FaTrash,
+  FaUserTimes,
+} from "react-icons/fa";
+import { toast } from "react-hot-toast";
+import { initiateRazorpayPayment } from "../../../integrations/razorpay";
+import { getTourBySlug } from "../../../services/tourService";
+import useApi from "../../../hooks/useApi";
+import LoaderOverlay from "../../common/LoaderOverlay";
 
 const BookTourForm = () => {
-  const { id } = useParams(); // tour name
+  const { slug } = useParams();
+  const navigate = useNavigate();
 
+  const [tour, setTour] = useState({});
   const [members, setMembers] = useState([]);
-  const [insurance, setInsurance] = useState(false);
+  const [bookingClosed, setBookingClosed] = useState(false);
+
+  const { loading, request: fetchTour } = useApi(getTourBySlug);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchTour({ identifier: slug });
+        const tourData = res?.data?.tour;
+        setTour(tourData);
+
+        // Check if booking is closed (start date passed)
+        const today = new Date();
+        const startDate = new Date(tourData.startDate);
+        if (startDate <= today) setBookingClosed(true);
+      } catch (error) {}
+    })();
+  }, []);
 
   const handleMemberChange = (index, field, value) => {
     const updated = [...members];
@@ -29,22 +44,16 @@ const BookTourForm = () => {
   };
 
   const addMember = () => {
-    // Prevent adding if max slots reached
-    if (members.length >= tourData.availableSlots) {
+    if (members.length >= tour.availableSlots) {
       toast.error("No more slots available.");
       return;
     }
 
-    // Validate the last member if one exists
-    const lastMember = members[members.length - 1];
-    const isLastIncomplete =
-      lastMember &&
-      (!lastMember.name.trim() || !lastMember.age || !lastMember.gender);
+    const last = members[members.length - 1];
+    const incomplete = last && (!last.name.trim() || !last.age || !last.gender);
 
-    if (isLastIncomplete) {
-      toast.warning(
-        "Please complete the last member's details before adding another."
-      );
+    if (incomplete) {
+      toast.error("Please complete the last member before adding another.");
       return;
     }
 
@@ -57,32 +66,60 @@ const BookTourForm = () => {
     setMembers(updated);
   };
 
-  const totalCost =
-    members.length * tourData.basePrice +
-    (insurance ? members.length * tourData.insuranceFee : 0);
+  const totalCost = members.length * (tour.pricePerPerson || 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (members.length === 0) {
-      toast.warning("Please add at least one member");
+      toast.error("Please add at least one member.");
       return;
     }
 
     try {
-      const paymentSuccess = await initiateRazorpayPayment({
-        amount: totalCost,
-        currency: "INR",
+      await initiateRazorpayPayment({
         tour: {
-          _id: "abcd123",
-          name: "Kedarnath Trek",
-          price: 5999,
+          _id: tour._id,
+          tourTitle: tour.title,
+          pricePerPerson: tour.pricePerPerson,
+          numberOfParticipants: members.length,
+          amountPaid: totalCost,
+          members,
         },
       });
+
+      toast.success("Booking confirmed successfully!");
+      navigate("/user/bookings");
     } catch (error) {
       toast.error("Something went wrong during booking.");
     }
   };
+
+  if (loading) return <LoaderOverlay />;
+
+  if (bookingClosed) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <FaRegCalendarTimes className="text-6xl text-red-500 mb-4 animate-pulse" />
+        <h2 className="text-3xl font-bold text-red-600 mb-2">Booking Closed</h2>
+        <p className="text-gray-600 text-lg">
+          This tour has already started. New bookings are no longer accepted.
+        </p>
+      </div>
+    );
+  }
+
+  if (tour.availableSlots === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <FaUserTimes className="text-6xl text-red-500 mb-4 animate-pulse" />
+        <h2 className="text-3xl font-bold text-red-600 mb-2">Booking Full</h2>
+        <p className="text-gray-600 text-lg">
+          Sorry, there are no slots left for this tour.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl min-h-[70vh] mx-auto p-4 sm:p-6 bg-white rounded-xl shadow-md mt-10">
@@ -92,19 +129,27 @@ const BookTourForm = () => {
             Add Members
           </h2>
           <span className="inline-block bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full font-medium shadow-sm">
-            {tourData.availableSlots - members.length} slots left
+            {typeof tour.availableSlots === "number"
+              ? `${tour.availableSlots} slots left`
+              : "Loading slots..."}
           </span>
         </div>
         <div className="text-left sm:text-right">
           <p className="text-green-700 font-semibold">Price per Person:</p>
           <p className="text-xl font-bold text-green-600">
-            {tourData.basePrice}
+            {typeof tour.pricePerPerson === "number"
+              ? new Intl.NumberFormat("en-IN", {
+                  style: "currency",
+                  currency: tour.currency || "INR",
+                  maximumFractionDigits: 0,
+                }).format(tour.pricePerPerson)
+              : "Loading..."}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Member List */}
+        {/* Member Details */}
         <div>
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-green-600">
@@ -113,7 +158,12 @@ const BookTourForm = () => {
             <button
               type="button"
               onClick={addMember}
-              className="text-green-600 flex items-center gap-1 hover:underline cursor-pointer"
+              disabled={members.length >= tour.availableSlots}
+              className={`text-green-600 flex items-center gap-1 hover:underline cursor-pointer ${
+                members.length >= tour.availableSlots
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
               <FaPlus /> Add Member
             </button>
@@ -171,30 +221,24 @@ const BookTourForm = () => {
           ))}
         </div>
 
-        {/* Insurance */}
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={insurance}
-              onChange={(e) => setInsurance(e.target.checked)}
-              className="text-green-600 cursor-pointer"
-            />
-            Add Travel Insurance (${tourData.insuranceFee} per person)
-          </label>
-        </div>
-
-        {/* Total */}
+        {/* Total Cost */}
         <div className="text-right">
           <p className="text-lg font-semibold">
-            Total: <span className="text-green-700">${totalCost}</span>
+            Total:{" "}
+            <span className="text-green-700">
+              {new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: tour.currency || "INR",
+                maximumFractionDigits: 0,
+              }).format(totalCost || 0)}
+            </span>
           </p>
         </div>
 
         <button
           type="submit"
           disabled={totalCost === 0}
-          className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md 
+          className="p-4 w-full text-lg uppercase text-white bg-green-600 rounded-md cursor-pointer
           hover:bg-green-700 hover:shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Pay & Book Tour

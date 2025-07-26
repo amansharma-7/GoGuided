@@ -21,14 +21,14 @@ function TourCard({ tour }) {
       <div className="relative overflow-hidden rounded-t-md h-[140px] sm:h-48 md:h-56">
         <img
           className="object-cover object-center w-full h-full"
-          src={tour.imageUrl}
+          src={tour.thumbnail}
           alt={tour.title}
         />
         {/* Background overlay shape */}
-        <div className="bg-white h-20 w-[120%] absolute -bottom-14 -rotate-9 text-black text-center z-10"></div>
+        <div className="bg-white h-20 w-[120%] absolute -bottom-10 -rotate-9 text-black text-center z-1"></div>
 
         {/* Title block */}
-        <div className="flex flex-col items-end  absolute bottom-8 right-0 z-20">
+        <div className="flex flex-col items-end  absolute bottom-8 right-0 z-2">
           <p className="bg-green-600/70 shadow-sm px-2 py-1 sm:px-3 sm:py-2 text-xl sm:text-2xl text-white font-semibold">
             {titleParts[0]?.toUpperCase()} {titleParts[1]?.toUpperCase()}
           </p>
@@ -59,18 +59,22 @@ function TourCard({ tour }) {
           </div>
           <div className="flex gap-x-2 items-center">
             <HiArrowTrendingUp size={18} color="green" />
-            <span>{tour.difficulty}</span>
+            <span>
+              {tour.difficulty.charAt(0).toUpperCase() +
+                tour.difficulty.slice(1)}
+            </span>
           </div>
           <div className="flex gap-x-2 items-center">
             <CiFlag1 size={18} color="green" />
-            <span>{tour.stops} Stops</span>
+            <span>{tour.tourSpots} Stops</span>
           </div>
         </div>
 
         {/* Rating and Button */}
         <div className="flex items-center justify-between mt-4">
           <div className="text-green-600 font-semibold flex items-center gap-1 text-base sm:text-lg">
-            <RatingStars Review_Count={tour.rating} />
+            <RatingStars Review_Count={tour.avgRating} />
+            <span className="text-green-700">/5</span>
           </div>
 
           <button

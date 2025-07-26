@@ -18,8 +18,8 @@ function IncludedAndGuides({ included, guides }) {
         <div className="space-y-4">
           {guides.map((guide, index) => (
             <div key={index} className="flex items-center gap-4">
-              {guide?.image ? (
-                <Avatar size={48} imageURL={guide.image} />
+              {guide?.profilePicUrl ? (
+                <Avatar size={48} imageURL={guide.profilePicUrl} />
               ) : (
                 <Avatar
                   size={48}

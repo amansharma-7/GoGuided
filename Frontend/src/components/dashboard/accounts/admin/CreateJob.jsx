@@ -1,8 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import useApi from "../../../../hooks/useApi";
+import { createJob } from "../../../../services/jobService";
 
 function CreateJob() {
-  const navigate = useNavigate();
+  const { loading: isJobCreating, request: createJobRequest } =
+    useApi(createJob);
   const {
     register,
     handleSubmit,
@@ -17,10 +21,16 @@ function CreateJob() {
     },
   });
 
-  const submitJob = (data) => {
-    console.log("Job Created:", data);
-    reset();
-    navigate("/"); // Navigate back to job management page
+  const submitJob = async (data) => {
+    try {
+      const response = await createJobRequest({ data: data });
+      toast.success(response.message);
+      reset();
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
   };
 
   return (
@@ -51,7 +61,6 @@ function CreateJob() {
               <p className="text-red-500 text-sm">{errors.title.message}</p>
             )}
           </div>
-
           {/* Job Description */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -70,7 +79,6 @@ function CreateJob() {
               </p>
             )}
           </div>
-
           {/* Location */}
           <div>
             <label className="block text-sm font-medium text-green-700">
@@ -86,46 +94,6 @@ function CreateJob() {
               <p className="text-red-500 text-sm">{errors.location.message}</p>
             )}
           </div>
-
-          {/* Type */}
-          <div>
-            <label className="block text-sm font-medium text-green-700">
-              Type:
-            </label>
-            <select
-              {...register("type", { required: "Type is required" })}
-              className="border p-3 w-full rounded-md"
-            >
-              <option value="">Select type</option>
-              <option value="Full-Time">Full-Time</option>
-              <option value="Part-Time">Part-Time</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-            </select>
-            {errors.type && (
-              <p className="text-red-500 text-sm">{errors.type.message}</p>
-            )}
-          </div>
-
-          {/* Level */}
-          <div>
-            <label className="block text-sm font-medium text-green-700">
-              Level:
-            </label>
-            <select
-              {...register("level", { required: "Level is required" })}
-              className="border p-3 w-full rounded-md"
-            >
-              <option value="">Select level</option>
-              <option value="Junior">Junior</option>
-              <option value="Mid">Mid</option>
-              <option value="Senior">Senior</option>
-            </select>
-            {errors.level && (
-              <p className="text-red-500 text-sm">{errors.level.message}</p>
-            )}
-          </div>
-
           {/* Salary Range */}
           <div>
             <label className="block text-sm font-medium text-green-700 mb-1">
@@ -169,29 +137,31 @@ function CreateJob() {
               </div>
             </div>
           </div>
-
           {/* Last Date */}
           <div>
             <label className="block text-sm font-medium text-green-700">
               Last Date:
             </label>
             <input
-              {...register("lastDate", { required: "Last date is required" })}
+              {...register("lastDateToApply", {
+                required: "Last date is required",
+              })}
               type="date"
               className="border p-3 w-full rounded-md"
             />
-            {errors.lastDate && (
-              <p className="text-red-500 text-sm">{errors.lastDate.message}</p>
+            {errors.lastDateToApply && (
+              <p className="text-red-500 text-sm">
+                {errors.lastDateToApply.message}
+              </p>
             )}
           </div>
-
           {/* Number of Posts */}
           <div>
             <label className="block text-sm font-medium text-green-700">
               Number of Posts:
             </label>
             <input
-              {...register("posts", {
+              {...register("numberOfPosts", {
                 required: "Number of posts is required",
                 min: { value: 1, message: "Must be at least 1 post" },
               })}
@@ -199,29 +169,30 @@ function CreateJob() {
               placeholder="Number of Posts"
               className="border p-3 w-full rounded-md"
             />
-            {errors.posts && (
-              <p className="text-red-500 text-sm">{errors.posts.message}</p>
+            {errors.numberOfPosts && (
+              <p className="text-red-500 text-sm">
+                {errors.numberOfPosts.message}
+              </p>
             )}
           </div>
-
-          {/* Hidden Applicants Field */}
-          <input type="hidden" {...register("applicants")} />
-
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 mt-4">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-md"
-            >
-              Submit
-            </button>
+            {isJobCreating ? (
+              <button
+                type="button"
+                className="bg-green-400 text-white px-4 py-2 rounded-md cursor-not-allowed"
+                disabled
+              >
+                Creating...
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer"
+              >
+                Create
+              </button>
+            )}
           </div>
         </form>
       </div>
