@@ -7,20 +7,8 @@ import {
 } from "react-icons/fa6";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import Announcements from "../../../common/Announcements";
-import BookingChart from "./BookingChart";
 import { formatNumberIndian } from "../../../../utils/numberFormatter";
-
-function SummaryCard({ title, icon: Icon, value }) {
-  return (
-    <div className="bg-white text-green-950 p-6 border border-green-300 flex flex-col items-center shadow-sm shadow-black/50 rounded-lg space-y-2">
-      <div className="flex items-center space-x-2">
-        {Icon && <Icon className="text-green-700 text-xl sm:text-2xl" />}
-        <h2 className="text-xl sm:text-2xl font-semibold">{title}</h2>
-      </div>
-      <p className="text-4xl sm:text-5xl font-extrabold">{value}</p>
-    </div>
-  );
-}
+import { useUser } from "../../../../context/UserContext";
 
 function StatCard({ title, value, route }) {
   const safeNavigate = useSafeNavigate();
@@ -44,6 +32,8 @@ function StatCard({ title, value, route }) {
 }
 
 function Stats() {
+  const { user } = useUser();
+
   return (
     <div className="p-4 flex flex-col space-y-4 h-full overflow-y-scroll scrollbar-none">
       {/* Stat Cards */}
@@ -60,7 +50,9 @@ function Stats() {
         <StatCard title={"Guides"} value={12} route={"guides"} />
         <StatCard title={"Jobs"} value={12} route={"jobs"} />
         <StatCard title={"Refunds"} value={12} route={"refunds"} />
-        <StatCard title={"Admins"} value={12} route={"manage-admins"} />
+        {user.role === "owner" && (
+          <StatCard title="Manage Admins" route="manage-admins" />
+        )}{" "}
       </div>
       {/* Charts and Announcements */}
     </div>

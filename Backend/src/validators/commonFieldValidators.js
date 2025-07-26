@@ -37,7 +37,7 @@ exports.lastNameFieldValidator = body("lastName")
     return capitalize(value);
   });
 
-exports.fullNameFieldValidator = (field = "fullName") =>
+exports.fullNameFieldValidator = (field) =>
   body(field)
     .trim()
     .notEmpty()

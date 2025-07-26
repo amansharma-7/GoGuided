@@ -1,7 +1,12 @@
 import { useForm } from "react-hook-form";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
+import useApi from "../../../../hooks/useApi";
+import { addAdmin } from "../../../../services/manageAdminsService";
+import toast from "react-hot-toast";
 
-function AddNewAdmin({ onSubmitAdmin }) {
+function AddNewAdmin() {
+  const { loading, request: addAdminApi } = useApi(addAdmin);
+
   const navigate = useSafeNavigate();
   const {
     register,
@@ -10,9 +15,16 @@ function AddNewAdmin({ onSubmitAdmin }) {
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    onSubmitAdmin(data);
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      const response = await addAdminApi({ data: data });
+      toast.success(response.message);
+      reset();
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
   };
 
   return (
@@ -77,15 +89,15 @@ function AddNewAdmin({ onSubmitAdmin }) {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="w-1/2 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-green-700 font-semibold transition"
+              className="w-1/2 py-2 cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 text-green-700 font-semibold transition"
             >
               Discard
             </button>
             <button
               type="submit"
-              className="w-1/2 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white font-semibold transition"
+              className="w-1/2 cursor-pointer py-2 rounded-md bg-green-500 hover:bg-green-600 text-white font-semibold transition"
             >
-              Add Admin
+              {loading ? "Adding" : "Add Admin"}
             </button>
           </div>
         </form>

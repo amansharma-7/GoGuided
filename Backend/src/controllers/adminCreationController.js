@@ -151,7 +151,9 @@ exports.getUsers = catchAsync(async (req, res, next) => {
       .sort(sortOrder)
       .skip(skip)
       .limit(limit)
-      .select("name email updatedAt role priority"),
+      .select(
+        "firstName lastName email phone createdAt updatedAt role priority "
+      ),
     User.countDocuments(finalFilter),
   ]);
 
