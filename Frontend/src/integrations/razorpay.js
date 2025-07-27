@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import api from "../services/apiClient";
 
 function loadScript(src) {
@@ -20,7 +21,7 @@ export async function initiateRazorpayPayment({ tour }) {
   }
   try {
     const response = await api.post("/payment/create-order", {
-      totalAmount: tour.price,
+      totalAmount: tour.amountPaid,
     });
 
     const orderData = await response.data;
@@ -38,11 +39,9 @@ export async function initiateRazorpayPayment({ tour }) {
     paymentObject.open();
 
     paymentObject.on("payment.failed", function (response) {
-      console.error("Payment failed:", response.error);
+      toast.error("Something went wrong");
     });
-  } catch (error) {
-    console.error("PAYMENT API ERROR:", error);
-  }
+  } catch (error) {}
 }
 
 async function verifyPayment({
@@ -59,6 +58,6 @@ async function verifyPayment({
       tour,
     });
   } catch (error) {
-    console.error("PAYMENT VERIFY ERROR:", error);
+    toast.error("Something went wrong");
   }
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaStar, FaStarHalfAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
-function AddReview({ initialReview = null, onSubmit, setIsModalOpen }) {
+function AddReview({ tourId, initialReview = null, onSubmit, setIsModalOpen }) {
   const [rating, setRating] = useState(initialReview?.rating || 0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState(initialReview?.reviewText || "");
@@ -18,7 +18,7 @@ function AddReview({ initialReview = null, onSubmit, setIsModalOpen }) {
       return;
     }
 
-    const newReview = { rating, reviewText };
+    const newReview = { rating, reviewText, tourId };
     onSubmit(newReview);
 
     setHasReviewed(true); // Mark as reviewed

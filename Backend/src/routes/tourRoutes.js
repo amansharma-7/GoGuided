@@ -45,4 +45,13 @@ router.post(
   tourController.createTour
 );
 
+// Route to get all tours
+router.get("/", authMiddleware.protect, tourController.getAllTours);
+
+// Route for card-style tours
+router.get("/cards", tourController.getAllToursAsCards);
+
+// Get a single tour by its slug
+router.get("/:slug", tourController.getTourBySlug);
+
 module.exports = router;

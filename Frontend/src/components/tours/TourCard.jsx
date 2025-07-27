@@ -21,7 +21,7 @@ function TourCard({ tour }) {
       <div className="relative overflow-hidden rounded-t-md h-[140px] sm:h-48 md:h-56">
         <img
           className="object-cover object-center w-full h-full"
-          src={tour.imageUrl}
+          src={tour.thumbnail}
           alt={tour.title}
         />
         {/* Background overlay shape */}
@@ -59,18 +59,22 @@ function TourCard({ tour }) {
           </div>
           <div className="flex gap-x-2 items-center">
             <HiArrowTrendingUp size={18} color="green" />
-            <span>{tour.difficulty}</span>
+            <span>
+              {tour.difficulty.charAt(0).toUpperCase() +
+                tour.difficulty.slice(1)}
+            </span>
           </div>
           <div className="flex gap-x-2 items-center">
             <CiFlag1 size={18} color="green" />
-            <span>{tour.stops} Stops</span>
+            <span>{tour.tourSpots} Stops</span>
           </div>
         </div>
 
         {/* Rating and Button */}
         <div className="flex items-center justify-between mt-4">
           <div className="text-green-600 font-semibold flex items-center gap-1 text-base sm:text-lg">
-            <RatingStars Review_Count={tour.rating} />
+            <RatingStars Review_Count={tour.avgRating} />
+            <span className="text-green-700">/5</span>
           </div>
 
           <button

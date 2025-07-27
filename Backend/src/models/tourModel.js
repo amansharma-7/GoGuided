@@ -1,9 +1,15 @@
 const mongoose = require("mongoose");
+const Booking = require("./bookingModel");
 
 const tourSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     slug: { type: String, unique: true },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     location: { type: String, required: true },
 
     tourSpots: [

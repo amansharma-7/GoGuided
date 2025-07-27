@@ -19,6 +19,14 @@ const getStatus = (startDate, endDate) => {
   return "Completed";
 };
 
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export default function ToursList({ tours }) {
   const [expandedTour, setExpandedTour] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -62,19 +70,19 @@ export default function ToursList({ tours }) {
       {/* Tour List */}
       {tours.map((tour) => (
         <div
-          key={tour.id}
+          key={tour._id}
           className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-500"
         >
           {/* Tour Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <h2 className="text-2xl font-semibold text-green-800">
-              {tour.name}
+              {tour.title}
             </h2>
             <button
-              onClick={() => toggleAccordion(tour.id)}
+              onClick={() => toggleAccordion(tour._id)}
               className="text-green-800 hover:text-green-600 transition self-end sm:self-auto"
             >
-              {expandedTour === tour.id ? (
+              {expandedTour === tour._id ? (
                 <FaChevronUp size={20} />
               ) : (
                 <FaChevronDown size={20} />
@@ -91,7 +99,7 @@ export default function ToursList({ tours }) {
           </div>
 
           {/* Expanded Tour Details */}
-          {expandedTour === tour.id && (
+          {expandedTour === tour._id && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2 sm:p-4 rounded-md shadow-sm">
               <p className="text-green-800 font-medium">
                 Location:{" "}
@@ -102,39 +110,38 @@ export default function ToursList({ tours }) {
               <p className="text-green-800 font-medium">
                 Duration:{" "}
                 <span className="font-normal text-green-700">
-                  {tour.duration}
+                  {tour.duration} {tour.duration === 1 ? "day" : "days"}
                 </span>
-              </p>
-              <p className="text-green-800 font-medium">
-                Type:{" "}
-                <span className="font-normal text-green-700">{tour.type}</span>
               </p>
               <p className="text-green-800 font-medium">
                 Difficulty:{" "}
                 <span className="font-normal text-green-700">
-                  {tour.difficulty}
+                  {tour.difficulty.charAt(0).toUpperCase() +
+                    tour.difficulty.slice(1).toLowerCase()}
                 </span>
               </p>
               <p className="text-green-800 font-medium">
                 Group Size:{" "}
                 <span className="font-normal text-green-700">
-                  {tour.groupSize}
+                  {tour.participants === 1 ? "1" : `1 to ${tour.participants}`}
                 </span>
               </p>
               <p className="text-green-800 font-bold">
                 Price:{" "}
-                <span className="font-normal text-green-700">{tour.price}</span>
+                <span className="font-normal text-green-700">
+                  ₹{tour.pricePerPerson.toLocaleString("en-IN")} per person
+                </span>
               </p>
               <p className="text-green-800 font-bold">
                 Start Date:{" "}
                 <span className="font-normal text-green-700">
-                  {tour.startDate}
+                  {formatDate(tour.startDate)}
                 </span>
               </p>
               <p className="text-green-800 font-bold">
                 End Date:{" "}
                 <span className="font-normal text-green-700">
-                  {tour.endDate}
+                  {formatDate(tour.endDate)}
                 </span>
               </p>
             </div>
@@ -144,17 +151,15 @@ export default function ToursList({ tours }) {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
             <button
               className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 w-full sm:w-auto"
-              onClick={() =>
-                navigate(`edit/${tour.name.toLowerCase().split(" ").join("_")}`)
-              }
+              onClick={() => navigate(`edit/${tour.slug}`)}
             >
               <FaEdit size={16} /> Edit
             </button>
             <button
-              onClick={() => handleDelete(tour.id)}
-              disabled={deleteConfirm.tourId === tour.id}
+              onClick={() => handleDelete(tour._id)}
+              disabled={deleteConfirm.tourId === tour._id}
               className={`flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full sm:w-auto ${
-                deleteConfirm.tourId === tour.id
+                deleteConfirm.tourId === tour._id
                   ? "cursor-not-allowed opacity-50"
                   : "cursor-pointer"
               }`}
@@ -163,11 +168,7 @@ export default function ToursList({ tours }) {
             </button>
             <button
               className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 w-full sm:w-auto"
-              onClick={() =>
-                navigate(
-                  `bookings/${tour.name.toLowerCase().split(" ").join("_")}`
-                )
-              }
+              onClick={() => navigate(`bookings/${tour.slug}`)}
             >
               <FaClipboardList size={16} /> View Bookings
             </button>
