@@ -1,8 +1,8 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminCreationController = require("../controllers/adminCreationController");
+const manageUsersController = require("../controllers/manageUsersController");
 const adminCreationValidator = require("../validators/adminCreationValidator");
-const { log } = require("winston");
 
 const router = express.Router();
 
@@ -19,13 +19,6 @@ router.delete(
   authMiddleware.protect,
   authMiddleware.restrictTo("owner"),
   adminCreationController.deleteAdmin
-);
-
-router.get(
-  "/users",
-  authMiddleware.protect,
-  authMiddleware.restrictTo("owner"),
-  adminCreationController.getUsers
 );
 
 module.exports = router;
