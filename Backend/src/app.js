@@ -27,6 +27,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const adminCreationRoutes = require("./routes/adminCreationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
 
 const geocodeRoutes = require("./routes/geocodeRoutes");
 
@@ -82,7 +83,7 @@ if (process.env.NODE_ENV === "development") {
 // =======================
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
-    status: "success",
+    isSuccess: true,
     message: "Backend is live and working",
   });
 });
@@ -100,6 +101,7 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/admin", adminCreationRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/announcement", announcementRoutes);
 
 app.use("/api/v1/geocode", geocodeRoutes);
 
