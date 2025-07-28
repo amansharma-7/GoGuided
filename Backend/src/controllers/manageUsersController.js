@@ -50,7 +50,7 @@ exports.getUsers = catchAsync(async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .select(
-        "firstName lastName email phone createdAt updatedAt role priority "
+        "firstName lastName email phone createdAt updatedAt role priority availabilityStatus "
       ),
     User.countDocuments(finalFilter),
   ]);

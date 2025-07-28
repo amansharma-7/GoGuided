@@ -79,6 +79,8 @@ function Guides() {
         row[key] = `${capitalize(guide.firstName)} ${capitalize(
           guide.lastName
         )}`;
+      } else if (key === "status") {
+        row[key] = guide.availabilityStatus;
       } else {
         row[key] = guide[key] || "-";
       }
