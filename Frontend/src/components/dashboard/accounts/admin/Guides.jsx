@@ -1,32 +1,18 @@
+import useApi from "../../../../hooks/useApi";
 import NoResult from "../../../../pages/NoResult";
+import { getAllAdmins } from "../../../../services/manageAdminsService";
 import UsersHeader from "../../../common/DashboardHeader";
 import GuidesTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
-
+import LoaderOverlay from "../../../common/LoaderOverlay";
 const headers = [
   { label: "S No.", width: "10%" },
   { label: "Name", width: "20%" },
   { label: "Email", width: "25%" },
-  { label: "Number", width: "15%" },
+  { label: "Phone", width: "15%" },
   { label: "Role", width: "15%" },
   { label: "Status", width: "15%" },
 ];
-
-// const headers = ["S No.", "Name", "Email", "Number", "Role", "Status"];
-
-const GuidesData = Array.from({ length: 50 }, (_, i) => ({
-  _id: (i + 1).toString(),
-  name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
-  email: [
-    "john@example.com",
-    "jane@example.com",
-    "sam@example.com",
-    "lucy@example.com",
-  ][i % 4],
-  number: ["1234567890", "9876543210", "4561237890", "7894561230"][i % 4],
-  role: i % 2 === 0 ? "Guide" : "Leader",
-  status: i % 2 === 0 ? "Free" : "Assigned", // Alternating status for variety
-}));
 
 function Guides() {
   const [filterState, setFilterState] = useState({
@@ -39,45 +25,42 @@ function Guides() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalGuides, setTotalGuides] = useState(0);
-  const [loading, setLoading] = useState(true);
   const numberOfEntries = 10;
 
-  useEffect(() => {
-    const fetchGuides = async () => {
-      try {
-        // Example: use filters if needed
-        // const { searchQuery, selectedFilters, sortOrder } = filterState;
-        // const params = new URLSearchParams();
+  const { loading: fetchGuideLoading, request: fetchGuideApi } =
+    useApi(getAllAdmins);
 
-        // if (searchQuery) params.append("search", searchQuery);
-        // if (selectedFilters) {
-        //   if (selectedFilters["Date Interval"]) {
-        //     const { startDate, endDate } = selectedFilters["Date Interval"];
-        //     if (startDate) params.append("startDate", startDate);
-        //     if (endDate) params.append("endDate", endDate);
-        //   }
-        // }
-        // if (sortOrder) params.append("sort", sortOrder);
+  const fetchGuidess = async () => {
+    try {
+      const { searchQuery, selectedFilters, sortOrder } = filterState;
+      const params = new URLSearchParams();
 
-        // params.append("page", currentPage);
-        // params.append("limit", numberOfEntries);
+      if (searchQuery) params.append("search", searchQuery);
 
-        // Fetch guides instead of reviews
-        // const response = await getAllGuides(user.token, params.toString());
-        // const { data, totalPages: tp, total } = response;
-
-        setGuides(GuidesData); // Replace with real data
-        setTotalPages(tp || 1);
-        setTotalGuides(total || 0);
-        setLoading(false);
-      } catch (error) {
-        // Optional: handle error
-      } finally {
-        setLoading(false);
+      if (selectedFilters?.["Date Interval"]) {
+        const { startDate, endDate } = selectedFilters["Date Interval"];
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
       }
-    };
 
-    fetchGuides();
+      if (sortOrder) params.append("sort", sortOrder);
+
+      params.append("page", currentPage);
+      params.append("limit", numberOfEntries);
+      params.append("role", "guide");
+
+      const response = await fetchGuideApi({ params: params.toString() });
+
+      setGuides(response.data.users);
+      setTotalPages(response.totalPages);
+      setTotalGuides(response.total);
+    } catch (error) {
+      console.error("Failed to fetch admins:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuidess();
   }, [currentPage, filterState]);
 
   const getKeyFromLabel = (label) =>
@@ -90,6 +73,14 @@ function Guides() {
 
       if (key === "sno") {
         row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key == "name") {
+        const capitalize = (str) =>
+          str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        row[key] = `${capitalize(guide.firstName)} ${capitalize(
+          guide.lastName
+        )}`;
+      } else if (key === "status") {
+        row[key] = guide.availabilityStatus;
       } else {
         row[key] = guide[key] || "-";
       }
@@ -99,12 +90,12 @@ function Guides() {
     return row;
   });
 
+  if (fetchGuideLoading) return <LoaderOverlay />;
   return (
     <div className="p-4">
-      {/* Header Section */}
       <UsersHeader
         title="Guides"
-        totalCount={transformedGuides.length}
+        totalCount={totalGuides}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -134,8 +125,9 @@ function Guides() {
         <GuidesTable
           headers={headers}
           data={transformedGuides}
-          itemsPerPage={9}
-          navToBy={"id"}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
         />
       ) : (
         <NoResult />

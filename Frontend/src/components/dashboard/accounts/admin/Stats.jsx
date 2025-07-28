@@ -46,13 +46,8 @@ function Stats() {
         <StatCard title={"Reviews"} value={10000} route={"reviews"} />
         <StatCard title={"Users"} value={12} route={"users"} />
         <StatCard title={"Feedbacks"} value={12} route={"feedbacks"} />
-        <StatCard title={"Payments"} value={12} route={"payments"} />
         <StatCard title={"Guides"} value={12} route={"guides"} />
         <StatCard title={"Jobs"} value={12} route={"jobs"} />
-        <StatCard title={"Refunds"} value={12} route={"refunds"} />
-        {user.role === "owner" && (
-          <StatCard title="Manage Admins" route="manage-admins" />
-        )}{" "}
       </div>
       {/* Charts and Announcements */}
     </div>

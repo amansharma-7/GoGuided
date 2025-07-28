@@ -1,7 +1,7 @@
 import api from "./apiClient";
 
 export const getAllAdmins = async ({ params }) => {
-  return await api.get(`admin/users?${params}`);
+  return await api.get(`user/users?${params}`);
 };
 
 export const addAdmin = async ({ data }) => {

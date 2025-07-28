@@ -39,19 +39,8 @@ export default function Table({
 }) {
   const navigate = useSafeNavigate();
 
-  const location = useLocation();
-
   const handleClick = (id) => {
-    // Check if current route is NOT refunds or payments
-    if (
-      location.pathname !== "/admin/refunds" &&
-      location.pathname !== "/admin/payments" &&
-      location.pathname !== "/admin/payments" &&
-      location.pathname !== "/admin/payments" &&
-      location.pathname !== "/admin/payments"
-    ) {
-      navigate(id); // or whatever your target path is
-    }
+    navigate(id);
   };
   const getKeyFromLabel = (label) =>
     label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");

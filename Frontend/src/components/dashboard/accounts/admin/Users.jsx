@@ -1,18 +1,23 @@
+import { useEffect, useState } from "react";
 import UsersHeader from "../../../common/DashboardHeader";
 import UsersTable from "../../../dashboard/Table";
-import { useEffect, useState } from "react";
 import NoResult from "../../../../pages/NoResult";
+import LoaderOverlay from "../../../common/LoaderOverlay";
+import { getAllAdmins } from "../../../../services/manageAdminsService";
+import useApi from "../../../../hooks/useApi";
+
 const headers = [
   { label: "S No.", width: "10%" },
   { label: "Name", width: "20%" },
   { label: "Email", width: "25%" },
-  { label: "Number", width: "25%" },
+  { label: "Phone", width: "25%" },
   { label: "Last Visit", width: "20%" },
 ];
 
 const usersData = Array.from({ length: 50 }, (_, i) => ({
   _id: (i + 1).toString(),
-  name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
+  firstName: ["John", "Jane", "Sam", "Lucy"][i % 4],
+  lastName: ["Doe", "Smith", "Wilson", "Heart"][i % 4],
   email: [
     "john@example.com",
     "jane@example.com",
@@ -33,65 +38,64 @@ function UsersList() {
   const [users, setUsers] = useState(usersData);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [totalUsers, setTotalUsers] = useState(usersData.length);
+  const [loading, setLoading] = useState(false);
   const numberOfEntries = 10;
 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const { searchQuery, selectedFilters, sortOrder } = filterState;
-  //       const params = new URLSearchParams();
+  const { loading: fetchUserLoading, request: fetchUserApi } =
+    useApi(getAllAdmins);
 
-  //       if (searchQuery) {
-  //         params.append("search", searchQuery);
-  //       }
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const { searchQuery, selectedFilters, sortOrder } = filterState;
+      const params = new URLSearchParams();
 
-  //       if (selectedFilters) {
-  //         if (selectedFilters["Date Interval"]) {
-  //           const { startDate, endDate } = selectedFilters["Date Interval"];
-  //           if (startDate) params.append("startDate", startDate);
-  //           if (endDate) params.append("endDate", endDate);
-  //         }
-  //       }
+      if (searchQuery) params.append("search", searchQuery);
 
-  //       if (sortOrder) {
-  //         params.append("sort", sortOrder);
-  //       }
+      if (selectedFilters?.["Date Interval"]) {
+        const { startDate, endDate } = selectedFilters["Date Interval"];
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+      }
 
-  //       params.append("page", currentPage);
-  //       params.append("role", "user");
-  //       params.append("limit", numberOfEntries);
+      if (sortOrder) params.append("sort", sortOrder);
 
-  //       // getting all users
-  //       const response = await getAllUsers(user.token, params.toString());
+      params.append("page", currentPage);
+      params.append("limit", numberOfEntries);
+      params.append("role", "user");
 
-  //       const { data } = response;
+      const response = await fetchUserApi({ params: params.toString() });
 
-  //       setUsers(data.users);
-  //       setTotalPages(response.totalPages);
-  //       setTotalUsers(response.total);
-  //       setLoading(false);
-  //     } catch (error) {
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+      setUsers(response.data.users);
+      setTotalPages(response.totalPages);
+      setTotalUsers(response.total);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  //   fetchUsers();
-  // }, [currentPage, filterState]);
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage, filterState]);
 
   const getKeyFromLabel = (label) =>
     label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
 
   const transformedUsers = users.map((user, idx) => {
     const row = {};
-    headers.forEach((header, i) => {
+    headers.forEach((header) => {
       const key = getKeyFromLabel(header.label);
       if (key === "sno") {
         row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "name") {
+        const capitalize = (str) =>
+          str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        row[key] = `${capitalize(user.firstName)} ${capitalize(user.lastName)}`;
       } else if (key === "lastvisit") {
-        row[key] = new Date(user.lastVisit).toLocaleDateString();
+        row[key] = new Date(user.updatedAt).toLocaleDateString();
       } else {
         row[key] = user[key] || "-";
       }
@@ -101,12 +105,13 @@ function UsersList() {
     return row;
   });
 
+  if (loading) return <LoaderOverlay />;
+
   return (
     <div className="p-4">
-      {/* Header Section */}
       <UsersHeader
         title="Users"
-        totalCount={transformedUsers.length}
+        totalCount={totalUsers}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -124,7 +129,9 @@ function UsersList() {
         <UsersTable
           headers={headers}
           data={transformedUsers}
-          itemsPerPage={9}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
         />
       ) : (
         <NoResult />

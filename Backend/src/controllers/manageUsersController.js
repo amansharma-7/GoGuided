@@ -2,6 +2,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const User = require("../models/userModel");
 const { sendCustomEmailService } = require("../utils/email");
+const Tour = require("../models/tourModel");
 
 exports.getUsers = catchAsync(async (req, res, next) => {
   const { search, role, sort, startDate, endDate } = req.query;
@@ -49,7 +50,7 @@ exports.getUsers = catchAsync(async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .select(
-        "firstName lastName email phone createdAt updatedAt role priority "
+        "firstName lastName email phone createdAt updatedAt role priority availabilityStatus "
       ),
     User.countDocuments(finalFilter),
   ]);
@@ -87,3 +88,25 @@ exports.sendCustomEmail = catchAsync(async (req, res, next) => {
     message: "Custom email sent successfully",
   });
 });
+
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate("bookings");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    let tours = [];
+
+    if (user.role === "guide") {
+      tours = await Tour.find({ guides: user._id })
+        .select("title startDate endDate guides")
+        .populate("guides", "firstName lastName email");
+      user._doc.tours = tours;
+    }
+    res.status(200).json({ data: { user } });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

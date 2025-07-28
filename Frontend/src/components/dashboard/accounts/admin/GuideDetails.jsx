@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { AiOutlineClose } from "react-icons/ai";
+import useApi from "../../../../hooks/useApi";
+import {
+  getUserById,
+  sendPersonalEmail,
+} from "../../../../services/userService";
+import LoaderOverlay from "../../../common/LoaderOverlay";
+import { toast } from "react-hot-toast";
 
 const GuideDetails = () => {
   const { id } = useParams();
@@ -8,31 +15,53 @@ const GuideDetails = () => {
   const [isMailing, setIsMailing] = useState(false);
   const [mailSubject, setMailSubject] = useState("");
   const [mailBody, setMailBody] = useState("");
+  const [user, setUser] = useState();
 
-  const user = {
-    id,
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1234567890",
-    numberOfTours: 5,
-    lastLoggedIn: "2025-03-20",
-    lastTour: "Cultural Exploration",
-    role: "Guide",
-    tourList: [
-      { id: "101", name: "Safari Adventure" },
-      { id: "102", name: "Mountain Hike" },
-      { id: "103", name: "City Tour" },
-      { id: "104", name: "Beach Holiday" },
-      { id: "105", name: "Cultural Exploration" },
-    ],
-    status: "Available",
+  const { loading, request: fetchUserById } = useApi(getUserById);
+  const { loading: sendPersonalEmailLoading, request: sendPersonalEmailAPi } =
+    useApi(sendPersonalEmail);
+
+  useEffect(() => {
+    if (!id) return;
+
+    (async () => {
+      try {
+        const response = await fetchUserById({ identifier: id });
+        setUser(response.data.user);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    })();
+  }, [id]);
+
+  const handleSendMail = async () => {
+    try {
+      const fullName = `${user.firstName?.trim()} ${user.lastName?.trim()}`;
+      const response = await sendPersonalEmailAPi({
+        data: {
+          name: fullName,
+          email: user.email,
+          subject: mailSubject,
+          message: mailBody,
+        },
+      });
+
+      toast.success(response.message);
+
+      setIsMailing(false);
+      setMailSubject("");
+      setMailBody("");
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+      console.error(err);
+    }
   };
 
-  const handleSendMail = () => {
-    setIsMailing(false);
-    setMailSubject("");
-    setMailBody("");
-  };
+  if (loading || !user) {
+    return <LoaderOverlay />;
+  }
 
   return (
     <div className="p-6 space-y-6 border border-green-400 rounded-md bg-green-50 shadow-md h-full overflow-y-auto scrollbar-none text-green-950">
@@ -42,7 +71,7 @@ const GuideDetails = () => {
         <h2 className="text-2xl font-bold text-green-800">Guide Details</h2>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 "
+          className="px-4 cursor-pointer py-2 bg-green-500 text-white rounded-md hover:bg-green-600 "
         >
           Go Back
         </button>
@@ -50,12 +79,8 @@ const GuideDetails = () => {
       {/* Info Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-white border border-green-300 rounded-md shadow-sm">
         <p>
-          <span className="font-semibold text-green-800">User ID:</span>{" "}
-          {user.id}
-        </p>
-        <p>
           <span className="font-semibold text-green-800">Name:</span>{" "}
-          {user.name}
+          {user.firstName} {user.lastName}
         </p>
         <p>
           <span className="font-semibold text-green-800">Email:</span>{" "}
@@ -67,21 +92,15 @@ const GuideDetails = () => {
         </p>
         <p>
           <span className="font-semibold text-green-800">Number of Tours:</span>{" "}
-          {user.numberOfTours}
+          {user.tours.length}
         </p>
         <p>
           <span className="font-semibold text-green-800">Last Logged in:</span>{" "}
-          {user.lastLoggedIn}
-        </p>
-        <p>
-          <span className="font-semibold text-green-800">Last Tour:</span>{" "}
-          {user.lastTour}
-        </p>
-        <p>
-          <span className="font-semibold text-green-800">Status:</span>{" "}
-          <span className="bg-purple-100 text-blue-700 border border-blue-400 px-2 py-0.5 rounded-md text-sm">
-            {user.status}
-          </span>
+          {new Date(user.updatedAt).toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
         </p>
       </div>
 
@@ -91,9 +110,34 @@ const GuideDetails = () => {
           User's Tour History
         </h3>
         <ul className="list-disc pl-6 space-y-1">
-          {user.tourList.map((tour) => (
-            <li key={tour.id} className="text-green-900">
-              {tour.name}
+          {user.tours.map((tour) => (
+            <li
+              key={tour._id}
+              className="flex justify-between items-center p-4 mb-2 bg-white shadow rounded"
+            >
+              <span className="font-semibold">
+                Tour: <span className="text-gray-800">{tour.title}</span>
+              </span>
+              <span className="font-semibold">
+                Start Date:
+                <span className="text-gray-800">
+                  {new Date(tour.startDate).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </span>
+              <span className="font-semibold">
+                End Date:
+                <span className="text-gray-800">
+                  {new Date(tour.endDate).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </span>
             </li>
           ))}
         </ul>
@@ -104,7 +148,7 @@ const GuideDetails = () => {
         <div>
           <button
             onClick={() => setIsMailing(true)}
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+            className="px-4 py-2 cursor-pointer bg-green-500 text-white rounded-md hover:bg-green-600 transition"
           >
             Write Email
           </button>
@@ -142,10 +186,10 @@ const GuideDetails = () => {
               className={`px-4 py-2 text-white rounded-md transition ${
                 !mailSubject || !mailBody
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-500 hover:bg-green-600"
+                  : "bg-green-500 hover:bg-green-600 cursor-pointer"
               }`}
             >
-              Send Email
+              {sendPersonalEmailLoading ? "Sending" : "  Send Email"}
             </button>
           </div>
         </div>

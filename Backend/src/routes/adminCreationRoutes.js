@@ -1,7 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminCreationController = require("../controllers/adminCreationController");
-const manageUsersController = require("../controllers/manageUsersController");
 const adminCreationValidator = require("../validators/adminCreationValidator");
 
 const router = express.Router();

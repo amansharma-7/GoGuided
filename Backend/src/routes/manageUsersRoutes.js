@@ -11,6 +11,12 @@ router.get(
   authMiddleware.restrictTo("owner"),
   manageUsersController.getUsers
 );
+router.get(
+  "/:id",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("owner"),
+  manageUsersController.getUserById
+);
 
 //send custom email to user
 router.post(
