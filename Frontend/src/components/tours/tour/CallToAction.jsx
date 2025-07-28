@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
+import { useUser } from "../../../context/UserContext";
 
 function CallToAction({ images, duration, startDate, availableSlots }) {
   const navigate = useSafeNavigate();
+  const { user } = useUser();
 
   const [isBookingClosed, setIsBookingClosed] = useState(false);
   const [isFull, setIsFull] = useState(false);
+
+  const isUser = user?.role === "user";
+  const isDisabled = isBookingClosed || isFull || !isUser;
 
   useEffect(() => {
     if (startDate) {
@@ -19,9 +24,8 @@ function CallToAction({ images, duration, startDate, availableSlots }) {
     }
   }, [startDate, availableSlots]);
 
-  const isDisabled = isBookingClosed || isFull;
-
   const getButtonLabel = () => {
+    if (!isUser) return "Login as User to Book";
     if (isBookingClosed) return "Booking Closed";
     if (isFull) return "No Slots Available";
     return "Book Tour Now!";

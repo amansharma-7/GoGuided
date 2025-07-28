@@ -1,4 +1,3 @@
-import toast from "react-hot-toast";
 import api from "../services/apiClient";
 
 function loadScript(src) {
@@ -13,35 +12,51 @@ function loadScript(src) {
   });
 }
 
-export async function initiateRazorpayPayment({ tour }) {
-  const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+export function initiateRazorpayPayment({ tour }) {
+  return new Promise(async (resolve, reject) => {
+    const isScriptLoaded = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
 
-  if (!res) {
-    return;
-  }
-  try {
-    const response = await api.post("/payment/create-order", {
-      totalAmount: tour.amountPaid,
-    });
+    if (!isScriptLoaded) {
+      return reject(
+        new Error("Failed to load payment gateway. Please try again.")
+      );
+    }
 
-    const orderData = await response.data;
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      currency: orderData.data.currency,
-      amount: `${orderData.data.amount}`,
-      order_id: orderData.data.id,
-      handler: function (razorpayResponse) {
-        verifyPayment({ ...razorpayResponse, tour });
-      },
-    };
+    try {
+      const { data: orderResponse } = await api.post("/payment/create-order", {
+        totalAmount: tour.amountPaid,
+      });
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        currency: orderResponse.data.currency,
+        amount: `${orderResponse.data.amount}`,
+        order_id: orderResponse.data.id,
+        handler: async function (razorpayResponse) {
+          try {
+            await verifyPayment({ ...razorpayResponse, tour });
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        theme: {
+          color: "#10b981",
+        },
+      };
 
-    paymentObject.on("payment.failed", function (response) {
-      toast.error("Something went wrong");
-    });
-  } catch (error) {}
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+      paymentObject.on("payment.failed", (err) => {
+        reject(err);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function verifyPayment({
@@ -50,14 +65,10 @@ async function verifyPayment({
   razorpay_signature,
   tour,
 }) {
-  try {
-    const response = await api.post("payment/verify-payment", {
-      razorpay_payment_id,
-      razorpay_order_id,
-      razorpay_signature,
-      tour,
-    });
-  } catch (error) {
-    toast.error("Something went wrong");
-  }
+  await api.post("payment/verify-payment", {
+    razorpay_payment_id,
+    razorpay_order_id,
+    razorpay_signature,
+    tour,
+  });
 }

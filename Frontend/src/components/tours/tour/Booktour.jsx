@@ -10,11 +10,15 @@ import { toast } from "react-hot-toast";
 import { initiateRazorpayPayment } from "../../../integrations/razorpay";
 import { getTourBySlug } from "../../../services/tourService";
 import useApi from "../../../hooks/useApi";
+import { useUser } from "../../../context/UserContext";
 import LoaderOverlay from "../../common/LoaderOverlay";
 
 const BookTourForm = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+
+  const { user } = useUser();
+  const isUser = user?.role === "user";
 
   const [tour, setTour] = useState({});
   const [members, setMembers] = useState([]);
@@ -29,11 +33,13 @@ const BookTourForm = () => {
         const tourData = res?.data?.tour;
         setTour(tourData);
 
-        // Check if booking is closed (start date passed)
+        // Check if booking is closed
         const today = new Date();
         const startDate = new Date(tourData.startDate);
         if (startDate <= today) setBookingClosed(true);
-      } catch (error) {}
+      } catch (error) {
+        toast.error("Failed to fetch tour details.");
+      }
     })();
   }, []);
 
@@ -70,6 +76,10 @@ const BookTourForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isUser) {
+      toast.error("Please log in with a user account to book this tour.");
+      return;
+    }
 
     if (members.length === 0) {
       toast.error("Please add at least one member.");
@@ -85,15 +95,35 @@ const BookTourForm = () => {
           numberOfParticipants: members.length,
           amountPaid: totalCost,
           members,
+          currency: "INR",
         },
       });
 
       toast.success("Booking confirmed successfully!");
       navigate("/user/bookings");
     } catch (error) {
-      toast.error("Something went wrong during booking.");
+      // toast.error(
+      //   error?.error?.description || "Something went wrong during booking."
+      // );
     }
   };
+
+  // 🛑 Block non-users
+  if (!isUser) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <FaUserTimes className="text-6xl text-yellow-500 mb-4 animate-pulse" />
+        <h2 className="text-3xl font-bold text-yellow-600 mb-2">
+          Access Denied
+        </h2>
+        <p className="text-gray-600 text-lg">
+          You are not allowed to book this tour.
+          <br />
+          Please login with a <strong>user</strong> account to proceed.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) return <LoaderOverlay />;
 
@@ -149,7 +179,7 @@ const BookTourForm = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Member Details */}
+        {/* Member Fields */}
         <div>
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-green-600">

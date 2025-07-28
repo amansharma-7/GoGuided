@@ -62,9 +62,7 @@ function Announcement() {
       try {
         const res = await fetchAnnouncements({});
         setAnnouncements(res?.data?.announcements || []);
-      } catch (error) {
-        toast.error("Failed to fetch announcements.");
-      }
+      } catch (error) {}
     })();
   }, []);
 

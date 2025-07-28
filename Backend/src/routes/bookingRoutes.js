@@ -18,4 +18,18 @@ router.patch(
   bookingController.cancelBooking
 );
 
+router.get(
+  "/status/:status",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("guide"),
+  bookingController.getBookingsByTripStatus
+);
+
+router.get(
+  "/detail/:id",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("guide"),
+  bookingController.getBookingById
+);
+
 module.exports = router;

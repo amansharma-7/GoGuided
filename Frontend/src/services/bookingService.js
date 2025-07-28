@@ -1,9 +1,16 @@
 import api from "./apiClient";
 
-export const getUserBookings = async () => {
-  return await api.get("/booking/");
+export const getUserBookings = async ({ params }) => {
+  return await api.get("/booking", { params });
 };
 
 export const cancelBookingById = async ({ identifier: bookingId }) => {
   return await api.patch(`/booking/cancel/${bookingId}`);
+};
+
+export const getBookingsByStatus = async ({ identifier: status, params }) => {
+  return await api.get(`/booking/status/${status}`, { params });
+};
+export const getBookingById = async ({ identifier: bookingId }) => {
+  return await api.get(`/booking/detail/${bookingId}`);
 };
