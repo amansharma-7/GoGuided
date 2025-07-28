@@ -28,6 +28,8 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const adminCreationRoutes = require("./routes/adminCreationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+const manageUsersRoutes = require("./routes/manageUsersRoutes");
 
 const geocodeRoutes = require("./routes/geocodeRoutes");
 
@@ -102,6 +104,8 @@ app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/admin", adminCreationRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/announcement", announcementRoutes);
+app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/user", manageUsersRoutes);
 
 app.use("/api/v1/geocode", geocodeRoutes);
 
