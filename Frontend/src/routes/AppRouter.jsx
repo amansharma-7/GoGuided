@@ -42,9 +42,7 @@ import TourBookings from "../components/dashboard/accounts/admin/TourBookings";
 import Reviews from "../components/dashboard/accounts/admin/Reviews";
 import AllUsers from "../components/dashboard/accounts/admin/Users";
 import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
-import AllPayments from "../components/dashboard/accounts/admin/Payments";
 import AllGuides from "../components/dashboard/accounts/admin/Guides";
-import Refunds from "../components/dashboard/accounts/admin/Refunds";
 import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
 import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
 import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
@@ -190,8 +188,6 @@ const router = createBrowserRouter([
           },
 
           { path: "feedbacks", Component: FeedBacks },
-          { path: "payments", Component: AllPayments },
-          { path: "refunds", Component: Refunds },
           {
             path: "guides",
             children: [
@@ -277,8 +273,6 @@ const router = createBrowserRouter([
           },
 
           { path: "feedbacks", Component: FeedBacks },
-          { path: "payments", Component: AllPayments },
-          { path: "refunds", Component: Refunds },
           {
             path: "guides",
             children: [
