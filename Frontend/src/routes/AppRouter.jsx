@@ -22,8 +22,6 @@ import Settings from "../components/dashboard/accounts/Settings";
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
 import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
-import TourAnnouncements from "../components/dashboard/accounts/user/bookings/Announcements";
-import HelpSupport from "../components/dashboard/accounts/user/HelpSupport";
 import Announcements from "../components/dashboard/accounts/user/Announcements";
 
 //owner
@@ -126,13 +124,9 @@ const router = createBrowserRouter([
           },
           {
             path: "bookings",
-            children: [
-              { index: true, Component: UserBookings },
-              { path: "announcements/:name", Component: TourAnnouncements },
-            ],
+            children: [{ index: true, Component: UserBookings }],
           },
           { path: "reviews", Component: UserReviews },
-          { path: "support", Component: HelpSupport },
         ],
       },
 

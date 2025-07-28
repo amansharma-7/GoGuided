@@ -27,4 +27,6 @@ router.get(
   reviewController.getUserReviews
 );
 
+router.get("/recent", reviewController.getRecentReviews);
+
 module.exports = router;

@@ -29,4 +29,11 @@ router.get(
   guideController.getAvailableGuides
 );
 
+router.get(
+  "/booking-stats",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("guide"),
+  guideController.getGuideBookingStats
+);
+
 module.exports = router;

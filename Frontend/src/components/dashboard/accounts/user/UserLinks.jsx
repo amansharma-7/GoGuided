@@ -31,11 +31,6 @@ const navLinks = [
     icon: <FaRegStar className="text-green-200" />,
   },
   {
-    to: "support",
-    label: "Help & Support",
-    icon: <FiHelpCircle className="text-green-200" />,
-  },
-  {
     to: "logout",
     label: "Logout",
     icon: <MdOutlineLogout className="text-green-200" />,

@@ -59,6 +59,7 @@ exports.verifyPayment = catchAsync(async (req, res, next) => {
     pricePerPerson: tour.pricePerPerson,
     amountPaid: tour.amountPaid,
     members: tour.members,
+    currency: tour.currency,
   });
 
   const user = await User.findById(userId);

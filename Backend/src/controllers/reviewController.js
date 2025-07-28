@@ -140,3 +140,25 @@ exports.getUserReviews = catchAsync(async (req, res, next) => {
     data: { reviewedTours, notReviewedTours },
   });
 });
+
+exports.getRecentReviews = catchAsync(async (req, res, next) => {
+  const reviewsRaw = await Review.find()
+    .sort({ createdAt: -1 })
+    .limit(15)
+    .populate("user", "firstName lastName profilePic")
+    .select("review rating user");
+
+  const reviews = reviewsRaw.map((review) => ({
+    _id: review._id,
+    review: review.review,
+    rating: review.rating,
+    reviewerName: `${review.user.firstName} ${review.user.lastName}`,
+    profilePicUrl: review.user.profilePic?.url || null,
+  }));
+
+  res.status(200).json({
+    isSuccess: true,
+    results: reviews.length,
+    data: { reviews },
+  });
+});

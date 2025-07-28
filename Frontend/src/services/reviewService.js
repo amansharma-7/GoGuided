@@ -14,3 +14,8 @@ export const deleteReview = async ({ identifier: reviewId }) => {
 export const getUserReviews = async () => {
   return await api.get(`/review/user-reviews`);
 };
+
+// Fetch the 15 most recent reviews from the server.
+export const getRecentReviews = async () => {
+  return await api.get("/review/recent");
+};

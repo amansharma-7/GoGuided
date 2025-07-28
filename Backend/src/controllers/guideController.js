@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const Tour = require("../models/tourModel");
+const Booking = require("../models/bookingModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -32,7 +33,7 @@ exports.updateGuideStatus = catchAsync(async (req, res) => {
   }
 
   guide.availabilityStatus = status;
-  guide.nextAvailableFrom =
+  guide.availableFrom =
     status === "unavailable" ? new Date(nextAvailableFrom) : null;
 
   await guide.save();
@@ -42,7 +43,7 @@ exports.updateGuideStatus = catchAsync(async (req, res) => {
     message: "Availability status updated",
     data: {
       status: guide.availabilityStatus,
-      nextAvailableFrom: guide.nextAvailableFrom,
+      nextAvailableFrom: guide.availableFrom,
     },
   });
 });
@@ -51,7 +52,7 @@ exports.getMyStatus = catchAsync(async (req, res) => {
   const { userId: guideId } = req.user;
 
   const guide = await User.findById(guideId).select(
-    "name availabilityStatus nextAvailableFrom role"
+    "name availabilityStatus availableFrom role"
   );
 
   if (!guide || guide.role !== "guide") {
@@ -62,7 +63,7 @@ exports.getMyStatus = catchAsync(async (req, res) => {
     isSuccess: true,
     data: {
       status: guide.availabilityStatus,
-      nextAvailableFrom: guide.nextAvailableFrom,
+      nextAvailableFrom: guide.availableFrom,
     },
   });
 });
@@ -134,5 +135,58 @@ exports.getAvailableGuides = catchAsync(async (req, res, next) => {
         name: `${guide.firstName} ${guide.lastName}`.trim(),
       })),
     },
+  });
+});
+
+exports.getGuideBookingStats = catchAsync(async (req, res, next) => {
+  const guideId = req.user.userId;
+
+  // Step 1: Get tours for this guide
+  const tours = await Tour.find({ guides: guideId }).select(
+    "_id startDate endDate"
+  );
+
+  if (!tours.length) {
+    return res.status(200).json({
+      isSuccess: true,
+      data: { completed: 0, ongoing: 0, upcoming: 0 },
+    });
+  }
+
+  const today = new Date();
+  const stats = {
+    completed: 0,
+    ongoing: 0,
+    upcoming: 0,
+  };
+
+  // Step 2: Build tourId -> tripStatus map
+  const tourStatusMap = {};
+  tours.forEach((tour) => {
+    const start = new Date(tour.startDate);
+    const end = new Date(tour.endDate);
+
+    let tripStatus = "upcoming";
+    if (today > end) tripStatus = "completed";
+    else if (today >= start && today <= end) tripStatus = "ongoing";
+
+    tourStatusMap[tour._id.toString()] = tripStatus;
+  });
+
+  // Step 3: Get confirmed bookings for these tours
+  const bookings = await Booking.find({
+    tour: { $in: tours.map((t) => t._id) },
+    status: "confirmed",
+  }).select("tour");
+
+  // Step 4: Tally booking counts by trip status
+  bookings.forEach((booking) => {
+    const tripStatus = tourStatusMap[booking.tour.toString()];
+    if (tripStatus) stats[tripStatus]++;
+  });
+
+  return res.status(200).json({
+    isSuccess: true,
+    data: { stats },
   });
 });

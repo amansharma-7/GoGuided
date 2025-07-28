@@ -28,11 +28,9 @@ function StatusToggle() {
     (async () => {
       try {
         const res = await getStatusRequest({});
-        setCurrentStatus(res.data.availabilityStatus);
+        setCurrentStatus(res.data?.status);
         setNextAvailableFrom(res.data.nextAvailableFrom);
-      } catch (error) {
-        toast.error("Failed to fetch current status.");
-      }
+      } catch (error) {}
     })();
   }, []);
 
