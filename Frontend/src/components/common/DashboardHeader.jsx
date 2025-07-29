@@ -12,43 +12,21 @@ function DashboardHeader({
   setFilterState,
   filterOptions,
 }) {
-  const location = useLocation();
   const navigate = useSafeNavigate();
   const [query, setQuery] = useState(filterState.searchQuery || "");
-  const isClosurePage =
-    location.pathname ===
-    "/dashboard/owner/control-pannel/investment-closure-requests";
-
-  if (totalCount <= 0 && !isClosurePage) {
-    return (
-      <div className="bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2 w-full">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer h-9 w-9 flex items-center justify-center"
-          >
-            <ArrowLeft className="w-4 h-4 text-white" />
-          </button>
-          <h3 className="text-lg font-semibold text-green-800">No Results</h3>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white border border-green-200 p-3 rounded-md shadow-sm mb-2 w-full flex flex-col lg:flex-row justify-between gap-3">
       {/* Title and Back */}
       <div className="flex items-center space-x-3 flex-shrink-0">
-        {title !== "Recent Platform Updates" && (
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer h-9 w-9 flex items-center justify-center"
-          >
-            <ArrowLeft className="w-4 h-4 text-white" />
-          </button>
-        )}
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full shadow-md transition cursor-pointer h-9 w-9 flex items-center justify-center"
+        >
+          <ArrowLeft className="w-4 h-4 text-white" />
+        </button>
         <h3 className="text-base sm:text-lg font-semibold text-green-900">
-          {title}: {totalCount}
+          {totalCount > 0 ? `${title}: ${totalCount}` : "No Results Found"}
         </h3>
       </div>
 

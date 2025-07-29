@@ -1,7 +1,11 @@
 import api from "./apiClient";
 
+export const getAllBookings = async ({ params }) => {
+  return await api.get("/booking/all", { params });
+};
+
 export const getUserBookings = async ({ params }) => {
-  return await api.get("/booking", { params });
+  return await api.get("/booking/users", { params });
 };
 
 export const cancelBookingById = async ({ identifier: bookingId }) => {

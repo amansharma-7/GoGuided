@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import BookingsHeader from "../../../common/DashboardHeader";
 import BookingsTable from "../../../dashboard/Table";
-import { useEffect, useState } from "react";
 import NoResult from "../../../../pages/NoResult";
+import { getAllBookings } from "../../../../services/bookingService";
+import useApi from "../../../../hooks/useApi";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -16,28 +18,10 @@ const filterOptions = [
   {
     label: "Booking Status",
     children: [
-      { label: "Upcoming", value: "upcoming" },
-      { label: "Ongoing", value: "ongoing" },
       { label: "Cancelled", value: "cancelled" },
-      { label: "Completed", value: "completed" },
+      { label: "Confirmed", value: "confirmed" },
     ],
   },
-  {
-    label: "Tour",
-    children: [
-      { label: "tour1", value: "tour1" },
-      { label: "tour2", value: "tour2" },
-      { label: "tour3", value: "tour3" },
-    ],
-  },
-  {
-    label: "Date Filter",
-    children: [
-      { label: "This Month", value: "this_month" },
-      { label: "This Year", value: "this_year" },
-    ],
-  },
-
   {
     label: "Date Interval",
     children: [
@@ -46,22 +30,6 @@ const filterOptions = [
     ],
   },
 ];
-
-const bookingsData = Array.from({ length: 50 }, (_, i) => ({
-  _id: (i + 1).toString(),
-  tour: ["Safari Adventure", "Mountain Hike", "Beach Holiday", "City Tour"][
-    i % 4
-  ],
-  customer: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
-  email: [
-    "john@example.com",
-    "jane@example.com",
-    "sam@example.com",
-    "lucy@example.com",
-  ][i % 4],
-  date: `2023-09-${(i % 30) + 1}`.padStart(9, "0"), // Dates from 2023-09-01 to 2023-09-30
-  status: ["completed", "ongoing", "canceled", "upcoming"][i % 4],
-}));
 
 function Bookings() {
   const [filterState, setFilterState] = useState({
@@ -73,68 +41,67 @@ function Bookings() {
   const [bookings, setBookings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const numberOfEntries = 10;
+  const [totalCount, setTotalCount] = useState(0);
+  const numberOfEntries = 5;
+
+  const { loading, request: fetchAllBookings } = useApi(getAllBookings);
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       try {
-        //   const { searchQuery, selectedFilters, sortOrder } = filterState;
-        //   const params = new URLSearchParams();
+        const status = filterState.selectedFilters["Booking Status"];
+        const dateInterval = filterState.selectedFilters["Date Interval"] || {};
 
-        //   if (searchQuery) {
-        //     params.append("search", searchQuery);
-        //   }
+        const query = {
+          page: currentPage,
+          limit: numberOfEntries,
+          search: filterState.searchQuery,
+          sortOrder: filterState.sortOrder,
+          status,
+          startDate: dateInterval.startDate,
+          endDate: dateInterval.endDate,
+        };
 
-        //   if (selectedFilters) {
-        //     if (selectedFilters["Date Interval"]) {
-        //       const { startDate, endDate } = selectedFilters["Date Interval"];
-        //       if (startDate) params.append("startDate", startDate);
-        //       if (endDate) params.append("endDate", endDate);
-        //     }
-        //   }
-
-        //   if (sortOrder) {
-        //     params.append("sort", sortOrder);
-        //   }
-
-        //   params.append("page", currentPage);
-        //   params.append("limit", numberOfEntries);
-
-        //   // getting all users
-        //   const response = await getAllUsers(user.token, params.toString());
-
-        //   const { data } = response;
-
-        setBookings(bookingsData);
-        // setTotalPages(response.totalPages);
-        // setTotalUsers(response.total);
-        setLoading(false);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
+        const res = await fetchAllBookings({ params: query });
+        setBookings(res?.data?.bookings || []);
+        setTotalPages(res?.data?.totalPages || 1);
+        setTotalCount(res?.data?.total || 0);
+      } catch (error) {}
     };
 
-    fetchBookings();
-  }, [currentPage, filterState]);
+    fetchData();
+  }, [filterState, currentPage]);
 
   const getKeyFromLabel = (label) =>
     label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
 
-  const transformedBookings = bookings.map((user, idx) => {
+  const transformedBookings = bookings.map((booking, idx) => {
     const row = {};
-    headers.forEach((header, i) => {
+    headers.forEach((header) => {
       const key = getKeyFromLabel(header.label);
       if (key === "sno") {
         row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
+      } else if (key === "date") {
+        row[key] = new Date(booking.createdAt).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        });
+      } else if (key === "tour") {
+        row[key] = booking.tourTitle || "-";
+      } else if (key === "customer") {
+        row[key] = booking.customerName || "-";
+      } else if (key === "email") {
+        row[key] = booking.customerEmail || "-";
+      } else if (key === "status") {
+        row[key] =
+          booking.status.charAt(0).toUpperCase() +
+            booking.status.slice(1).toLowerCase() || "-";
       } else {
-        row[key] = user[key] || "-";
+        row[key] = booking[key] || "-";
       }
     });
-
-    row._id = user._id;
+    row._id = booking._id;
     return row;
   });
 
@@ -142,17 +109,22 @@ function Bookings() {
     <div className="px-4 py-4">
       <BookingsHeader
         title="Bookings"
-        totalCount={transformedBookings.length}
+        totalCount={totalCount}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={filterOptions}
       />
 
-      {transformedBookings.length > 0 ? (
+      {loading ? (
+        <div className="text-center text-gray-600">Loading...</div>
+      ) : transformedBookings.length > 0 ? (
         <BookingsTable
           headers={headers}
           data={transformedBookings}
-          itemsPerPage={9}
+          itemsPerPage={numberOfEntries}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
       ) : (
         <NoResult />

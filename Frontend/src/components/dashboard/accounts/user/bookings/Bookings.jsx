@@ -49,7 +49,7 @@ export default function Bookings() {
 
         const query = {
           page: currentPage,
-          limit: 4,
+          limit: 2,
           search: filterState.searchQuery,
           sortOrder: filterState.sortOrder || "desc",
           status:
@@ -106,7 +106,7 @@ export default function Bookings() {
 
   return (
     <>
-      <div className="p-4 sm:px-6 md:px-10 pb-24 grid grid-cols-1 gap-4 bg-green-50 overflow-y-auto h-full scrollbar-none">
+      <div className="p-4 sm:px-6 md:px-10 pb-8 grid grid-cols-1 gap-4 bg-green-50 overflow-y-auto h-full scrollbar-none">
         {/* Bookings Header */}
         <BookingsHeader
           title="Your Bookings"

@@ -5,6 +5,80 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const razorpay = require("../config/razorpay");
 
+exports.getAllBookings = catchAsync(async (req, res, next) => {
+  // Query params
+  const {
+    search = "",
+    sortOrder = "desc",
+    status,
+    startDate,
+    endDate,
+    page = 1,
+    limit = 10,
+  } = req.query;
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Step 1: Build filter
+  const filter = {};
+
+  if (search) {
+    filter.tourTitle = { $regex: search, $options: "i" };
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (startDate || endDate) {
+    filter.createdAt = {};
+    if (startDate) filter.createdAt.$gte = new Date(startDate);
+    if (endDate) filter.createdAt.$lte = new Date(endDate);
+  }
+
+  // Step 2: Query from DB
+  const [totalCount, bookings] = await Promise.all([
+    Booking.countDocuments(filter),
+    Booking.find(filter)
+      .sort({ createdAt: sortOrder === "asc" ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate({
+        path: "user",
+        select: "firstName lastName email",
+      }),
+  ]);
+
+  // Step 3: Format results
+  const formattedBookings = bookings.map((booking) => {
+    const tourTitle = booking.tourTitle || {};
+    const customerName = booking.user
+      ? `${booking.user.firstName} ${booking.user.lastName}`
+      : "";
+    const customerEmail = booking.user.email;
+
+    return {
+      _id: booking._id,
+      tourTitle,
+      status: booking.status,
+      createdAt: booking.createdAt,
+      customerName,
+      customerEmail,
+    };
+  });
+
+  return res.status(200).json({
+    isSuccess: true,
+    data: {
+      total: totalCount,
+      results: bookings.length,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+      bookings: formattedBookings,
+    },
+  });
+});
+
 exports.getUserBookings = catchAsync(async (req, res, next) => {
   const { userId } = req.user;
 
@@ -13,7 +87,6 @@ exports.getUserBookings = catchAsync(async (req, res, next) => {
     search = "",
     sortOrder = "desc",
     status,
-    tripStatus,
     startDate,
     endDate,
     page = 1,
