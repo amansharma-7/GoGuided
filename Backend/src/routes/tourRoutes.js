@@ -45,6 +45,41 @@ router.post(
   tourController.createTour
 );
 
+// update tour
+router.post(
+  "/update",
+  fileParser(["thumbnail", "images"]),
+  (req, res, next) => {
+    const hasExistingThumbnail = !!req.body.existingThumbnail;
+    const hasExistingImages =
+      Array.isArray(req.body.existingImages) &&
+      req.body.existingImages.length > 0;
+
+    return validateFileLimits({
+      thumbnail: {
+        minCount: hasExistingThumbnail ? 0 : 1,
+        maxCount: 1,
+        maxSize: 5,
+        allowedTypes: ["image/*"],
+        onExceedCount: "ignore",
+        onExceedSize: "error",
+        onInvalidType: "error",
+      },
+      images: {
+        minCount: hasExistingImages ? 0 : 1,
+        maxCount: 5,
+        maxSize: 5,
+        allowedTypes: ["image/*"],
+        onExceedCount: "ignore",
+        onExceedSize: "error",
+        onInvalidType: "error",
+      },
+    })(req, res, next);
+  },
+  tourValidator.tourInputValidator,
+  tourController.updateTour
+);
+
 // Route to get all tours
 router.get("/", authMiddleware.protect, tourController.getAllTours);
 

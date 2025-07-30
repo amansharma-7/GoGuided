@@ -1,17 +1,20 @@
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { FaArrowLeft, FaSave, FaTimes, FaMapMarkerAlt } from "react-icons/fa";
+import { FaArrowLeft, FaSave, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import MapPicker from "./MapPicker";
 import { getAvailableGuides } from "../../services/guideService";
-import {} from "../../services/tourService";
+import { createTour, updateTour } from "../../services/tourService";
 import useApi from "../../hooks/useApi";
 import toast from "react-hot-toast";
-import { createTour } from "../../services/tourService";
 
-export default function AddTourForm() {
+export default function AddTourForm({
+  isEditTour = false,
+  existingTour = null,
+}) {
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -34,8 +37,10 @@ export default function AddTourForm() {
       highlights: [""],
       included: [""],
       guides: [],
+      existingImages: [],
       images: [],
       thumbnail: null,
+      existingThumbnail: "",
       stops: [],
     },
   });
@@ -69,18 +74,56 @@ export default function AddTourForm() {
 
   const [imageFiles, setImageFiles] = useState([]);
   const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [allGuides, setAllGuides] = useState([]);
+  const [allGuides, setAllGuides] = useState(
+    isEditTour ? existingTour.guides : []
+  );
   const [mapPickerConfig, setMapPickerConfig] = useState(null);
 
   const { request: fetchGuides } = useApi(getAvailableGuides);
   const { loading: creatingTour, request: createTourRequest } =
     useApi(createTour);
+  const { loading: updatingTour, request: updateTourRequest } =
+    useApi(updateTour);
 
+  // Pre-fill for edit mode
+  useEffect(() => {
+    if (isEditTour && existingTour) {
+      setValue("title", existingTour.title);
+      setValue("location", existingTour.location);
+      setValue("duration", existingTour.duration);
+      setValue("participants", existingTour.participants);
+      setValue("difficulty", existingTour.difficulty);
+      setValue("languages", existingTour.languages.join(", "));
+      setValue("startDate", existingTour.startDate.split("T")[0]);
+      setValue("overview", existingTour.overview);
+      setValue("description", existingTour.description);
+      setValue("pricePerPerson", existingTour.pricePerPerson);
+      setValue("highlights", existingTour.highlights);
+      setValue("included", existingTour.included);
+      setValue(
+        "guides",
+        existingTour.guides.map((g) => ({ _id: g._id }))
+      );
+      setValue("stops", existingTour.tourSpots);
+      setThumbnailFile({
+        preview: existingTour.thumbnail.secure_url,
+      });
+      setImageFiles(
+        existingTour.images.map((img) => ({ ...img, preview: img.url }))
+      );
+
+      setValue(
+        "existingImages",
+        existingTour.images?.map((img) => img.url) || []
+      );
+      setValue("existingThumbnail", existingTour.thumbnail?.secure_url || "");
+    }
+  }, [isEditTour, existingTour, setValue]);
+  // Fetch guides when date/duration changes
   useEffect(() => {
     const startDate = getValues("startDate");
     const duration = getValues("duration");
-
-    if (!startDate || !duration) return; // avoid empty fetches
+    if (!startDate || !duration || existingTour) return;
 
     (async () => {
       try {
@@ -89,15 +132,27 @@ export default function AddTourForm() {
       } catch (error) {}
     })();
   }, [getValues("startDate"), getValues("duration")]);
-
   const onDrop = useCallback(
     (acceptedFiles) => {
-      const previews = acceptedFiles.map((file) =>
-        Object.assign(file, { preview: URL.createObjectURL(file) })
-      );
+      const previews = acceptedFiles.map((file) => {
+        // make sure preview is added correctly
+        file.preview = URL.createObjectURL(file);
+        file.isNew = true;
+        return file;
+      });
+
       const updatedFiles = [...imageFiles, ...previews];
+
       setImageFiles(updatedFiles);
-      setValue("images", updatedFiles);
+
+      setValue(
+        "images",
+        updatedFiles.filter(
+          (file) =>
+            file instanceof File ||
+            (file && file.name && file.lastModified && file.type)
+        )
+      );
     },
     [imageFiles, setValue]
   );
@@ -111,6 +166,7 @@ export default function AddTourForm() {
         });
         setThumbnailFile(preview);
         setValue("thumbnail", preview);
+        setValue("existingThumbnail", "");
       }
     },
     [setValue]
@@ -132,16 +188,103 @@ export default function AddTourForm() {
   });
 
   const removeImage = (index) => {
+    const removed = imageFiles[index];
+
+    // Remove from imageFiles
     const updated = imageFiles.filter((_, i) => i !== index);
     setImageFiles(updated);
-    setValue("images", updated);
+
+    // Cleanup preview if it's a blob
+    if (removed.preview?.startsWith("blob:")) {
+      URL.revokeObjectURL(removed.preview);
+    }
+
+    if (removed.isNew) {
+      // New image, nothing else to update in form
+      return;
+    }
+
+    // Old image: remove its URL from existingImages in form
+    const currentExisting = getValues("existingImages") || [];
+    const updatedExisting = currentExisting.filter(
+      (url) => url !== removed.url
+    );
+    setValue("existingImages", updatedExisting);
+  };
+
+  const isFormUpdated = () => {
+    if (!existingTour) return true;
+
+    const current = getValues();
+
+    // Validate basic fields
+    const basicFieldsChanged =
+      current.title !== existingTour.title ||
+      current.location !== existingTour.location ||
+      Number(current.duration) !== Number(existingTour.duration) ||
+      Number(current.participants) !== Number(existingTour.participants) ||
+      current.difficulty !== existingTour.difficulty ||
+      current.languages
+        .split(",")
+        .map((l) => l.trim())
+        .join(",") !== existingTour.languages.join(",") ||
+      current.startDate !== existingTour.startDate.split("T")[0] ||
+      current.overview !== existingTour.overview ||
+      current.description !== existingTour.description ||
+      Number(current.pricePerPerson) !== Number(existingTour.pricePerPerson) ||
+      JSON.stringify(current.highlights) !==
+        JSON.stringify(existingTour.highlights) ||
+      JSON.stringify(current.included) !==
+        JSON.stringify(existingTour.included) ||
+      JSON.stringify(current.guides.map((g) => g._id)) !==
+        JSON.stringify(existingTour.guides.map((g) => g._id)) ||
+      JSON.stringify(current.stops) !== JSON.stringify(existingTour.tourSpots);
+
+    const thumbnailChanged = !!current.thumbnail; // means new one selected
+
+    // ✅ Check if images changed
+    const currentExistingImages = current.existingImages || [];
+
+    const originalImageURLs = existingTour.images.map((img) => img.url);
+    const existingImagesChanged =
+      JSON.stringify(currentExistingImages.sort()) !==
+      JSON.stringify(originalImageURLs.sort());
+
+    const imagesAdded = (current.images || []).length > 0;
+
+    const imagesChanged = existingImagesChanged || imagesAdded;
+
+    return basicFieldsChanged || thumbnailChanged || imagesChanged;
   };
 
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
 
-      // Basic fields
+      // For edit mode
+      if (isEditTour && existingTour) {
+        if (!isFormUpdated()) {
+          toast.error("No changes made");
+          return;
+        }
+
+        formData.append("tourId", existingTour._id);
+
+        const { existingThumbnail, existingImages } = getValues();
+
+        // Append existing thumbnail if no new one selected
+        if (existingThumbnail) {
+          formData.append("existingThumbnail", existingThumbnail);
+        }
+        // Append existing images (just URLs)
+        if (Array.isArray(existingImages)) {
+          existingImages.forEach((url) => {
+            formData.append("existingImages", url);
+          });
+        }
+      }
+
+      // ✅ Common fields
       formData.append("title", data.title);
       formData.append("location", data.location);
       formData.append("duration", data.duration);
@@ -152,48 +295,60 @@ export default function AddTourForm() {
       formData.append("description", data.description);
       formData.append("pricePerPerson", data.pricePerPerson);
 
-      // Convert comma-separated string to array and append one by one
       data.languages.split(",").forEach((lang) => {
         formData.append("languages", lang.trim());
       });
 
-      // Thumbnail (single file)
-      if (data.thumbnail) {
-        formData.append("thumbnail", data.thumbnail);
+      // ✅ Only if user selected a new thumbnail
+      if (thumbnailFile) {
+        formData.append("thumbnail", thumbnailFile);
       }
 
-      // Images (multiple files)
+      // ✅ Append only new image files (skip url objects)
       if (data.images && data.images.length) {
-        data.images.forEach((file) => {
-          formData.append("images", file);
-        });
+        data.images
+          .filter((file) => file instanceof File)
+          .forEach((file) => {
+            formData.append("images", file);
+          });
       }
 
-      // Highlights (array of strings)
+      // ✅ Highlights
       data.highlights.forEach((h, i) => {
         formData.append(`highlights[${i}]`, h);
       });
 
-      // Included (array of strings)
+      // ✅ Included
       data.included.forEach((i, idx) => {
         formData.append(`included[${idx}]`, i);
       });
 
-      // Guides (array of objects)
       data.guides.forEach((g, i) => {
-        formData.append(`guides[${i}]`, g.id);
+        formData.append(`guides[${i}]`, g._id);
       });
 
-      // Stops (nested structure with location)
+      // ✅ Stops
       data.stops.forEach((stop, i) => {
-        formData.append(`stops[${i}][name]`, stop.name);
-        formData.append(`stops[${i}][description]`, stop.description);
-        formData.append(`stops[${i}][lng]`, stop.lng);
-        formData.append(`stops[${i}][lat]`, stop.lat);
+        const name = stop.place || stop.name;
+        const description = stop.task || stop.description;
+        const lat = stop.position?.lat || stop.lat;
+        const lng = stop.position?.lng || stop.lng;
+
+        formData.append(`stops[${i}][name]`, name || "");
+        formData.append(`stops[${i}][description]`, description || "");
+        formData.append(`stops[${i}][lng]`, lng || "");
+        formData.append(`stops[${i}][lat]`, lat || "");
       });
 
-      const res = await createTourRequest({ data: formData });
-      toast.success(res.message);
+      // 🔥 Submit request
+      const res = isEditTour
+        ? await updateTourRequest({ data: formData })
+        : await createTourRequest({ data: formData });
+
+      toast.success(
+        res.message || (isEditTour ? "Tour updated" : "Tour created")
+      );
+      navigate(-1);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
@@ -369,8 +524,8 @@ export default function AddTourForm() {
               {...register("description", {
                 required: "Description is required",
                 validate: (value) =>
-                  value.trim().split(/\s+/).length <= 10 ||
-                  "Maximum 10 words allowed",
+                  value.trim().split(/\s+/).length <= 12 ||
+                  "Maximum 12 words allowed",
               })}
               rows={2}
               className={`${inputClass}`}
@@ -446,28 +601,27 @@ export default function AddTourForm() {
             <label className="block text-green-700 mb-2">Guides</label>
             {guideFields.map((field, index) => {
               const selectedIds = selectedGuideIds
-                .map((g) => g?.id)
+                .map((g) => g?._id)
                 .filter(Boolean);
               const currentId = selectedIds[index];
 
               const filteredGuides = allGuides.filter(
                 (guide) =>
-                  !selectedIds.includes(guide.id) || guide.id === currentId
+                  !selectedIds.includes(guide._id) || guide._id === currentId
               );
-
               return (
                 <div
-                  key={field.id}
+                  key={field._id}
                   className="flex flex-col sm:flex-row items-center gap-2 mb-2"
                 >
                   <select
-                    {...register(`guides.${index}.id`, { required: true })}
+                    {...register(`guides.${index}._id`, { required: true })}
                     className={inputClass}
-                    defaultValue={field.id}
+                    defaultValue={field._id || ""}
                   >
                     <option value="">-- Select Guide --</option>
                     {filteredGuides.map((guide) => (
-                      <option key={guide.id} value={guide.id}>
+                      <option key={guide._id} value={guide._id}>
                         {guide.name}
                       </option>
                     ))}
@@ -486,7 +640,7 @@ export default function AddTourForm() {
 
             <button
               type="button"
-              onClick={() => appendGuide({ id: "" })}
+              onClick={() => appendGuide({ _id: "" })}
               className="mt-2 bg-green-600 text-white px-4 py-2 rounded cursor-pointer whitespace-nowrap"
             >
               Add Guide
@@ -510,7 +664,7 @@ export default function AddTourForm() {
                   {/* Description Input */}
                   <input
                     type="text"
-                    defaultValue={stop.description || ""}
+                    defaultValue={stop.task || stop.description || ""}
                     onBlur={(e) =>
                       updateStop(index, { description: e.target.value })
                     }
@@ -520,7 +674,7 @@ export default function AddTourForm() {
 
                   {/* Location Name Input */}
                   <input
-                    value={stop.name || ""}
+                    value={stop.place || stop.name}
                     readOnly
                     className={`${inputClass} bg-gray-50 flex-1`}
                     placeholder="Location"
@@ -616,22 +770,24 @@ export default function AddTourForm() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={creatingTour}
-              className={`px-6 py-3 rounded-lg flex items-center gap-2 whitespace-nowrap
-    ${
-      creatingTour
-        ? "bg-green-400 text-white cursor-not-allowed"
-        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-    }
-  `}
-            >
-              <FaSave />
-              {creatingTour ? "Creating..." : "Create Tour"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={creatingTour || updatingTour}
+            className={`px-6 py-3 rounded-lg flex items-center gap-2 whitespace-nowrap ${
+              creatingTour || updatingTour
+                ? "bg-green-400 text-white cursor-not-allowed"
+                : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+            }`}
+          >
+            <FaSave />
+            {isEditTour
+              ? updatingTour
+                ? "Updating..."
+                : "Save Changes"
+              : creatingTour
+              ? "Creating..."
+              : "Create Tour"}
+          </button>
         </form>
 
         {mapPickerConfig &&
@@ -641,7 +797,6 @@ export default function AddTourForm() {
             const lat = parseFloat(stop?.lat);
             const lng = parseFloat(stop?.lng);
             const description = stop.description;
-
             const initialSpots =
               !isNaN(lat) && !isNaN(lng) ? [{ ...stop, lat, lng }] : [];
 
