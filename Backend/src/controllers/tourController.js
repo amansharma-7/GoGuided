@@ -340,3 +340,130 @@ exports.getTourBySlug = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.updateTour = catchAsync(async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.files);
+  return;
+  const { id } = req.params;
+
+  // Fetch existing tour
+  const existingTour = await Tour.findById(id);
+  if (!existingTour) {
+    return next(new AppError("Tour not found", 404));
+  }
+
+  const {
+    title,
+    description,
+    location,
+    duration,
+    participants,
+    difficulty,
+    languages,
+    startDate,
+    overview,
+    highlights,
+    included,
+    guides,
+    pricePerPerson,
+    currency = "INR",
+    stops,
+  } = req.body;
+
+  // Handle slug update if title changes
+  let slug = existingTour.slug;
+  if (title && title.trim() !== existingTour.title) {
+    slug = slugify(title, { lower: true });
+
+    const duplicate = await Tour.findOne({ slug });
+    if (duplicate && duplicate.id !== id) {
+      return next(
+        new AppError(
+          "Another tour with this title already exists. Please use a different title.",
+          400
+        )
+      );
+    }
+  }
+
+  // Transform tour spots
+  const tourSpots =
+    stops?.map((spot, index) => ({
+      day: index + 1,
+      name: spot.name.trim(),
+      description: spot.description.trim(),
+      location: {
+        type: "Point",
+        coordinates: [parseFloat(spot.lng), parseFloat(spot.lat)], // [lng, lat]
+      },
+    })) || existingTour.tourSpots;
+
+  // Handle thumbnail update
+  let thumbnail = existingTour.thumbnail;
+  if (req.files?.thumbnail && req.files.thumbnail.length > 0) {
+    const thumbnailFile = req.files.thumbnail[0];
+    thumbnail = await uploadImageToCloudinary({
+      buffer: thumbnailFile.buffer,
+      folder: `goguided/tours/${slug}`,
+      publicId: "thumbnail",
+      resize: { width: 600, height: 900 },
+      quality: 85,
+    });
+  }
+
+  // Handle images update
+  let images = existingTour.images;
+  if (req.files?.images && req.files.images.length > 0) {
+    const imageUploadPromises = req.files.images.map((img, index) =>
+      uploadImageToCloudinary({
+        buffer: img.buffer,
+        folder: `goguided/tours/${slug}`,
+        publicId: `image_${index + 1}`,
+        resize: { width: 1920 },
+        quality: 85,
+      })
+    );
+    images = await Promise.all(imageUploadPromises);
+  }
+
+  // Update the tour in DB
+  const updatedTour = await Tour.findByIdAndUpdate(
+    id,
+    {
+      title: title?.trim() || existingTour.title,
+      slug,
+      description: description?.trim() || existingTour.description,
+      location: location?.trim() || existingTour.location,
+      duration: duration || existingTour.duration,
+      participants: participants
+        ? Number(participants)
+        : existingTour.participants,
+      difficulty: difficulty || existingTour.difficulty,
+      languages: languages || existingTour.languages,
+      startDate: startDate ? new Date(startDate) : existingTour.startDate,
+      endDate: startDate
+        ? new Date(
+            new Date(startDate).getTime() + (duration - 1) * 24 * 60 * 60 * 1000
+          )
+        : existingTour.endDate,
+      overview: overview?.trim() || existingTour.overview,
+      highlights: highlights || existingTour.highlights,
+      included: included || existingTour.included,
+      guides: guides || existingTour.guides,
+      thumbnail,
+      images,
+      tourSpots,
+      pricePerPerson: pricePerPerson
+        ? Number(pricePerPerson)
+        : existingTour.pricePerPerson,
+      currency,
+    },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    isSuccess: true,
+    message: "Tour updated successfully.",
+  });
+});

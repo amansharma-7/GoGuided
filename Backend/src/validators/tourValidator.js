@@ -120,7 +120,8 @@ exports.tourInputValidator = validate([
     .isArray({ min: 1 })
     .withMessage("Please select at least one guide")
     .custom((arr) => {
-      const isValid = arr.every((id) => mongoose.Types.ObjectId.isValid(id));
+      const isValid = arr.every((_id) => mongoose.Types.ObjectId.isValid(_id));
+
       if (!isValid) throw new Error("One or more selected guides are invalid");
       return true;
     }),

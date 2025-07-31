@@ -131,7 +131,7 @@ exports.getAvailableGuides = catchAsync(async (req, res, next) => {
     isSuccess: true,
     data: {
       guides: availableGuides.map((guide) => ({
-        id: guide._id,
+        _id: guide._id,
         name: `${guide.firstName} ${guide.lastName}`.trim(),
       })),
     },

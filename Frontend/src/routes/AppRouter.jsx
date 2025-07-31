@@ -71,7 +71,6 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        // loader: homeLoader,
         Component: Home,
       },
       {
