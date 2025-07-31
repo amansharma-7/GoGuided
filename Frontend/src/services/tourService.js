@@ -7,8 +7,8 @@ export const updateTour = async ({ data }) => {
   return await api.post("tour/update", data);
 };
 
-export const getAllTours = async () => {
-  return await api.get("tour");
+export const getAllTours = async ({ params }) => {
+  return await api.get("tour", { params });
 };
 
 export const getAllToursAsCards = async ({ params }) => {

@@ -5,6 +5,80 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const razorpay = require("../config/razorpay");
 
+exports.getAllBookings = catchAsync(async (req, res, next) => {
+  // Query params
+  const {
+    search = "",
+    sortOrder = "desc",
+    status,
+    startDate,
+    endDate,
+    page = 1,
+    limit = 10,
+  } = req.query;
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Step 1: Build filter
+  const filter = {};
+
+  if (search) {
+    filter.tourTitle = { $regex: search, $options: "i" };
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (startDate || endDate) {
+    filter.createdAt = {};
+    if (startDate) filter.createdAt.$gte = new Date(startDate);
+    if (endDate) filter.createdAt.$lte = new Date(endDate);
+  }
+
+  // Step 2: Query from DB
+  const [totalCount, bookings] = await Promise.all([
+    Booking.countDocuments(filter),
+    Booking.find(filter)
+      .sort({ createdAt: sortOrder === "asc" ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate({
+        path: "user",
+        select: "firstName lastName email",
+      }),
+  ]);
+
+  // Step 3: Format results
+  const formattedBookings = bookings.map((booking) => {
+    const tourTitle = booking.tourTitle || {};
+    const customerName = booking.user
+      ? `${booking.user.firstName} ${booking.user.lastName}`
+      : "";
+    const customerEmail = booking.user.email;
+
+    return {
+      _id: booking._id,
+      tourTitle,
+      status: booking.status,
+      createdAt: booking.createdAt,
+      customerName,
+      customerEmail,
+    };
+  });
+
+  return res.status(200).json({
+    isSuccess: true,
+    data: {
+      total: totalCount,
+      results: bookings.length,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+      bookings: formattedBookings,
+    },
+  });
+});
+
 exports.getUserBookings = catchAsync(async (req, res, next) => {
   const { userId } = req.user;
 
@@ -13,7 +87,6 @@ exports.getUserBookings = catchAsync(async (req, res, next) => {
     search = "",
     sortOrder = "desc",
     status,
-    tripStatus,
     startDate,
     endDate,
     page = 1,
@@ -306,5 +379,85 @@ exports.getBookingById = catchAsync(async (req, res) => {
   return res.status(200).json({
     isSuccess: true,
     data: { booking: response },
+  });
+});
+
+exports.getTourBookings = catchAsync(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    sortOrder: sort = "desc",
+    search = "",
+    status,
+    startDate,
+    endDate,
+  } = req.query;
+  const { slug } = req.params;
+
+  // 1. Find the tour
+  const tour = await Tour.findOne({ slug });
+  if (!tour) {
+    return res.status(404).json({
+      data: null,
+      message: "Tour not found",
+    });
+  }
+
+  // 2. Build query
+  let query = { tour: tour._id };
+
+  if (status && ["confirmed", "cancelled"].includes(status)) {
+    query.status = status;
+  }
+
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  if (search) {
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+      ],
+    }).select("_id");
+
+    query.user = { $in: users.map((u) => u._id) };
+  }
+
+  const sortOrder = sort === "asc" ? 1 : -1;
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const totalCount = await Booking.countDocuments(query);
+
+  const bookings = await Booking.find(query)
+    .populate("user", "firstName lastName email")
+    .sort({ createdAt: sortOrder })
+    .skip(skip)
+    .limit(Number(limit));
+
+  // 3. Format minimal response
+  const formattedBookings = bookings.map((booking) => ({
+    bookingId: booking._id,
+    tourTitle: booking.tourTitle,
+    customerName:
+      `${booking.user?.firstName} ${booking.user?.lastName}`.trim() || "N/A",
+    customerEmail: booking.user?.email || "N/A",
+    dateOfBooking: booking.createdAt,
+    status: booking.status,
+  }));
+
+  // 4. Final response
+  res.status(200).json({
+    isSuccess: true,
+    data: {
+      total: totalCount,
+      results: bookings.length,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+      bookings: formattedBookings,
+    },
   });
 });

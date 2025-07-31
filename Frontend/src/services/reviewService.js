@@ -19,3 +19,13 @@ export const getUserReviews = async () => {
 export const getRecentReviews = async () => {
   return await api.get("/review/recent");
 };
+
+// get all reviews
+export const getAllReviews = async ({ params }) => {
+  return await api.get("/review/all", { params });
+};
+
+// Fetch a single review by ID
+export const getReviewById = async ({ identifier: reviewId }) => {
+  return await api.get(`/review/${reviewId}`);
+};

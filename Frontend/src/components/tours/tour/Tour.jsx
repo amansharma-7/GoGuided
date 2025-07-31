@@ -12,7 +12,6 @@ import Timeline from "./Timeline";
 import Photos from "./Photos";
 import TourMap from "./TourMap";
 import Reviews from "../../common/Reviews";
-import AddReview from "../../common/AddReview";
 import useSafeNavigate from "../../../utils/useSafeNavigate";
 import ShareModal from "../../common/ShareModal";
 import { getTourBySlug } from "../../../services/tourService";

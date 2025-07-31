@@ -7,6 +7,7 @@ function getStatusStyle(status) {
   switch (status?.toLowerCase()) {
     case "paid":
     case "completed":
+    case "confirmed":
     case "approved":
       return "bg-green-100 text-green-800 border border-green-400 px-2 py-1 rounded text-xs font-medium";
 
@@ -16,6 +17,7 @@ function getStatusStyle(status) {
 
     case "failed":
     case "rejected":
+    case "cancelled":
       return "bg-red-100 text-red-800 border border-red-400 px-2 py-1 rounded text-xs font-medium";
 
     case "refunded":

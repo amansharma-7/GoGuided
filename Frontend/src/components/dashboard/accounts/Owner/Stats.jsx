@@ -8,7 +8,14 @@ import {
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import Announcements from "../../../common/Announcements";
 import BookingChart from "../admin/BookingChart";
+import LoaderOverlay from "../../../common/LoaderOverlay";
 import { formatNumberIndian } from "../../../../utils/numberFormatter";
+import { useEffect, useState } from "react";
+import {
+  getStatCardCounts,
+  getStats,
+} from "../../../../services/dashboardServices";
+import useApi from "../../../../hooks/useApi";
 
 function SummaryCard({ title, icon: Icon, value }) {
   return (
@@ -22,11 +29,11 @@ function SummaryCard({ title, icon: Icon, value }) {
   );
 }
 
-function StatCard({ title, value, route }) {
+function StatCard({ title, value = 0, route }) {
   const safeNavigate = useSafeNavigate();
 
   return (
-    <div className="text-green-900 bg-white p-6 rounded-xl shadow-lg flex  justify-between items-center border border-green-300 ">
+    <div className="text-green-900 bg-white p-6 rounded-xl shadow-lg flex justify-between items-center border border-green-300">
       <div>
         <h2 className="text-xl font-bold">{title}</h2>
         <p className="text-2xl font-semibold">{formatNumberIndian(value)}</p>
@@ -34,7 +41,7 @@ function StatCard({ title, value, route }) {
       {route && (
         <button
           onClick={() => safeNavigate(route)}
-          className="bg-green-200 cursor-pointer text-green-900 p-2 rounded-full shadow-md hover:bg-green-300 transition-all duration-200 "
+          className="bg-green-200 cursor-pointer text-green-900 p-2 rounded-full shadow-md hover:bg-green-300 transition-all duration-200"
         >
           <FaArrowRight size={20} />
         </button>
@@ -44,43 +51,87 @@ function StatCard({ title, value, route }) {
 }
 
 function Stats() {
+  const [stats, setStats] = useState(null);
+  const [statCardCounts, setStatCardCounts] = useState({});
+
+  const { loading: loadingStats, request: fetchStats } = useApi(getStats);
+  const { loading: loadingCards, request: fetchStatCardCounts } =
+    useApi(getStatCardCounts);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res1 = await fetchStats({});
+        const res2 = await fetchStatCardCounts({});
+
+        setStats(res1?.data || {});
+        setStatCardCounts(res2?.data?.statsCount || {});
+      } catch (error) {}
+    })();
+  }, []);
+
+  if (loadingStats || loadingCards || !stats) return <LoaderOverlay />;
+
+  const {
+    totalConfirmedBookingAmount = 0,
+    toursByStatus = { completed: 0, ongoing: 0, upcoming: 0 },
+    averageRating = 0,
+    bookingsPerMonth = [],
+  } = stats;
+
+  const {
+    bookings = 0,
+    tours = 0,
+    reviews = 0,
+    users = 0,
+    feedbacks = 0,
+    guides = 0,
+    jobs = 0,
+    admins = 0,
+  } = statCardCounts;
+
   return (
     <div className="p-4 flex flex-col space-y-4 h-full overflow-y-scroll scrollbar-none">
       {/* Revenue and Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Total Revenue */}
         <SummaryCard
-          title={"Revenue"}
+          title="Revenue"
           icon={FaIndianRupeeSign}
-          value={`₹5,00,000`}
+          value={totalConfirmedBookingAmount}
         />
-
-        {/* Completed */}
-        <SummaryCard title={"Completed"} icon={FaRegCheckCircle} value={24} />
-
-        {/* Ongoing */}
-        <SummaryCard title={"Ongoing"} icon={FaRegClock} value={12} />
-
-        {/* Rating */}
-        <SummaryCard title={"Rating"} icon={FaStar} value={4.8} />
+        <SummaryCard
+          title="Completed"
+          icon={FaRegCheckCircle}
+          value={toursByStatus.completed}
+        />
+        <SummaryCard
+          title="Ongoing"
+          icon={FaRegClock}
+          value={toursByStatus.ongoing}
+        />
+        <SummaryCard
+          title="Rating"
+          icon={FaStar}
+          value={averageRating.toFixed(1)}
+        />
       </div>
 
       {/* Charts and Announcements */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <BookingChart />
+        <BookingChart bookingsPerMonth={bookingsPerMonth} />
         <Announcements />
       </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <StatCard title={"Bookings"} value={120000} route={"bookings"} />
-        <StatCard title={"Tours"} value={12} route={"tours"} />
-        <StatCard title={"Reviews"} value={10000} route={"reviews"} />
-        <StatCard title={"Users"} value={12} route={"users"} />
-        <StatCard title={"Feedbacks"} value={12} route={"feedbacks"} />
-        <StatCard title={"Guides"} value={12} route={"guides"} />
-        <StatCard title={"Jobs"} value={12} route={"jobs"} />
-        <StatCard title={"Admins"} value={12} route={"manage-admins"} />
+        <StatCard title="Bookings" value={bookings} route="bookings" />
+        <StatCard title="Tours" value={tours} route="tours" />
+        <StatCard title="Reviews" value={reviews} route="reviews" />
+        <StatCard title="Users" value={users} route="users" />
+        <StatCard title="Feedbacks" value={feedbacks} route="feedbacks" />
+        <StatCard title="Guides" value={guides} route="guides" />
+        <StatCard title="Jobs" value={jobs} route="jobs" />
+        <StatCard title="Admins" value={admins} route="manage-admins" />
       </div>
     </div>
   );

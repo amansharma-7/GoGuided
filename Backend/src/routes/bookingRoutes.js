@@ -6,7 +6,14 @@ const bookingController = require("../controllers/bookingController");
 const router = express.Router();
 
 router.get(
-  "/",
+  "/all",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("owner", "admin"),
+  bookingController.getAllBookings
+);
+
+router.get(
+  "/users",
   authMiddleware.protect,
   authMiddleware.restrictTo("user"),
   bookingController.getUserBookings
@@ -28,8 +35,14 @@ router.get(
 router.get(
   "/detail/:id",
   authMiddleware.protect,
-  authMiddleware.restrictTo("guide"),
   bookingController.getBookingById
+);
+
+router.get(
+  "/tour/:slug",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("owner", "admin"),
+  bookingController.getTourBookings
 );
 
 module.exports = router;

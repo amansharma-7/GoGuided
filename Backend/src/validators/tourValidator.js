@@ -36,11 +36,34 @@ exports.tourInputValidator = validate([
     .withMessage("Difficulty must be one of: easy, medium, or hard"),
 
   body("languages")
+    .customSanitizer((value) => {
+      const capitalize = (str) =>
+        str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+      if (Array.isArray(value)) {
+        return value
+          .map((v) => v.trim())
+          .filter((v) => v !== "")
+          .map(capitalize);
+      }
+
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed ? [capitalize(trimmed)] : [];
+      }
+
+      return [];
+    })
     .isArray({ min: 1 })
     .withMessage("Please select at least one language")
     .custom((arr) => {
-      if (!arr.every((lang) => typeof lang === "string")) {
-        throw new Error("All selected languages must be text");
+      const allValid = arr.every(
+        (lang) => typeof lang === "string" && lang.trim() !== ""
+      );
+      if (!allValid) {
+        throw new Error(
+          "All selected languages must be valid, non-empty strings"
+        );
       }
       return true;
     }),

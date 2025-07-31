@@ -16,7 +16,7 @@ router.post(
 router.delete(
   "/:reviewId",
   authMiddleware.protect,
-  authMiddleware.restrictTo("user", "owner"),
+  authMiddleware.restrictTo("user", "owner", "admin"),
   reviewController.deleteReview
 );
 
@@ -27,6 +27,16 @@ router.get(
   reviewController.getUserReviews
 );
 
+router.get(
+  "/all",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("owner", "admin"),
+  reviewController.getAllReviews
+);
+
 router.get("/recent", reviewController.getRecentReviews);
+
+// GET a single review by ID
+router.get("/:id", reviewController.getReviewById);
 
 module.exports = router;
