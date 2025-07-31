@@ -381,3 +381,83 @@ exports.getBookingById = catchAsync(async (req, res) => {
     data: { booking: response },
   });
 });
+
+exports.getTourBookings = catchAsync(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    sortOrder: sort = "desc",
+    search = "",
+    status,
+    startDate,
+    endDate,
+  } = req.query;
+  const { slug } = req.params;
+
+  // 1. Find the tour
+  const tour = await Tour.findOne({ slug });
+  if (!tour) {
+    return res.status(404).json({
+      data: null,
+      message: "Tour not found",
+    });
+  }
+
+  // 2. Build query
+  let query = { tour: tour._id };
+
+  if (status && ["confirmed", "cancelled"].includes(status)) {
+    query.status = status;
+  }
+
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  if (search) {
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+      ],
+    }).select("_id");
+
+    query.user = { $in: users.map((u) => u._id) };
+  }
+
+  const sortOrder = sort === "asc" ? 1 : -1;
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const totalCount = await Booking.countDocuments(query);
+
+  const bookings = await Booking.find(query)
+    .populate("user", "firstName lastName email")
+    .sort({ createdAt: sortOrder })
+    .skip(skip)
+    .limit(Number(limit));
+
+  // 3. Format minimal response
+  const formattedBookings = bookings.map((booking) => ({
+    bookingId: booking._id,
+    tourTitle: booking.tourTitle,
+    customerName:
+      `${booking.user?.firstName} ${booking.user?.lastName}`.trim() || "N/A",
+    customerEmail: booking.user?.email || "N/A",
+    dateOfBooking: booking.createdAt,
+    status: booking.status,
+  }));
+
+  // 4. Final response
+  res.status(200).json({
+    isSuccess: true,
+    data: {
+      total: totalCount,
+      results: bookings.length,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+      bookings: formattedBookings,
+    },
+  });
+});

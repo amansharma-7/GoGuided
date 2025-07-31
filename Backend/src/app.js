@@ -30,6 +30,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const manageUsersRoutes = require("./routes/manageUsersRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const geocodeRoutes = require("./routes/geocodeRoutes");
 
@@ -106,6 +107,7 @@ app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/announcement", announcementRoutes);
 app.use("/api/v1/feedback", feedbackRoutes);
 app.use("/api/v1/user", manageUsersRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 app.use("/api/v1/geocode", geocodeRoutes);
 

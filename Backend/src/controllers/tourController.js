@@ -134,13 +134,67 @@ exports.createTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
-  const tours = await Tour.find().select(
-    "title slug location duration difficulty startDate endDate pricePerPerson description participants"
-  );
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    sortOrder = "asc",
+    status,
+    startDate,
+    endDate,
+  } = req.query;
 
+  const filters = {};
+
+  // 🔍 Search on tour title (case-insensitive)
+  if (search) {
+    filters.title = { $regex: search, $options: "i" };
+  }
+
+  // 📆 Date range filter
+  if (startDate || endDate) {
+    filters.startDate = {};
+    if (startDate) filters.startDate.$gte = new Date(startDate);
+    if (endDate) filters.startDate.$lte = new Date(endDate);
+  }
+
+  // 🟡 Status filtering logic (based on current date)
+  if (status) {
+    const today = new Date();
+
+    if (status === "upcoming") {
+      filters.startDate = { $gt: today };
+    } else if (status === "ongoing") {
+      filters.startDate = { $lte: today };
+      filters.endDate = { $gte: today };
+    } else if (status === "completed") {
+      filters.endDate = { $lt: today };
+    }
+  }
+
+  // 📊 Pagination setup
+  const skip = (page - 1) * limit;
+
+  // 🧮 Get total count after filtering
+  const total = await Tour.countDocuments(filters);
+
+  // 📦 Fetch filtered & paginated data
+  const tours = await Tour.find(filters)
+    .select(
+      "title slug location duration difficulty startDate endDate pricePerPerson description participants"
+    )
+    .sort({ startDate: sortOrder === "desc" ? -1 : 1 })
+    .skip(skip)
+    .limit(Number(limit));
+
+  // ✅ Final response
   res.status(200).json({
     isSuccess: true,
-    data: { tours },
+    data: {
+      totalPages: Math.ceil(total / limit),
+      total,
+      tours,
+    },
   });
 });
 

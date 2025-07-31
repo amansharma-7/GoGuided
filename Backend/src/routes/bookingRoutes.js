@@ -38,4 +38,11 @@ router.get(
   bookingController.getBookingById
 );
 
+router.get(
+  "/tour/:slug",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("owner", "admin"),
+  bookingController.getTourBookings
+);
+
 module.exports = router;
