@@ -123,12 +123,18 @@ export default function AddTourForm({
   useEffect(() => {
     const startDate = getValues("startDate");
     const duration = getValues("duration");
-    if (!startDate || !duration || existingTour) return;
+    if (!startDate || !duration) return;
 
     (async () => {
       try {
         const res = await fetchGuides({ params: { startDate, duration } });
-        setAllGuides(res?.data?.guides || []);
+        setAllGuides((prev) => {
+          const existingIds = new Set(prev.map((guide) => guide._id));
+          const newGuides = (res?.data?.guides || []).filter(
+            (guide) => !existingIds.has(guide._id)
+          );
+          return [...prev, ...newGuides];
+        });
       } catch (error) {}
     })();
   }, [getValues("startDate"), getValues("duration")]);

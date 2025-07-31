@@ -288,6 +288,9 @@ exports.getTourBySlug = catchAsync(async (req, res, next) => {
 });
 
 exports.updateTour = catchAsync(async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.files);
+  return;
   const { id } = req.params;
 
   // Fetch existing tour
