@@ -21,7 +21,7 @@ function ReachoutOptions() {
           />
           <div className="flex flex-col -space-y-1 break-words">
             <span className="text-xl font-medium">Phone</span>
-            <span>1234567890</span>
+            <span>+91-1234567890</span>
           </div>
         </div>
         <div className="grid grid-cols-[48px_1fr] gap-x-3 p-4 bg-green-50/25 rounded-lg">
@@ -32,7 +32,7 @@ function ReachoutOptions() {
           />
           <div className="flex flex-col -space-y-1 break-words">
             <span className="text-xl font-medium">Email</span>
-            <span>goguided@co.in</span>
+            <span> definitelynotspam@goguided.fake</span>
           </div>
         </div>
         <div className="grid grid-cols-[48px_1fr] gap-x-3 p-4 bg-green-50/25 rounded-lg">
@@ -43,7 +43,7 @@ function ReachoutOptions() {
           />
           <div className="flex flex-col -space-y-1 break-words">
             <span className="text-xl font-medium">Address</span>
-            <span>Hanuman mandir k peeche mat ana aghey ana aghey</span>
+            <span>404 Imaginary Street, Nowhere City, Planet Earth</span>
           </div>
         </div>
       </div>

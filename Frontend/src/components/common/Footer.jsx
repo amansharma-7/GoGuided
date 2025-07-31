@@ -31,15 +31,19 @@ function Footer() {
             <ul className="flex flex-col gap-2 text-gray-800">
               <li className="flex gap-2 items-center">
                 <FaLocationDot className="text-green-900" />
-                <span className="text-[16px]">123 Main Street, YourCity</span>
+                <span className="text-[16px]">
+                  404 Imaginary Street, Nowhere City, Planet Earth
+                </span>
               </li>
               <li className="flex gap-2 items-center">
                 <MdCall className="text-green-900" />
-                <span className="text-[16px]">1234567890</span>
+                <span className="text-[16px]">+91 12345-67890</span>
               </li>
               <li className="flex gap-2 items-center">
                 <IoMdMail className="text-green-900" />
-                <span className="text-[16px]">temp@gmail.com</span>
+                <span className="text-[16px]">
+                  definitelynotspam@goguided.fake
+                </span>
               </li>
             </ul>
           </div>
