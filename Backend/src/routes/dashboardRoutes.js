@@ -19,4 +19,10 @@ router.get(
   statsController.getStatCardCounts
 );
 
+router.get(
+  "/achievements",
+  authMiddleware.protect,
+  statsController.getAchievements
+);
+
 module.exports = router;
