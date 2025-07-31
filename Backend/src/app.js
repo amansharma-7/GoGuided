@@ -27,6 +27,10 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const adminCreationRoutes = require("./routes/adminCreationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+const manageUsersRoutes = require("./routes/manageUsersRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const geocodeRoutes = require("./routes/geocodeRoutes");
 
@@ -45,13 +49,13 @@ app.use(helmet());
 // Rate limiter (apply to all /api/* routes)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests
+  max: 200, // limit each IP to 100 requests
   message: "Oops! Too many requests. Let’s slow down and try again shortly",
 });
 app.use("/api", limiter);
 
 // Enable CORS for frontend origin
-const allowedOrigins = [process.env.FRONTEND_URL, "http://10.58.142.172:5173"];
+const allowedOrigins = [process.env.FRONTEND_URL];
 
 app.use(
   cors({
@@ -82,7 +86,7 @@ if (process.env.NODE_ENV === "development") {
 // =======================
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
-    status: "success",
+    isSuccess: true,
     message: "Backend is live and working",
   });
 });
@@ -100,6 +104,10 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/admin", adminCreationRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/announcement", announcementRoutes);
+app.use("/api/v1/feedback", feedbackRoutes);
+app.use("/api/v1/user", manageUsersRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 app.use("/api/v1/geocode", geocodeRoutes);
 

@@ -22,8 +22,6 @@ import Settings from "../components/dashboard/accounts/Settings";
 import UserDashboard from "../components/dashboard/accounts/user/DashBoard";
 import UserReviews from "../components/dashboard/accounts/user/reviews/Reviews";
 import UserBookings from "../components/dashboard/accounts/user/bookings/Bookings";
-import TourAnnouncements from "../components/dashboard/accounts/user/bookings/Announcements";
-import HelpSupport from "../components/dashboard/accounts/user/HelpSupport";
 import Announcements from "../components/dashboard/accounts/user/Announcements";
 
 //owner
@@ -42,9 +40,7 @@ import TourBookings from "../components/dashboard/accounts/admin/TourBookings";
 import Reviews from "../components/dashboard/accounts/admin/Reviews";
 import AllUsers from "../components/dashboard/accounts/admin/Users";
 import FeedBacks from "../components/dashboard/accounts/admin/Feedbacks";
-import AllPayments from "../components/dashboard/accounts/admin/Payments";
 import AllGuides from "../components/dashboard/accounts/admin/Guides";
-import Refunds from "../components/dashboard/accounts/admin/Refunds";
 import ReviewDetails from "../components/dashboard/accounts/admin/ReviewDetails";
 import JobRequests from "../components/dashboard/accounts/admin/JobRequests";
 import CreateJob from "../components/dashboard/accounts/admin/CreateJob";
@@ -75,7 +71,6 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        // loader: homeLoader,
         Component: Home,
       },
       {
@@ -128,13 +123,9 @@ const router = createBrowserRouter([
           },
           {
             path: "bookings",
-            children: [
-              { index: true, Component: UserBookings },
-              { path: "announcements/:name", Component: TourAnnouncements },
-            ],
+            children: [{ index: true, Component: UserBookings }],
           },
           { path: "reviews", Component: UserReviews },
-          { path: "support", Component: HelpSupport },
         ],
       },
 
@@ -164,7 +155,7 @@ const router = createBrowserRouter([
                 Component: BookingDetails,
               },
               {
-                path: "edit/:name",
+                path: "edit/:slug",
                 Component: EditTour,
               },
               {
@@ -190,8 +181,6 @@ const router = createBrowserRouter([
           },
 
           { path: "feedbacks", Component: FeedBacks },
-          { path: "payments", Component: AllPayments },
-          { path: "refunds", Component: Refunds },
           {
             path: "guides",
             children: [
@@ -277,8 +266,6 @@ const router = createBrowserRouter([
           },
 
           { path: "feedbacks", Component: FeedBacks },
-          { path: "payments", Component: AllPayments },
-          { path: "refunds", Component: Refunds },
           {
             path: "guides",
             children: [

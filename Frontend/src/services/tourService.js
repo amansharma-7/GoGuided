@@ -3,9 +3,12 @@ import api from "./apiClient";
 export const createTour = async ({ data }) => {
   return await api.post("tour/create", data);
 };
+export const updateTour = async ({ identifier: slug, data }) => {
+  return await api.post(`tour/update/${slug}`, data);
+};
 
-export const getAllTours = async () => {
-  return await api.get("tour");
+export const getAllTours = async ({ params }) => {
+  return await api.get("tour", { params });
 };
 
 export const getAllToursAsCards = async ({ params }) => {

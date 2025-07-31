@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import DashboardHeader from "../../../common/DashboardHeader";
 import ToursList from "./ToursList";
-import NoResult from "../../../../pages/NoResult";
 import { getAllTours } from "../../../../services/tourService";
 import useApi from "../../../../hooks/useApi";
 import LoaderOverlay from "../../../common/LoaderOverlay";
+import Pagination from "../../../common/Pagination";
 
 function Tours() {
   const [filterState, setFilterState] = useState({
     searchQuery: "",
-    sortOrder: "asc",
+    sortOrder: "desc",
     selectedFilters: [],
   });
 
@@ -17,21 +17,39 @@ function Tours() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalTours, setTotalTours] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const numberOfEntries = 10;
+  const numberOfEntries = 2;
 
   const { loading: isLoading, request: fetchAllTours } = useApi(getAllTours);
 
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetchAllTours({});
-        setTours(res?.data?.tours);
+        const status = filterState.selectedFilters["Tour Status"];
+        const dateInterval = filterState.selectedFilters["Date Interval"] || {};
+
+        const query = {
+          page: currentPage,
+          limit: numberOfEntries,
+          search: filterState.searchQuery,
+          sortOrder: filterState.sortOrder,
+          status,
+          startDate: dateInterval.startDate,
+          endDate: dateInterval.endDate,
+        };
+
+        const res = await fetchAllTours({
+          params: query,
+        });
+        setTours(res?.data?.tours || []);
+        setTotalPages(res?.data?.totalPages || 1);
+        setTotalTours(res?.data?.total || 0);
       } catch (error) {
         console.log(error);
       }
-    })();
-  }, []);
+    };
+
+    fetchData();
+  }, [filterState, currentPage]);
 
   if (isLoading || !tours) return <LoaderOverlay />;
 
@@ -39,16 +57,15 @@ function Tours() {
     <div className="p-4 ">
       <DashboardHeader
         title="Tours"
-        totalCount={tours.length}
+        totalCount={totalTours}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
           {
-            label: "Booking Status",
+            label: "Tour Status",
             children: [
               { label: "Upcoming", value: "upcoming" },
               { label: "Ongoing", value: "ongoing" },
-              { label: "Cancelled", value: "cancelled" },
               { label: "Completed", value: "completed" },
             ],
           },
@@ -62,7 +79,20 @@ function Tours() {
           },
         ]}
       />
-      {tours.length > 0 ? <ToursList tours={tours} /> : <NoResult />}
+      {tours.length > 0 ? (
+        <>
+          <ToursList tours={tours} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      ) : (
+        <p className="text-center text-gray-600 text-lg mt-8">
+          No tours found.
+        </p>
+      )}
     </div>
   );
 }

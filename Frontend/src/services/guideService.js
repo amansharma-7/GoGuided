@@ -13,3 +13,7 @@ export const getAvailableGuides = async ({ params }) => {
     params,
   });
 };
+
+export const getBookingStats = async () => {
+  return await api.get("/guide/booking-stats");
+};

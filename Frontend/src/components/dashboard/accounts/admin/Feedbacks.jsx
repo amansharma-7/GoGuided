@@ -1,162 +1,97 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import FeedbackHeader from "../../../common/DashboardHeader";
 import { FaChevronDown, FaChevronUp, FaPen, FaTimes } from "react-icons/fa";
 import NoResult from "../../../../pages/NoResult";
-
-const feedbackList = [
-  {
-    id: "fdbk001",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    subject: "Booking Issues - Unable to Confirm Guide Selection",
-    message:
-      "I have been facing issues while booking a guide. The confirmation process fails repeatedly.",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-  {
-    id: "fdbk002",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    subject: "Payment Problems - Unable to Complete Transaction",
-    message:
-      "I encountered an error while making a payment. The transaction does not go through.",
-    date: new Date().toLocaleDateString(),
-    status: "Resolved",
-  },
-  {
-    id: "fdbk003",
-    name: "Michael Johnson",
-    email: "michael.johnson@example.com",
-    subject: "Guide Availability - No Suitable Timings",
-    message:
-      "I couldn't find any guides available at my preferred times. Can you help me out?",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-  {
-    id: "fdbk004",
-    name: "Emily Davis",
-    email: "emily.davis@example.com",
-    subject: "Technical Error - App Crashes Frequently",
-    message:
-      "The app crashes whenever I try to view my booking history. Please fix this issue.",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-  {
-    id: "fdbk005",
-    name: "David Brown",
-    email: "david.brown@example.com",
-    subject: "Feedback on Guide - Excellent Experience",
-    message:
-      "The guide was very knowledgeable and helpful. Had a great experience!",
-    date: new Date().toLocaleDateString(),
-    status: "Resolved",
-  },
-  {
-    id: "fdbk006",
-    name: "Sarah Wilson",
-    email: "sarah.wilson@example.com",
-    subject: "Suggestion - Add More Language Options",
-    message:
-      "It would be great if more language options were available for communication.",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-  {
-    id: "fdbk007",
-    name: "Chris Miller",
-    email: "chris.miller@example.com",
-    subject: "Issue with Notifications - Not Receiving Updates",
-    message:
-      "I am not receiving notifications for my bookings. Please check the notification settings.",
-    date: new Date().toLocaleDateString(),
-    status: "Resolved",
-  },
-  {
-    id: "fdbk008",
-    name: "Amanda Garcia",
-    email: "amanda.garcia@example.com",
-    subject: "App Navigation - Difficult to Find Information",
-    message:
-      "The app navigation is confusing. Please make it easier to find necessary details.",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-  {
-    id: "fdbk009",
-    name: "Brian Martinez",
-    email: "brian.martinez@example.com",
-    subject: "Login Problems - Unable to Access My Account",
-    message:
-      "I am unable to log in to my account despite entering the correct credentials.",
-    date: new Date().toLocaleDateString(),
-    status: "Resolved",
-  },
-  {
-    id: "fdbk010",
-    name: "Olivia Anderson",
-    email: "olivia.anderson@example.com",
-    subject: "Suggestion - More Guide Profiles",
-    message:
-      "It would be nice to see more detailed profiles of the guides before booking.",
-    date: new Date().toLocaleDateString(),
-    status: "Pending",
-  },
-];
+import useApi from "../../../../hooks/useApi";
+import {
+  getAllFeedbacks,
+  replyFeedback,
+} from "../../../../services/feedbackService";
+import Pagination from "../../../common/Pagination";
 
 function Feedbacks() {
+  const { loading: fetchFeedbackLoading, request: fetchFeedbacksApi } =
+    useApi(getAllFeedbacks);
+  const { loading: replyFeedbackLoading, request: replyFeedbackApi } =
+    useApi(replyFeedback);
+
   const [filterState, setFilterState] = useState({
     searchQuery: "",
-    sortOrder: "asc",
+    sortOrder: "desc",
     selectedFilters: [],
   });
 
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalFeedbacks, setTotalFeedbacks] = useState(0);
+  const numberOfEntries = 2;
+
   const [expandedFeedback, setExpandedFeedback] = useState(null);
   const [replyingFeedback, setReplyingFeedback] = useState(null);
-  const [replyMessage, setReplyMessage] = useState("");
+  const [replyMessages, setReplyMessages] = useState({}); // Store reply text per feedback
 
-  const [feedbacks, setFeedbacks] = useState(feedbackList);
+  const fetchFeedbacks = async () => {
+    try {
+      const { searchQuery, selectedFilters, sortOrder } = filterState;
+      const params = new URLSearchParams();
 
-  // const [users, setUsers] = useState(usersData);
+      if (searchQuery) params.append("search", searchQuery);
+
+      if (selectedFilters?.["Date Interval"]) {
+        const { startDate, endDate } = selectedFilters["Date Interval"];
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+      }
+
+      if (sortOrder) params.append("sort", sortOrder);
+
+      params.append("page", currentPage);
+      params.append("limit", numberOfEntries);
+
+      const response = await fetchFeedbacksApi({ params: params.toString() });
+      setFeedbacks(response.data.feedbacks);
+      setTotalPages(response.totalPages);
+      setTotalFeedbacks(response.total);
+    } catch (error) {
+      console.error("Failed to fetch feedbacks:", error);
+    }
+  };
 
   useEffect(() => {
-    function fetchFeedbacks(query) {
-      return feedbackList.filter(
-        (user) =>
-          user &&
-          user.name &&
-          user.name.toLowerCase().includes(query.toLowerCase())
-      );
+    fetchFeedbacks();
+  }, [filterState, currentPage]);
+
+  const handleReply = async (id) => {
+    try {
+      const message = replyMessages[id]?.trim();
+      if (!message) {
+        toast.error("Reply message cannot be empty!");
+        return;
+      }
+
+      const response = await replyFeedbackApi({
+        identifier: id,
+        data: { message },
+      });
+      toast.success(response.message);
+
+      // Reset state for this feedback
+      setReplyMessages((prev) => ({ ...prev, [id]: "" }));
+      setReplyingFeedback(null);
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
     }
-
-    const filteredFeedbacks = fetchFeedbacks(filterState.searchQuery);
-    setFeedbacks(filteredFeedbacks);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
-
-  const sortedFeedbacks = [...feedbacks].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
-
-  const handleReply = (id) => {
-    // console.log("Reply sent:", replyMessage);
-    setFeedbacks((feedbacks) =>
-      feedbacks.map((feedback) =>
-        feedback.id === id ? { ...feedback, status: "Resolved" } : feedback
-      )
-    );
-    setReplyingFeedback(null);
-    setReplyMessage("");
   };
 
   return (
     <div className="px-4 py-4 h-full overflow-y-auto scrollbar-hide text-green-950">
       <FeedbackHeader
         title="Feedbacks"
-        totalCount={sortedFeedbacks.length}
+        totalCount={totalFeedbacks}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
@@ -177,11 +112,11 @@ function Feedbacks() {
         ]}
       />
 
-      {sortedFeedbacks.length > 0 ? (
+      {feedbacks.length > 0 ? (
         <>
-          {sortedFeedbacks.map((feedback) => (
+          {feedbacks.map((feedback) => (
             <div
-              key={feedback.id}
+              key={feedback._id}
               className="bg-white rounded-2xl mb-4 shadow-lg p-6 border-l-4 border-green-500"
             >
               {/* Header */}
@@ -192,12 +127,12 @@ function Feedbacks() {
                 <button
                   onClick={() =>
                     setExpandedFeedback(
-                      expandedFeedback === feedback.id ? null : feedback.id
+                      expandedFeedback === feedback._id ? null : feedback._id
                     )
                   }
                   className="text-green-800 hover:text-green-600 transition"
                 >
-                  {expandedFeedback === feedback.id ? (
+                  {expandedFeedback === feedback._id ? (
                     <FaChevronUp size={20} />
                   ) : (
                     <FaChevronDown size={20} />
@@ -212,25 +147,25 @@ function Feedbacks() {
                   <strong>Status:</strong>{" "}
                   <span
                     className={`px-2 py-0.5 rounded-md text-sm font-medium ${
-                      feedback.status === "Resolved"
+                      feedback.isResolved
                         ? "bg-blue-100 text-blue-700 border border-blue-300"
                         : "bg-yellow-100 text-yellow-800 border border-yellow-300"
                     }`}
                   >
-                    {feedback.status}
+                    {feedback.isResolved ? "Resolved" : "UnResolved"}
                   </span>
                 </p>
               </div>
 
               {/* Expanded Message */}
-              {expandedFeedback === feedback.id && (
+              {expandedFeedback === feedback._id && (
                 <div className="p-4 rounded-md bg-green-50 text-green-700 shadow-sm mb-2">
                   <p>{feedback.message}</p>
                 </div>
               )}
 
               {/* Reply Box */}
-              {replyingFeedback === feedback.id ? (
+              {replyingFeedback === feedback._id ? (
                 <div className="relative mt-4 p-4 bg-white border border-green-300 rounded-md shadow space-y-4">
                   <button
                     onClick={() => setReplyingFeedback(null)}
@@ -243,32 +178,41 @@ function Feedbacks() {
                       Write your response:
                     </p>
                     <textarea
-                      value={replyMessage}
-                      onChange={(e) => setReplyMessage(e.target.value)}
+                      value={replyMessages[feedback._id] || ""}
+                      onChange={(e) =>
+                        setReplyMessages((prev) => ({
+                          ...prev,
+                          [feedback._id]: e.target.value,
+                        }))
+                      }
                       rows="3"
                       placeholder="Enter your reply here..."
                       className="w-full p-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                     <button
-                      onClick={() => handleReply(feedback.id)}
+                      onClick={() => handleReply(feedback._id)}
+                      disabled={
+                        replyFeedbackLoading ||
+                        !(replyMessages[feedback._id] || "").trim()
+                      }
                       className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition ${
-                        !replyMessage.trim()
+                        replyFeedbackLoading ||
+                        !(replyMessages[feedback._id] || "").trim()
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }`}
-                      disabled={!replyMessage.trim()}
                     >
-                      Send Reply
+                      {replyFeedbackLoading ? "Sending..." : "Send Reply"}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="flex gap-4 mt-4">
                   <button
-                    onClick={() => setReplyingFeedback(feedback.id)}
-                    disabled={feedback.status === "Resolved"}
+                    onClick={() => setReplyingFeedback(feedback._id)}
+                    disabled={feedback.isResolved}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                      feedback.status === "Resolved"
+                      feedback.isResolved
                         ? "bg-gray-300 text-gray-700 cursor-not-allowed"
                         : "bg-green-500 text-white hover:bg-green-600"
                     }`}
@@ -280,6 +224,14 @@ function Feedbacks() {
               )}
             </div>
           ))}
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              totalPages={totalPages}
+            />
+          )}
         </>
       ) : (
         <NoResult />

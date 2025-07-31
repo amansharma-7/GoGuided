@@ -47,7 +47,7 @@ exports.createOrUpdateReview = catchAsync(async (req, res, next) => {
 
 exports.deleteReview = catchAsync(async (req, res, next) => {
   const { reviewId } = req.params;
-  const { userId } = req.user;
+  const { userId, role } = req.user;
 
   // Find the review
   const review = await Review.findById(reviewId);
@@ -57,8 +57,11 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Only the author can delete the review
-  if (review.user.toString() !== userId) {
+  // Authorization: Only the author, admin, or owner can delete the review
+  const isAuthor = review.user.toString() === userId;
+  const isPrivileged = role === "admin" || role === "owner";
+
+  if (!isAuthor && !isPrivileged) {
     return next(
       new AppError("You are not authorized to delete this review.", 403)
     );
@@ -67,16 +70,18 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
   // Delete review
   await review.deleteOne();
 
-  // Remove from user's review list
-  const user = await User.findById(userId);
-  if (user) {
-    user.reviews = user.reviews.filter((r) => r.toString() !== reviewId);
-    await user.save({ validateBeforeSave: false });
+  // Remove from user's review list only if author is deleting
+  if (isAuthor) {
+    const user = await User.findById(userId);
+    if (user) {
+      user.reviews = user.reviews.filter((r) => r.toString() !== reviewId);
+      await user.save({ validateBeforeSave: false });
+    }
   }
 
   res.status(200).json({
     isSuccess: true,
-    message: "Your review has been deleted successfully.",
+    message: "Review has been deleted successfully.",
   });
 });
 
@@ -138,5 +143,139 @@ exports.getUserReviews = catchAsync(async (req, res, next) => {
   res.status(200).json({
     isSuccess: true,
     data: { reviewedTours, notReviewedTours },
+  });
+});
+
+exports.getRecentReviews = catchAsync(async (req, res, next) => {
+  const reviewsRaw = await Review.find()
+    .sort({ createdAt: -1 })
+    .limit(15)
+    .populate("user", "firstName lastName profilePic")
+    .select("review rating user");
+
+  const reviews = reviewsRaw.map((review) => ({
+    _id: review._id,
+    review: review.review,
+    rating: review.rating,
+    reviewerName: `${review.user.firstName} ${review.user.lastName}`,
+    profilePicUrl: review.user.profilePic?.url || null,
+  }));
+
+  res.status(200).json({
+    isSuccess: true,
+    results: reviews.length,
+    data: { reviews },
+  });
+});
+
+exports.getAllReviews = catchAsync(async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
+  const { search, rating, startDate, endDate, sortOrder = "desc" } = req.query;
+
+  const query = {};
+
+  // 🔍 Search in user's name or email
+  if (search) {
+    query.$or = [
+      { "user.firstName": { $regex: search, $options: "i" } },
+      { "user.lastName": { $regex: search, $options: "i" } },
+      { "user.email": { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (rating) {
+    if (rating.startsWith("gte_")) {
+      const threshold = parseInt(rating.split("_")[1], 10);
+      query.rating = { $gte: threshold };
+    } else if (rating.startsWith("eq_")) {
+      const value = parseInt(rating.split("_")[1], 10);
+      query.rating = value;
+    }
+  }
+
+  // 🗓️ Date filter
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+  }
+
+  // ⚙️ Base query with user population and filtering
+  const baseQuery = Review.find(query)
+    .populate({
+      path: "user",
+      select: "firstName lastName email",
+    })
+    .select("rating createdAt user")
+    .sort({ createdAt: sortOrder === "asc" ? 1 : -1 })
+    .skip(skip)
+    .limit(limit);
+
+  // Count total matching docs
+  const [reviews, total] = await Promise.all([
+    baseQuery,
+    Review.countDocuments(query),
+  ]);
+
+  // 🧾 Transform data
+  const transformedReviews = reviews.map((review) => ({
+    _id: review._id,
+    reviewerName: `${review.user.firstName} ${review.user.lastName}`,
+    reviewerEmail: review.user.email,
+    rating: review.rating,
+    createdAt: review.createdAt,
+  }));
+
+  // 📤 Response
+  res.status(200).json({
+    success: true,
+    data: {
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalReviews: total,
+      results: reviews.length,
+      reviews: transformedReviews,
+    },
+  });
+});
+
+exports.getReviewById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const review = await Review.findById(id)
+    .populate({
+      path: "user",
+      select: "firstName lastName email",
+    })
+    .populate({
+      path: "tour",
+      select: "title",
+    });
+
+  if (!review) {
+    return res.status(404).json({ message: "Review not found." });
+  }
+
+  const reviewer = review.user;
+  const tour = review.tour;
+
+  const formattedReview = {
+    id: review._id,
+    reviewerName: reviewer
+      ? `${reviewer.firstName} ${reviewer.lastName || ""}`.trim()
+      : "Unknown",
+    email: reviewer?.email || "N/A",
+    date: review.createdAt,
+    rating: review.rating,
+    tourName: tour?.title || "Unknown",
+    message: review.review,
+  };
+
+  res.status(200).json({
+    isSuccess: true,
+    data: { review: formattedReview },
   });
 });

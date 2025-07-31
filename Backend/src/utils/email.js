@@ -238,9 +238,58 @@ const sendAdminWelcomeEmail = async ({ user, tempPassword }) => {
   });
 };
 
+const sendCustomEmailService = async ({ user, subject, message }) => {
+  const html = buildEmailTemplate({
+    firstName: user.firstName,
+    title: subject,
+    message,
+    footerNote: "This is an automated email. Please do not reply.",
+  });
+
+  return sendEmail({
+    to: user.email,
+    subject,
+    html,
+  });
+};
+
+const sendFeedbackResolvedEmail = async ({ user, message }) => {
+  if (!user?.email) {
+    throw new Error("Missing user email");
+  }
+
+  const html = buildEmailTemplate({
+    firstName: user.firstName || "User",
+    title: "Your Feedback Has Been Resolved",
+    message: message
+      ? `
+      We have reviewed your feedback and taken necessary action.<br /><br />
+      <strong>Message from our team:</strong><br />
+      <blockquote style="background: #f9fafb; padding: 10px; border-left: 4px solid #3b82f6; border-radius: 4px;">
+        ${message}
+      </blockquote>
+      Thank you for helping us improve our platform!
+    `
+      : `
+      We have reviewed your feedback and taken necessary action.<br /><br />
+      Thank you for helping us improve our platform!
+    `,
+    footerNote:
+      "If you have further concerns, feel free to reply to this email.",
+  });
+
+  return sendEmail({
+    to: user.email,
+    subject: "Your Feedback Has Been Resolved",
+    html,
+  });
+};
+
 module.exports = {
   sendRegistrationOtpEmail,
   sendPasswordResetEmail,
   sendGuideWelcomeEmail,
   sendAdminWelcomeEmail,
+  sendFeedbackResolvedEmail,
+  sendCustomEmailService,
 };

@@ -84,7 +84,17 @@ function Tours() {
     })();
   }, [filterState]);
 
-  if (isLoading || !tours?.length) return <LoaderOverlay />;
+  if (isLoading) return <LoaderOverlay />;
+
+  if (!tours?.length)
+    return (
+      <div className="flex items-center justify-center h-[70vh] bg-white">
+        <div className="bg-green-100 text-green-800 border border-green-300 rounded-lg px-6 py-4 text-lg font-medium shadow-md">
+          Tours not Available
+        </div>
+      </div>
+    );
+
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">
       <div className="flex flex-col justify-center p-3 shadow-sm bg-white rounded-lg">

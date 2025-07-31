@@ -3,6 +3,10 @@ import { FaRegClock, FaStar } from "react-icons/fa6";
 import Announcements from "../../../common/Announcements";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import StatusToggle from "./StatusToggle";
+import LoaderOverlay from "../../../common/LoaderOverlay";
+import { getBookingStats } from "../../../../services/guideService";
+import useApi from "../../../../hooks/useApi";
+import { useEffect, useState } from "react";
 
 function SummaryCard({ title, icon: Icon, value, onClick }) {
   return (
@@ -23,30 +27,47 @@ function SummaryCard({ title, icon: Icon, value, onClick }) {
 
 function Stats() {
   const navigate = useSafeNavigate();
+  const [stats, setStats] = useState({
+    completed: 0,
+    ongoing: 0,
+    upcoming: 0,
+  });
+
+  const { loading, request: fetchStats } = useApi(getBookingStats);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchStats({});
+        setStats(res.data);
+      } catch (error) {}
+    })();
+  }, []);
+
+  if (loading) return <LoaderOverlay />;
 
   return (
     <div className="p-4 flex flex-col space-y-4 h-full overflow-y-auto scrollbar-none">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <SummaryCard
           title={"Completed"}
           icon={FaRegCheckCircle}
-          value={24}
+          value={stats.completed}
           onClick={() => navigate("bookings/completed")}
         />
         <SummaryCard
           title={"Ongoing"}
           icon={FaRegClock}
-          value={12}
+          value={stats.ongoing}
           onClick={() => navigate("bookings/ongoing")}
         />
         <SummaryCard
           title={"Upcoming"}
           icon={FaRegCalendarAlt}
-          value={2}
+          value={stats.upcoming}
           onClick={() => navigate("bookings/upcoming")}
         />
-        <SummaryCard title={"Rating"} icon={FaStar} value={4.8} navTo={null} />
       </div>
 
       {/* Announcements & StatusToggle */}

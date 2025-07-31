@@ -20,11 +20,4 @@ router.delete(
   adminCreationController.deleteAdmin
 );
 
-router.get(
-  "/users",
-  authMiddleware.protect,
-  authMiddleware.restrictTo("owner"),
-  adminCreationController.getUsers
-);
-
 module.exports = router;

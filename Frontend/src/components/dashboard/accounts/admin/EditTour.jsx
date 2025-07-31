@@ -1,31 +1,28 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import TourForm from "../../../../components/common/TourForm";
-
-const sampleTourData = {
-  name: "Mountain Adventure",
-  location: "Himalayas",
-  duration: "5 days",
-  price: "1200",
-  type: "Adventure",
-  difficulty: "Intermediate",
-  groupSize: "10",
-  description: "An adventurous journey in the mountains",
-  images: [], // You can include image files here if available
-};
+import { getTourBySlug } from "../../../../services/tourService";
+import useApi from "../../../../hooks/useApi";
 
 export default function EditTour() {
-  const { name } = useParams();
+  const { slug } = useParams();
+  const [tour, setTour] = useState();
+  const { loading, request: fetchTour } = useApi(getTourBySlug);
 
-  const handleEditTour = (updatedTourData) => {
-    console.log("Tour Edited:", updatedTourData);
-    // Update the tour data in the backend or state
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await fetchTour({ identifier: slug });
+        setTour(response.data.tour);
+      } catch (err) {}
+    })();
+  }, [slug]);
 
-  return (
-    <TourForm
-      mode="edit"
-      initialData={sampleTourData}
-      onSubmit={handleEditTour}
-    />
-  );
+  if (loading) return <div className="p-6">Loading tour...</div>;
+  if (!tour)
+    return (
+      <div className="p-6 text-red-500">Tour not found or failed to load.</div>
+    );
+
+  return <TourForm isEditTour={true} existingTour={tour} />;
 }

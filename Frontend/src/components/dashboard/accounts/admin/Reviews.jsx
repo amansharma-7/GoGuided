@@ -1,20 +1,8 @@
 import ReviewsHeader from "../../../common/DashboardHeader";
 import ReviewsTable from "../../../dashboard/Table";
 import { useEffect, useState } from "react";
-import NoResult from "../../../../pages/NoResult";
-
-const reivewsData = Array.from({ length: 50 }, (_, i) => ({
-  _id: (i + 1).toString(),
-  name: ["John Doe", "Jane Smith", "Sam Wilson", "Lucy Heart"][i % 4],
-  email: [
-    "john@example.com",
-    "jane@example.com",
-    "sam@example.com",
-    "lucy@example.com",
-  ][i % 4],
-  date: `2024-03-${(i % 30) + 1}`.padStart(10, "0"),
-  rating: [4, 5, 4.5][i % 3],
-}));
+import { getAllReviews } from "../../../../services/reviewService";
+import useApi from "../../../../hooks/useApi";
 
 const headers = [
   { label: "S No.", width: "10%" },
@@ -34,67 +22,65 @@ function Reviews() {
   const [reviews, setReviews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const numberOfEntries = 10;
+  const [totalCount, setTotalCount] = useState(0);
+  const numberOfEntries = 4;
+
+  const { request: fetchReviews } = useApi(getAllReviews);
 
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchData = async () => {
       try {
-        // Example: you might have filters, sortOrder etc from filterState
-        // const { searchQuery, selectedFilters, sortOrder } = filterState;
-        // const params = new URLSearchParams();
+        const rating = filterState.selectedFilters["Rating"];
+        const dateInterval = filterState.selectedFilters["Date Interval"] || {};
 
-        // if (searchQuery) params.append("search", searchQuery);
-        // if (selectedFilters) {
-        //   if (selectedFilters["Date Interval"]) {
-        //     const { startDate, endDate } = selectedFilters["Date Interval"];
-        //     if (startDate) params.append("startDate", startDate);
-        //     if (endDate) params.append("endDate", endDate);
-        //   }
-        // }
-        // if (sortOrder) params.append("sort", sortOrder);
+        const query = {
+          page: currentPage,
+          limit: numberOfEntries,
+          search: filterState.searchQuery,
+          sortOrder: filterState.sortOrder,
+          rating,
+          startDate: dateInterval.startDate,
+          endDate: dateInterval.endDate,
+        };
 
-        // params.append("page", currentPage);
-        // params.append("limit", numberOfEntries);
+        const res = await fetchReviews({ params: query });
 
-        // Fetch reviews instead of users or bookings
-        // const response = await getAllReviews(user.token, params.toString());
-
-        // const { data, totalPages: tp, total } = response;
-
-        setReviews(reivewsData); // replace with actual fetched data
-        setTotalPages(tp || 1);
-        setTotalReviews(total || 0);
-        setLoading(false);
+        setReviews(res?.data?.reviews || []);
+        setTotalPages(res?.data?.totalPages || 1);
+        setTotalCount(res?.data?.totalReviews || 0);
       } catch (error) {
-        // handle error here (optional)
-      } finally {
-        setLoading(false);
+        // handle if needed
       }
     };
 
-    fetchReviews();
-  }, [currentPage, filterState]);
+    fetchData();
+  }, [filterState, currentPage]);
 
   const getKeyFromLabel = (label) =>
     label.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
 
   const transformedReviews = reviews.map((review, idx) => {
     const row = {};
-    headers.forEach((header, i) => {
+    headers.forEach((header) => {
       const key = getKeyFromLabel(header.label);
-
       if (key === "sno") {
         row[key] = (currentPage - 1) * numberOfEntries + idx + 1;
       } else if (key === "date") {
-        row[key] = new Date(review.date).toLocaleDateString();
+        row[key] = new Date(review.createdAt).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        });
+      } else if (key === "name") {
+        row[key] = review.reviewerName || "-";
+      } else if (key === "email") {
+        row[key] = review.reviewerEmail || "-";
+      } else if (key === "rating") {
+        row[key] = review.rating;
       } else {
-        // Here, access review[key], fallback to "-" if no value
         row[key] = review[key] || "-";
       }
     });
-
     row._id = review._id;
     return row;
   });
@@ -103,28 +89,20 @@ function Reviews() {
     <div>
       <ReviewsHeader
         title="Reviews"
-        totalCount={transformedReviews.length}
+        totalCount={totalCount}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={[
           {
             label: "Rating",
             children: [
-              { label: "Above 1", value: "above_1" },
-              { label: "Above 2", value: "above_2" },
-              { label: "Above 3", value: "above_3" },
-              { label: "Above 4", value: "above_4" },
+              { label: "1 & above", value: "gte_1" },
+              { label: "2 & above", value: "gte_2" },
+              { label: "3 & above", value: "gte_3" },
+              { label: "4 & above", value: "gte_4" },
+              { label: "5 only", value: "eq_5" },
             ],
           },
-          {
-            label: "Tour",
-            children: [
-              { label: "tour1", value: "tour1" },
-              { label: "tour2", value: "tour2" },
-              { label: "tour3", value: "tour3" },
-            ],
-          },
-
           {
             label: "Date Interval",
             children: [
@@ -134,14 +112,20 @@ function Reviews() {
           },
         ]}
       />
+
       {transformedReviews.length > 0 ? (
         <ReviewsTable
           headers={headers}
           data={transformedReviews}
-          itemsPerPage={9}
+          itemsPerPage={numberOfEntries}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
       ) : (
-        <NoResult />
+        <div className="text-center text-sm text-gray-500 py-8">
+          No reviews found matching the criteria.
+        </div>
       )}
     </div>
   );

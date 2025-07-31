@@ -1,4 +1,31 @@
+import { useForm } from "react-hook-form";
+import useApi from "../../hooks/useApi";
+import { submitFeedback } from "../../services/feedbackService";
+import toast from "react-hot-toast";
+
 function ReachoutForm() {
+  const { loading: submitLoading, request: submitFeedbackApi } =
+    useApi(submitFeedback);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await submitFeedbackApi({ data }); // Sends form data to API
+      toast.success(response.message);
+      reset(); // Clear form after success
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg p-8 shadow-md shadow-black/50 max-w-3xl mx-auto">
       <div className="flex flex-col gap-4 pb-5 border-b-2 border-black/20">
@@ -10,52 +37,102 @@ function ReachoutForm() {
           we'll respond within 24 hours.
         </p>
       </div>
+
       <form
-        // method="post"
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5"
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 gap-4 pt-5"
       >
+        {/* Name */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="first_name" className="text-lg font-medium">
-            First Name
+          <label htmlFor="name" className="text-lg font-medium">
+            Name
           </label>
           <input
             type="text"
-            id="first_name"
-            className="p-2 border-2 border-black/20 rounded-md"
+            id="name"
+            {...register("name", { required: "Name is required" })}
+            className={`p-2 border-2 rounded-md ${
+              errors.name ? "border-red-500" : "border-black/20"
+            }`}
           />
+          {errors.name && (
+            <span className="text-sm text-red-500">{errors.name.message}</span>
+          )}
         </div>
+
+        {/* Email */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="last_name" className="text-lg font-medium">
-            Last Name
+          <label htmlFor="email" className="text-lg font-medium">
+            Email
           </label>
           <input
-            type="text"
-            id="last_name"
-            className="p-2 border-2 border-black/20 rounded-md"
+            type="email"
+            id="email"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Please enter a valid email address",
+              },
+            })}
+            className={`p-2 border-2 rounded-md ${
+              errors.email ? "border-red-500" : "border-black/20"
+            }`}
           />
+          {errors.email && (
+            <span className="text-sm text-red-500">{errors.email.message}</span>
+          )}
         </div>
-        <div className="flex flex-col gap-2 md:col-span-2">
+
+        {/* Subject */}
+        <div className="flex flex-col gap-2">
           <label htmlFor="subject" className="text-lg font-medium">
             Subject
           </label>
           <input
             type="text"
             id="subject"
-            className="p-2 border-2 border-black/20 rounded-md"
+            {...register("subject", { required: "Subject is required" })}
+            className={`p-2 border-2 rounded-md ${
+              errors.subject ? "border-red-500" : "border-black/20"
+            }`}
           />
+          {errors.subject && (
+            <span className="text-sm text-red-500">
+              {errors.subject.message}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col gap-2 md:col-span-2">
+
+        {/* Message */}
+        <div className="flex flex-col gap-2">
           <label htmlFor="message" className="text-lg font-medium">
             Message
           </label>
           <textarea
             id="message"
             rows={5}
-            className="p-2 border-2 border-black/20 rounded-md resize-y"
+            {...register("message", { required: "Message is required" })}
+            className={`p-2 border-2 rounded-md resize-y ${
+              errors.message ? "border-red-500" : "border-black/20"
+            }`}
           ></textarea>
+          {errors.message && (
+            <span className="text-sm text-red-500">
+              {errors.message.message}
+            </span>
+          )}
         </div>
-        <button className="md:col-span-2 text-lg font-medium text-white bg-green-600 rounded-md hover:bg-green-700 hover:shadow-sm hover:shadow-black/50 hover:cursor-pointer py-3">
-          Send Message
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={submitLoading}
+          className={`text-lg font-medium text-white bg-green-600 rounded-md py-3 hover:bg-green-700 hover:shadow-sm hover:shadow-black/50 ${
+            submitLoading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {submitLoading ? "Sending..." : "Send Message"}
         </button>
       </form>
     </div>

@@ -2,13 +2,11 @@ import { useState } from "react";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
 import {
   FaEdit,
-  FaTrash,
   FaClipboardList,
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
 import { BiPlusCircle } from "react-icons/bi";
-import ConfirmationModal from "../../../common/ConfirmationModal";
 
 const getStatus = (startDate, endDate) => {
   const today = new Date();
@@ -27,29 +25,20 @@ function formatDate(dateStr) {
   });
 }
 
+const isPastEndDate = (endDate) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // normalize to start of today
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0); // normalize too
+  return today > end;
+};
+
 export default function ToursList({ tours }) {
   const [expandedTour, setExpandedTour] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState({
-    show: false,
-    tourId: null,
-  });
-
   const navigate = useSafeNavigate();
 
   const toggleAccordion = (id) => {
     setExpandedTour(expandedTour === id ? null : id);
-  };
-
-  const handleDelete = (id) => {
-    setDeleteConfirm({ show: true, tourId: id });
-  };
-
-  const confirmDelete = () => {
-    setDeleteConfirm({ show: false, tourId: null });
-  };
-
-  const cancelDelete = () => {
-    setDeleteConfirm({ show: false, tourId: null });
   };
 
   return (
@@ -71,7 +60,7 @@ export default function ToursList({ tours }) {
       {tours.map((tour) => (
         <div
           key={tour._id}
-          className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border-t-2 border-green-500"
+          className="bg-white rounded-2xl shadow-lg p-4 sm:p-4 border-t-2 border-green-500"
         >
           {/* Tour Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -91,7 +80,7 @@ export default function ToursList({ tours }) {
           </div>
 
           {/* Tour Description and Status */}
-          <div className="flex flex-col sm:flex-row justify-between gap-2 items-start sm:items-center bg-gray-100 p-3 rounded-md my-3 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between gap-2 items-start sm:items-center bg-gray-100 p-2 rounded-md my-3 shadow-sm">
             <p className="text-green-800">{tour.description}</p>
             <p className="text-green-800">
               <strong>Status:</strong> {getStatus(tour.startDate, tour.endDate)}
@@ -150,22 +139,22 @@ export default function ToursList({ tours }) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
             <button
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 w-full sm:w-auto"
-              onClick={() => navigate(`edit/${tour.slug}`)}
+              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg w-full sm:w-auto 
+                ${
+                  isPastEndDate(tour.endDate)
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-yellow-500 text-white hover:bg-yellow-600"
+                }`}
+              onClick={() => {
+                if (!isPastEndDate(tour.endDate)) {
+                  navigate(`edit/${tour.slug}`);
+                }
+              }}
+              disabled={isPastEndDate(tour.endDate)}
             >
               <FaEdit size={16} /> Edit
             </button>
-            <button
-              onClick={() => handleDelete(tour._id)}
-              disabled={deleteConfirm.tourId === tour._id}
-              className={`flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full sm:w-auto ${
-                deleteConfirm.tourId === tour._id
-                  ? "cursor-not-allowed opacity-50"
-                  : "cursor-pointer"
-              }`}
-            >
-              <FaTrash size={16} /> Delete
-            </button>
+
             <button
               className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 w-full sm:w-auto"
               onClick={() => navigate(`bookings/${tour.slug}`)}
@@ -175,15 +164,6 @@ export default function ToursList({ tours }) {
           </div>
         </div>
       ))}
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm.show && (
-        <ConfirmationModal
-          text={"Are you sure you want to delete this tour?"}
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-        />
-      )}
     </div>
   );
 }

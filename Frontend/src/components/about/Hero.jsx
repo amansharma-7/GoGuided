@@ -1,7 +1,6 @@
 const heroData = {
   title: "About Us",
-  backgroundImage:
-    "https://images.unsplash.com/photo-1519309621146-2a47d1f7103a?q=80&w=2073&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  backgroundImage: "/images/about_us.webp",
 };
 
 function Hero() {

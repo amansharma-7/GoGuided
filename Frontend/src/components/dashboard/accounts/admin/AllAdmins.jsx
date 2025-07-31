@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -9,33 +9,14 @@ import {
 import AdminsHeader from "../../../common/DashboardHeader";
 import { BiPlusCircle } from "react-icons/bi";
 import useSafeNavigate from "../../../../utils/useSafeNavigate";
-
-const demoAdmins = [
-  {
-    _id: "1",
-    name: "Aarav Mehta",
-    email: "aarav.mehta@example.com",
-    role: "admin",
-    status: "Active",
-    joinedAt: "2024-01-15T12:00:00Z",
-  },
-  {
-    _id: "2",
-    name: "Simran Kaur",
-    email: "simran.kaur@example.com",
-    role: "admin",
-    status: "Active",
-    joinedAt: "2023-11-22T09:30:00Z",
-  },
-  {
-    _id: "3",
-    name: "Ravi Sharma",
-    email: "ravi.sharma@example.com",
-    role: "admin",
-    status: "Fired",
-    joinedAt: "2024-03-05T08:45:00Z",
-  },
-];
+import {
+  deleteAdmin,
+  getAllAdmins,
+} from "../../../../services/manageAdminsService";
+import Pagination from "../../../common/Pagination";
+import useApi from "../../../../hooks/useApi";
+import toast from "react-hot-toast";
+import ConfirmationModal from "../../../common/ConfirmationModal";
 
 const filterOptions = [
   {
@@ -55,38 +36,77 @@ function AllAdmins() {
     selectedFilters: {},
   });
   const [admins, setAdmins] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const numberOfEntries = 5;
+  const [totalAdmins, setTotalAdmins] = useState(0);
   const [expandedAdmin, setExpandedAdmin] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedAdminId, setSelectedAdminId] = useState(null);
+
+  const { loading: fetchAdminLoading, request: fetchAdminsApi } =
+    useApi(getAllAdmins);
+  const { loading: deleteAdminLoading, request: deleteAdminsApi } =
+    useApi(deleteAdmin);
+
+  const fetchAdmins = async () => {
+    try {
+      const { searchQuery, selectedFilters, sortOrder } = filterState;
+      const params = new URLSearchParams();
+
+      if (searchQuery) params.append("search", searchQuery);
+
+      if (selectedFilters?.["Date Interval"]) {
+        const { startDate, endDate } = selectedFilters["Date Interval"];
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+      }
+
+      if (sortOrder) params.append("sort", sortOrder);
+
+      params.append("page", currentPage);
+      params.append("limit", numberOfEntries);
+      params.append("role", "admin");
+
+      const response = await fetchAdminsApi({ params: params.toString() });
+
+      setAdmins(response.data.users);
+      setTotalPages(response.totalPages);
+      setTotalAdmins(response.total);
+    } catch (error) {
+      console.error("Failed to fetch admins:", error);
+    }
+  };
 
   useEffect(() => {
-    function fetchAdmins(query) {
-      return demoAdmins.filter(
-        (admin) =>
-          !query ||
-          admin.name.toLowerCase().includes(query.toLowerCase()) ||
-          admin.email.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-
-    const filteredAdmins = fetchAdmins(filterState.searchQuery);
-    setAdmins(filteredAdmins);
-  }, [filterState.searchQuery, filterState.selectedFilters]);
-
-  const sortedAdmins = [...admins].sort((a, b) => {
-    return filterState.sortOrder === "asc"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
+    fetchAdmins();
+  }, [currentPage, filterState]);
 
   // Handle "Fire Admin"
-  const handleFireAdmin = async (adminId) => {};
+  const handleFireAdmin = async (adminId) => {
+    try {
+      const response = await deleteAdminsApi({ identifier: adminId });
+      toast.success(response.message);
+      fetchAdmins();
+    } catch (err) {
+      const { response } = err;
+      const msg = response?.data?.message || "Something went wrong.";
+      toast.error(msg);
+    }
+  };
+
+  const getAdminStatus = (updatedAt) => {
+    const updatedDate = new Date(updatedAt);
+    const diffInDays = (new Date() - updatedDate) / (1000 * 60 * 60 * 24);
+    return diffInDays <= 7 ? "Active" : "Inactive";
+  };
 
   return (
     <div className="p-6 flex flex-col gap-4 h-full overflow-y-auto scrollbar-hide">
       {/* Header Section */}
       <AdminsHeader
         title="All Admins"
-        totalCount={sortedAdmins.length}
+        totalCount={totalAdmins}
         filterState={filterState}
         setFilterState={setFilterState}
         filterOptions={filterOptions}
@@ -109,7 +129,7 @@ function AllAdmins() {
       {admins.length === 0 ? (
         <p className="text-green-700 text-center mt-10">No admins found.</p>
       ) : (
-        sortedAdmins.map((admin) => (
+        admins.map((admin) => (
           <div
             key={admin._id}
             className="bg-white rounded-2xl shadow-md p-6 border-t-4 border-green-500 transition"
@@ -118,8 +138,9 @@ function AllAdmins() {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold text-green-800 flex items-center gap-2">
                 <FaUserShield className="text-green-600" />
-                {admin.name}
+                {admin.firstName} {admin.lastName}
               </h2>
+
               <button
                 onClick={() =>
                   setExpandedAdmin(
@@ -143,8 +164,14 @@ function AllAdmins() {
               </p>
               <p>
                 <strong>Status:</strong>{" "}
-                <span className="px-2 py-1 bg-purple-100 text-blue-700 border border-blue-400 rounded-md">
-                  {admin.status}
+                <span
+                  className={`px-2 py-1 border rounded-md ${
+                    getAdminStatus(admin.updatedAt) === "Active"
+                      ? "bg-green-100 text-green-700 border-green-400"
+                      : "bg-red-100 text-red-700 border-red-400"
+                  }`}
+                >
+                  {getAdminStatus(admin.updatedAt)}
                 </span>
               </p>
             </div>
@@ -168,20 +195,43 @@ function AllAdmins() {
             {/* Fire Button */}
             <div className="mt-4">
               <button
-                onClick={() => handleFireAdmin(admin._id)}
-                disabled={loading}
+                onClick={() => {
+                  setSelectedAdminId(admin._id);
+                  setShowConfirmModal(true);
+                }}
+                disabled={fetchAdminLoading}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                  loading
+                  fetchAdminLoading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-red-500 hover:bg-red-600 text-white cursor-pointer"
                 }`}
               >
                 <FaUserSlash />
-                {loading ? "Processing..." : "Fire Admin"}
+                {fetchAdminLoading ? "Processing..." : "Fire Admin"}
               </button>
             </div>
           </div>
         ))
+      )}
+
+      {showConfirmModal && (
+        <ConfirmationModal
+          text="Are you sure you want to fire this admin?"
+          onConfirm={async () => {
+            await handleFireAdmin(selectedAdminId);
+            setShowConfirmModal(false);
+          }}
+          onCancel={() => setShowConfirmModal(false)}
+        />
+      )}
+      {totalPages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       )}
     </div>
   );
