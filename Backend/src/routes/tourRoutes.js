@@ -50,14 +50,16 @@ router.post(
   "/update",
   fileParser(["thumbnail", "images"]),
   (req, res, next) => {
-    const hasExistingThumbnail = !!req.body.existingThumbnail;
-    const hasExistingImages =
-      Array.isArray(req.body.existingImages) &&
-      req.body.existingImages.length > 0;
+    const existingThumbnail = req.body.existingThumbnail;
+    const existingImages = Array.isArray(req.body.existingImages)
+      ? req.body.existingImages
+      : [];
+
+    const requiredImageCount = Math.max(0, 4 - existingImages.length);
 
     return validateFileLimits({
       thumbnail: {
-        minCount: hasExistingThumbnail ? 0 : 1,
+        minCount: existingThumbnail ? 0 : 1,
         maxCount: 1,
         maxSize: 5,
         allowedTypes: ["image/*"],
@@ -66,7 +68,7 @@ router.post(
         onInvalidType: "error",
       },
       images: {
-        minCount: hasExistingImages ? 0 : 1,
+        minCount: requiredImageCount,
         maxCount: 5,
         maxSize: 5,
         allowedTypes: ["image/*"],

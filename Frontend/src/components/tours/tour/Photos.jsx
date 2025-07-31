@@ -45,7 +45,7 @@ export default function ImageGallery({ images }) {
         </div>
         <div className="overflow-hidden rounded-lg">
           <img
-            src={images[1].url}
+            src={images[1]?.url}
             alt="Gallery Image 2"
             className="w-full h-full object-cover cursor-pointer"
             onClick={() => openImageViewer(1)}
@@ -54,7 +54,7 @@ export default function ImageGallery({ images }) {
         <div className="grid grid-cols-2 gap-1">
           <div className="overflow-hidden rounded-lg">
             <img
-              src={images[2].url}
+              src={images[2]?.url}
               alt="Gallery Image 3"
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => openImageViewer(2)}
@@ -62,7 +62,7 @@ export default function ImageGallery({ images }) {
           </div>
           <div className="relative overflow-hidden rounded-lg">
             <img
-              src={images[3].url}
+              src={images[3]?.url}
               alt="Gallery Image 4"
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => openImageViewer(3)}
