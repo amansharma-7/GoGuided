@@ -1,6 +1,6 @@
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { FaArrowLeft, FaSave, FaTimes } from "react-icons/fa";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import MapPicker from "./MapPicker";
@@ -13,6 +13,8 @@ export default function AddTourForm({
   isEditTour = false,
   existingTour = null,
 }) {
+  const { slug } = useParams();
+
   const navigate = useNavigate();
 
   const {
@@ -348,7 +350,7 @@ export default function AddTourForm({
 
       // 🔥 Submit request
       const res = isEditTour
-        ? await updateTourRequest({ data: formData })
+        ? await updateTourRequest({ identifier: slug, data: formData })
         : await createTourRequest({ data: formData });
 
       toast.success(

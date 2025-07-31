@@ -121,4 +121,29 @@ const uploadFileToCloudinary = ({
   });
 };
 
-module.exports = { uploadImageToCloudinary, uploadFileToCloudinary };
+/**
+ * Delete an image from Cloudinary using its public_id.
+ * @param {string} publicId - The Cloudinary public ID of the image to delete.
+ * @returns {Promise<void>}
+ */
+const deleteImageFromCloudinary = async (publicId) => {
+  if (!publicId) return;
+
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      invalidate: true, // Optional: clears CDN cache
+    });
+
+    if (result.result !== "ok" && result.result !== "not found") {
+      throw new Error(`Failed to delete image`);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = {
+  uploadImageToCloudinary,
+  uploadFileToCloudinary,
+  deleteImageFromCloudinary,
+};

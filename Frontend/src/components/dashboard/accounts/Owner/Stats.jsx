@@ -112,7 +112,11 @@ function Stats() {
         <SummaryCard
           title="Rating"
           icon={FaStar}
-          value={averageRating.toFixed(1)}
+          value={
+            Number.isInteger(averageRating)
+              ? averageRating
+              : averageRating.toFixed(1)
+          }
         />
       </div>
 

@@ -7,7 +7,7 @@ function ReachoutOptions() {
     <div className="grid grid-rows-[1.35fr_0.65fr] grid-cols-1 bg-white space-y-2 pb-2 rounded-lg shadow-md shadow-black/50 max-w-xl mx-auto">
       <div className="w-full overflow-hidden rounded-lg">
         <img
-          src="images/contact-us.jpg"
+          src="images/contact-us.webp"
           alt="contact us image"
           className="object-cover object-center w-full h-full rounded-lg"
         />

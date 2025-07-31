@@ -155,7 +155,7 @@ const router = createBrowserRouter([
                 Component: BookingDetails,
               },
               {
-                path: "edit/:name",
+                path: "edit/:slug",
                 Component: EditTour,
               },
               {

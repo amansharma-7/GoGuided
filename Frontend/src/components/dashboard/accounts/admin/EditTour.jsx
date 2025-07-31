@@ -5,23 +5,21 @@ import { getTourBySlug } from "../../../../services/tourService";
 import useApi from "../../../../hooks/useApi";
 
 export default function EditTour() {
-  const { name } = useParams();
+  const { slug } = useParams();
   const [tour, setTour] = useState();
-  const { loading, error, request: fetchTourApi } = useApi(getTourBySlug);
+  const { loading, request: fetchTour } = useApi(getTourBySlug);
 
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetchTourApi({ identifier: name });
+        const response = await fetchTour({ identifier: slug });
         setTour(response.data.tour);
-      } catch (err) {
-        console.err(err);
-      }
+      } catch (err) {}
     })();
-  }, [name]);
+  }, [slug]);
 
   if (loading) return <div className="p-6">Loading tour...</div>;
-  if (error || !tour)
+  if (!tour)
     return (
       <div className="p-6 text-red-500">Tour not found or failed to load.</div>
     );
