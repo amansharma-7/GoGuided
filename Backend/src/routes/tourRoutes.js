@@ -32,7 +32,7 @@ router.post(
       onInvalidType: "error",
     },
     images: {
-      minCount: 1,
+      minCount: 4,
       maxCount: 5,
       maxSize: 5,
       allowedTypes: ["image/*"],
