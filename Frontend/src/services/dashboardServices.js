@@ -7,3 +7,7 @@ export const getStats = async () => {
 export const getStatCardCounts = async () => {
   return await api.get("/dashboard/stat-cards");
 };
+
+export const fetchAchievements = async () => {
+  return await api.get("/dashboard/achievements");
+};

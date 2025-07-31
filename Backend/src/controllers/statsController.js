@@ -175,3 +175,56 @@ exports.getStatCardCounts = catchAsync(async (req, res, next) => {
     data: { statsCount: data },
   });
 });
+
+exports.getAchievements = catchAsync(async (req, res, next) => {
+  // Total trips planned = number of bookings
+  const tripsPlanned = await Tour.countDocuments();
+
+  // Get all tours with their tourSpots
+  const tours = await Tour.find({}, "tourSpots");
+
+  // Extract all coordinates
+  const allCoordinates = tours.flatMap((tour) =>
+    tour.tourSpots.map((spot) => spot.location?.coordinates?.join(","))
+  );
+
+  // Deduplicate coordinates
+  const uniqueCoordinates = [...new Set(allCoordinates.filter(Boolean))];
+  const destinationsCovered = uniqueCoordinates.length;
+
+  // Repeat travelers calculation
+  const users = await User.find({}, "_id bookings");
+  const repeatTravelersCount = users.filter(
+    (u) => u.bookings.length > 1
+  ).length;
+  const repeatTravelersPercentage =
+    users.length > 0
+      ? Math.round((repeatTravelersCount / users.length) * 100)
+      : 0;
+
+  // Reviews and average rating
+  const reviews = await Review.find({}, "rating");
+  const avgRatingValue =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
+  const averageRating = avgRatingValue.toFixed(1);
+  const customerSatisfaction = Math.round((avgRatingValue / 5) * 100);
+
+  const profitsDonated = 10; // Hardcoded or calculated elsewhere
+
+  // ✅ Respond
+  res.status(200).json({
+    success: true,
+    message: "Achievements fetched successfully",
+    data: {
+      destinationsCovered,
+      customerSatisfaction,
+      repeatTravelers: repeatTravelersPercentage,
+      averageRating,
+      profitsDonated,
+      tripsPlanned,
+    },
+  });
+});

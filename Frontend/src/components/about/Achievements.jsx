@@ -1,13 +1,65 @@
-const achievementData = [
-  { value: "50+", description: "Destinations Covered" },
-  { value: "98%", description: "Customer Satisfaction" },
-  { value: "85%", description: "Repeat Travelers" },
-  { value: "4.9/5", description: "Average Rating" },
-  { value: "10%", description: "Profits Donated" },
-  { value: "100+", description: "Trips Planned" },
-];
+import { useState, useEffect } from "react";
+import useApi from "../../hooks/useApi";
+import { fetchAchievements } from "../../services/dashboardServices";
+import LoaderOverlay from "../common/LoaderOverlay";
 
 function Achievements() {
+  const { loading, request: loadAchievements } = useApi(fetchAchievements);
+  const [achievementData, setAchievementData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await loadAchievements({});
+        if (response?.data) {
+          const {
+            destinationsCovered,
+            customerSatisfaction,
+            repeatTravelers,
+            averageRating,
+            profitsDonated,
+            tripsPlanned,
+          } = response.data;
+
+          setAchievementData([
+            {
+              value: `${destinationsCovered}+`,
+              description: "Destinations Covered",
+            },
+            {
+              value: `${customerSatisfaction}%`,
+              description: "Customer Satisfaction",
+            },
+            {
+              value: `${repeatTravelers}%`,
+              description: "Repeat Travelers",
+            },
+            {
+              value: `${averageRating}/5`,
+              description: "Average Rating",
+            },
+            {
+              value: `${profitsDonated}%`,
+              description: "Profits Donated",
+            },
+            {
+              value: `${tripsPlanned}+`,
+              description: "Trips Planned",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to load achievements", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <LoaderOverlay />;
+  }
+
   return (
     <div className="px-6 md:px-32 py-6 flex flex-col gap-6 items-center">
       <h3 className="text-3xl font-bold text-green-900 text-center">
