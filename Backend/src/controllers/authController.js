@@ -170,6 +170,8 @@ const sendTokenAsCookie = (user, token, res) => {
     sameSite: "None",
   };
 
+  console.log(cookieOptions);
+
   res.cookie("token", token, cookieOptions);
 
   // Remove sensitive data before sending response
