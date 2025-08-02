@@ -1,1 +1,5 @@
-/*    /index.html   200
+# Proxy API requests to backend
+/api/*  https://your-backend.onrender.com/api/:splat  200
+
+# SPA fallback
+/*  /index.html  200
