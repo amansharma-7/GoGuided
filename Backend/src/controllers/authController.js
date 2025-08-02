@@ -166,7 +166,8 @@ const sendTokenAsCookie = (user, token, res) => {
     ),
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
+    // sameSite: isProduction ? "None" : "Lax",
+    sameSite: "None",
   };
 
   res.cookie("token", token, cookieOptions);
