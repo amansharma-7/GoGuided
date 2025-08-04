@@ -532,8 +532,8 @@ export default function AddTourForm({
               {...register("description", {
                 required: "Description is required",
                 validate: (value) =>
-                  value.trim().split(/\s+/).length <= 12 ||
-                  "Maximum 12 words allowed",
+                  value.trim().split(/\s+/).length <= 30 ||
+                  "Maximum 30 words allowed",
               })}
               rows={2}
               className={`${inputClass}`}

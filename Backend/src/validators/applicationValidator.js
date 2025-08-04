@@ -7,7 +7,7 @@ const {
 } = require("./commonFieldValidators");
 
 exports.validateApplication = validate([
-  fullNameFieldValidator,
+  fullNameFieldValidator("fullName"),
   emailFieldValidator,
   phoneFieldValidator,
 
