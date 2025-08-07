@@ -1,10 +1,4 @@
-import {
-  FaHome,
-  FaInfoCircle,
-  FaMapMarkedAlt,
-  FaPhone,
-  FaUser,
-} from "react-icons/fa";
+import { FaHome, FaInfoCircle, FaMapMarkedAlt, FaPhone } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function BottomNav() {
