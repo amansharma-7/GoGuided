@@ -39,7 +39,7 @@ function Stats() {
     (async () => {
       try {
         const res = await fetchStats({});
-        setStats(res.data);
+        setStats(res.data.stats);
       } catch (error) {}
     })();
   }, []);

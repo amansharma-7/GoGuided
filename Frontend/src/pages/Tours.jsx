@@ -10,28 +10,19 @@ const filterOptions = [
   {
     label: "Tour Status",
     children: [
-      { label: "Upcoming Tours", value: "upcoming" },
-      { label: "Ongoing Tours", value: "ongoing" },
-      { label: "Completed Tours", value: "completed" },
+      { label: "Upcoming", value: "upcoming" },
+      { label: "Ongoing", value: "ongoing" },
+      { label: "Completed", value: "completed" },
     ],
   },
   {
     label: "Difficulty Level",
     children: [
       { label: "Easy", value: "easy" },
-      { label: "Moderate", value: "moderate" },
+      { label: "Medium", value: "medium" },
       { label: "Hard", value: "hard" },
     ],
   },
-  {
-    label: "Duration",
-    children: [
-      { label: "Short (1-7 Days)", value: "1-7" },
-      { label: "Medium (7-15 Days)", value: "7-15" },
-      { label: "Long (15+ Days)", value: "15+" },
-    ],
-  },
-
   {
     label: "Date Interval",
     children: [
@@ -57,43 +48,43 @@ function Tours() {
     (async () => {
       try {
         const params = new URLSearchParams();
-
         const { searchQuery, selectedFilters, sortOrder } = filterState;
 
         if (searchQuery) {
           params.append("search", searchQuery);
         }
 
-        if (selectedFilters) {
-          if (selectedFilters["Date Interval"]) {
-            const { startDate, endDate } = selectedFilters["Date Interval"];
-            if (startDate) params.append("startDate", startDate);
-            if (endDate) params.append("endDate", endDate);
-          }
-        }
-
         if (sortOrder) {
-          params.append("sort", sortOrder);
+          params.append("sortOrder", sortOrder);
         }
 
-        // Example API call, replace with your actual method
-        const response = await fetchTours({ params });
+        // ⬇ Handle status
+        const statusFilter = selectedFilters["Tour Status"];
+        if (statusFilter?.length > 0) {
+          params.append("status", statusFilter.toLowerCase()); // assuming one value selected
+        }
 
-        setTours(response?.data?.tours);
+        // ⬇ Handle difficulty
+        const difficultyFilter = selectedFilters["Difficulty Level"];
+        if (difficultyFilter?.length > 0) {
+          params.append("difficulty", difficultyFilter.toLowerCase());
+        }
+
+        // ⬇ Handle date range
+        const dateFilters = selectedFilters["Date Interval"];
+        if (dateFilters) {
+          const { startDate, endDate } = dateFilters;
+          if (startDate) params.append("startDate", startDate);
+          if (endDate) params.append("endDate", endDate);
+        }
+
+        const response = await fetchTours({ params });
+        setTours(response?.data?.tours || []);
       } catch (error) {}
     })();
   }, [filterState]);
 
   if (isLoading) return <LoaderOverlay />;
-
-  if (!tours?.length)
-    return (
-      <div className="flex items-center justify-center h-[70vh] bg-white">
-        <div className="bg-green-100 text-green-800 border border-green-300 rounded-lg px-6 py-4 text-lg font-medium shadow-md">
-          Tours not Available
-        </div>
-      </div>
-    );
 
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">

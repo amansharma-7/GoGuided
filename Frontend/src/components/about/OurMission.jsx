@@ -33,18 +33,22 @@ const missionData = [
 function OurMission() {
   return (
     <div className="space-y-6 w-full px-6 sm:px-12 md:px-20 lg:px-32 py-6">
-      <div className="text-center text-2xl sm:text-3xl font-bold text-green-800">
+      <h2 className="text-center text-2xl sm:text-3xl font-bold text-green-800">
         Our Mission
-      </div>
+      </h2>
       <div className="w-full rounded-xl">
-        <div className="flex gap-4 items-center justify-center">
+        <div className="flex flex-wrap justify-center gap-6">
           {missionData.map((mission, index) => (
-            <FeatureCard
+            <div
               key={index}
-              icon={mission.icon}
-              title={mission.title}
-              description={mission.description}
-            />
+              className="w-full sm:w-[47%] md:w-[47%] lg:w-[22%] min-w-[260px] max-w-[320px] flex-grow"
+            >
+              <FeatureCard
+                icon={mission.icon}
+                title={mission.title}
+                description={mission.description}
+              />
+            </div>
           ))}
         </div>
       </div>
