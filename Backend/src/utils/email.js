@@ -97,7 +97,8 @@ const buildEmailTemplate = ({
 const createTransport = () =>
   nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
+    secure: false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -120,7 +121,7 @@ const sendEmail = async ({ to, subject, html }) => {
     return { isEmailSent: true };
   } catch (err) {
     if (isDev) {
-      console.error("Email sending failed:", err.stack || err);
+      console.error("Email sending failed:", err);
     } else {
       logger.error("Email sending failed", {
         message: err.message,
